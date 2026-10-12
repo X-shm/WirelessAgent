@@ -1,0 +1,49 @@
+{
+  "name": "hamming_code",
+  "script": "hamming_code.py",
+  "description": "二进制 Hamming (2^m-1,2^m-m-1) 单错纠正编解码。",
+  "implementation": "系统位置形式，校验位位于 1/2/4/...；覆盖 hammgen 与 encode/decode hamming 的核心能力。",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "encode",
+        "decode"
+      ],
+      "required": true,
+      "description": "方向"
+    },
+    "m": {
+      "type": "integer",
+      "required": true,
+      "description": "校验位数 m>=2"
+    },
+    "bits": {
+      "type": "string",
+      "required": true,
+      "description": "消息或码字比特"
+    }
+  },
+  "outputs": {
+    "codeword": {
+      "description": "编码码字",
+      "optional": true
+    },
+    "message": {
+      "description": "解码消息",
+      "optional": true
+    },
+    "corrected_codeword": {
+      "description": "纠错码字",
+      "optional": true
+    },
+    "syndrome": {
+      "description": "错误位置",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/hamming_code.py --mode encode --m 3 --bits 1,0,1,1",
+    "result": "{\"codeword\":[...]}"
+  }
+}

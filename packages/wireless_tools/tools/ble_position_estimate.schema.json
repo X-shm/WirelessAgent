@@ -1,0 +1,25 @@
+{
+  "name": "ble_position_estimate",
+  "script": "ble_position_estimate.py",
+  "description": "Bluetooth LE 节点二维/三维角度、距离与距离-角度定位，对应 blePositionEstimate。",
+  "implementation": "纯 Python 最小二乘实现，输入采用坐标行×定位器列的矩阵形式。",
+  "inputs": {
+    "input": {
+      "type": "string",
+      "required": true,
+      "description": "JSON：locator_positions、method 以及 distance/direction"
+    },
+    "input_file": {
+      "type": "string",
+      "required": false,
+      "description": "与 input 互斥的 JSON 文件"
+    }
+  },
+  "outputs": {
+    "position": "估计的二维或三维位置"
+  },
+  "example": {
+    "cmd": "python tools/ble_position_estimate.py --input '{\"locator_positions\":[[-18,-40],[-10,70]],\"method\":\"angulation\",\"direction\":[[29.0546,-60.2551]]}'",
+    "result": "{\"ok\":true,...}"
+  }
+}

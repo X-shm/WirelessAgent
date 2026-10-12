@@ -1,0 +1,57 @@
+{
+  "name": "ber_awgn",
+  "script": "ber_awgn.py",
+  "description": "计算未编码 AWGN 信道常用调制的理论 BER/SER，对应 berawgn 常用形式。",
+  "implementation": "BPSK/QPSK、方形 QAM、M-PAM、M-PSK 以及二进制 DPSK/正交 FSK 的标准解析式或常用 Gray 近似。",
+  "inputs": {
+    "ebno_db": {
+      "type": "string",
+      "required": true,
+      "description": "JSON 数组或逗号分隔 Eb/No(dB)"
+    },
+    "modulation": {
+      "type": "string",
+      "enum": [
+        "bpsk",
+        "qpsk",
+        "psk",
+        "pam",
+        "qam",
+        "dpsk",
+        "fsk"
+      ],
+      "required": true,
+      "description": "调制类型"
+    },
+    "order": {
+      "type": "integer",
+      "required": false,
+      "default": 2,
+      "description": "调制阶数"
+    },
+    "differential": {
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "BPSK/QPSK 差分数据编码"
+    },
+    "coherence": {
+      "type": "string",
+      "enum": [
+        "coherent",
+        "noncoherent"
+      ],
+      "required": false,
+      "default": "coherent",
+      "description": "FSK 检测方式"
+    }
+  },
+  "outputs": {
+    "ber": "理论比特错误率",
+    "ser": "理论符号错误率"
+  },
+  "example": {
+    "cmd": "python tools/ber_awgn.py --ebno_db '[0,5,10]' --modulation bpsk",
+    "result": "{\"ber\":[...],\"ser\":[...]}"
+  }
+}

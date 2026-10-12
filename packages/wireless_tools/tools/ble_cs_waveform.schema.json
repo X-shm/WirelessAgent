@@ -1,0 +1,31 @@
+{
+  "name": "ble_cs_waveform",
+  "script": "ble_cs_waveform.py",
+  "description": "生成 BLE Channel Sounding 四种 step mode 的复基带波形。",
+  "implementation": "纯 Python CS_SYNC、GFSK、可选序列、ASK tone 和扩展时隙；可显式传入随机位实现可复现调用。",
+  "inputs": {
+    "input": {
+      "type": "string",
+      "required": true,
+      "description": "JSON：properties、access_address、optional_sequence、tone_extension_bit 可选"
+    },
+    "input_file": {
+      "type": "string",
+      "required": false,
+      "description": "与 input 互斥的 JSON 文件"
+    },
+    "output_file": {"type": "string", "required": false, "description": "大波形的 .npz 输出路径"},
+    "inline_limit": {"type": "integer", "required": false, "default": 4096, "description": "内联标量数量上限"},
+    "overwrite": {"type": "boolean", "required": false, "default": false, "description": "允许覆盖 output_file"}
+  },
+  "outputs": {
+    "waveform": "CS 复基带波形",
+    "access_address": "CS 访问地址",
+    "optional_sequence": "可选序列",
+    "tone_extension_bit": "tone 扩展位"
+  },
+  "example": {
+    "cmd": "python tools/ble_cs_waveform.py --input '{\"properties\":{\"step_mode\":2},\"tone_extension_bit\":1}'",
+    "result": "{"
+  }
+}

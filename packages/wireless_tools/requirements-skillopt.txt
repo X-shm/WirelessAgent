@@ -1,0 +1,3 @@
+-r requirements-mcp.txt
+# Source pin: PyPI 0.2.0 does not include the generic openai_compatible backend.
+git+https://github.com/microsoft/SkillOpt.git@343db229dbd5ddaf9df6b1d5540d8bcdb2604d5c#egg=skillopt

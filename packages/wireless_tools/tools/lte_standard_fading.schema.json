@@ -1,0 +1,68 @@
+{
+  "name": "lte_standard_fading",
+  "script": "lte_standard_fading.py",
+  "description": "查询或施加 LTE EPA/EVA/ETU 标准抽头时延信道，用于覆盖和移动性优化仿真。",
+  "implementation": "内置 3GPP 延迟/平均增益表、归一化复 Rayleigh 抽头、可复现种子、分数采样线性延迟和一阶相关多普勒近似。",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "profile",
+        "apply"
+      ],
+      "required": true,
+      "description": "查询或应用"
+    },
+    "profile": {
+      "type": "string",
+      "enum": [
+        "EPA",
+        "EVA",
+        "ETU"
+      ],
+      "required": false,
+      "default": "EPA",
+      "description": "标准信道类型"
+    },
+    "waveform": {
+      "type": "string",
+      "required": false,
+      "description": "[样本,通道] 复数波形"
+    },
+    "sample_rate": {
+      "type": "number",
+      "required": false,
+      "description": "采样率 Hz"
+    },
+    "max_doppler": {
+      "type": "number",
+      "required": false,
+      "default": 0,
+      "description": "最大多普勒 Hz"
+    },
+    "seed": {
+      "type": "integer",
+      "required": false,
+      "default": 0,
+      "description": "随机种子"
+    }
+  },
+  "outputs": {
+    "waveform": {
+      "description": "衰落后波形",
+      "optional": true
+    },
+    "path_gains": {
+      "description": "逐样本抽头增益",
+      "optional": true
+    },
+    "info": {
+      "description": "标准时延/增益配置",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/lte_standard_fading.py --mode profile --profile EVA",
+    "result": "{\"profile\":\"EVA\",\"delays_ns\":[...]}"
+  }
+}

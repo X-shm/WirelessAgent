@@ -1,0 +1,29 @@
+{
+  "name": "lte_mcs",
+  "description": "LTE 调制与编码方案(MCS)查表工具。将 MCS 索引 IMCS(-1..31)映射为传输块大小索引 I_TBS、调制方式(至 1024QAM)和冗余版本 RV。支持 TS 36.213 Table 7.1.7.1-1(PDSCH)、7.1.7.1-1A(PDSCHTable2, R12 256QAM)、7.1.7.1-1B(PDSCHTable3, R15 1024QAM)和 8.6.1-1(PUSCH)。IMCS=-1 表示 DTX(ITBS=-1, MOD=QPSK)。保留条目: ITBS 为 null, MOD 为空串。",
+  "implementation": "3GPP TS 36.213 表 7.1.7.1-1/1A/1B、8.6.1-1，经 MATLAB LTE Toolbox lteMCS 黄金样本校验",
+  "script": "lte_mcs.py",
+  "inputs": {
+    "imcs": {
+      "type": "string",
+      "required": true,
+      "description": "MCS 索引，-1..31（-1=DTX）；逗号分隔可查询多个，如 0,10,20"
+    },
+    "table": {
+      "type": "string",
+      "enum": ["PDSCH", "PDSCHTable2", "PDSCHTable3", "PUSCH"],
+      "required": false,
+      "default": "PDSCH",
+      "description": "MCS 表，默认 PDSCH"
+    }
+  },
+  "outputs": {
+    "itbs": "传输块大小索引 I_TBS（0..37，保留为 null，DTX 为 -1）",
+    "mod": "调制方式（QPSK/16QAM/64QAM/256QAM/1024QAM，保留为空串）",
+    "rv": "冗余版本索引（仅 PUSCH 表 29..31 非零，其余为 0）"
+  },
+  "example": {
+    "cmd": "python lte_mcs.py --imcs 17",
+    "result": "{\"table\": \"PDSCH\", \"imcs\": 17, \"itbs\": 15, \"mod\": \"64QAM\", \"rv\": 0}"
+  }
+}

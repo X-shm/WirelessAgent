@@ -1,0 +1,1492 @@
+{
+  "skill": "wireless-matlab-tools",
+  "contract_version": "1.0",
+  "matlab_release": "R2026a Update 3 (26.1.0.3276743)",
+  "tools": [
+    {
+      "name": "evm_metrics",
+      "source_functions": [
+        "lteEVM"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "schema": "tools/evm_metrics.schema.json"
+    },
+    {
+      "name": "lte_cell_rs",
+      "source_functions": [
+        "lteCellRS",
+        "lteCellRSIndices"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "coverage": "FDD CRS ports 0..3 with 0-based subscript indices",
+      "schema": "tools/lte_cell_rs.schema.json"
+    },
+    {
+      "name": "lte_cell_search",
+      "source_functions": [
+        "lteCellSearch"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "coverage": "grid-domain PSS/SSS correlation search",
+      "schema": "tools/lte_cell_search.schema.json"
+    },
+    {
+      "name": "lte_code_block",
+      "source_functions": [
+        "lteCodeBlockSegment",
+        "lteCodeBlockDesegment"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "schema": "tools/lte_code_block.schema.json"
+    },
+    {
+      "name": "lte_convolutional_codec",
+      "source_functions": [
+        "lteConvolutionalEncode",
+        "lteConvolutionalDecode"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "coverage": "hard-decision Viterbi decode",
+      "schema": "tools/lte_convolutional_codec.schema.json"
+    },
+    {
+      "name": "lte_cqi_select",
+      "source_functions": [
+        "lteCQISelect"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "coverage": "explicit SINR lookup for wideband/single-codeword subband CQI",
+      "schema": "tools/lte_cqi_select.schema.json"
+    },
+    {
+      "name": "lte_crc",
+      "source_functions": [
+        "lteCRCEncode",
+        "lteCRCDecode"
+      ],
+      "product": "LTE Toolbox",
+      "status": "validated",
+      "schema": "tools/lte_crc.schema.json"
+    },
+    {
+      "name": "lte_csi_codebook",
+      "source_functions": [
+        "lteCSICodebook",
+        "lteDLPrecode",
+        "lteDLDeprecode"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "coverage": "one/two-port standard CSI codebook and SpatialMux precode/deprecode",
+      "schema": "tools/lte_csi_codebook.schema.json"
+    },
+    {
+      "name": "lte_dl_channel_estimate",
+      "source_functions": [
+        "lteDLChannelEstimate"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "coverage": "CRS-based LS estimate for ports 0..3 with linear interpolation",
+      "schema": "tools/lte_dl_channel_estimate.schema.json"
+    },
+    {
+      "name": "lte_extract_resources",
+      "source_functions": [
+        "lteExtractResources"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "coverage": "2-D/3-D complex grid, linear/subscript indices",
+      "schema": "tools/lte_extract_resources.schema.json"
+    },
+    {
+      "name": "lte_frame_offset",
+      "source_functions": [
+        "lteDLFrameOffset",
+        "lteULFrameOffset"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "coverage": "explicit standard reference waveform correlation core",
+      "schema": "tools/lte_frame_offset.schema.json"
+    },
+    {
+      "name": "lte_frequency_sync",
+      "source_functions": [
+        "lteFrequencyOffset",
+        "lteFrequencyCorrect"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "coverage": "CP-correlation estimate with explicit FFT/CP/sample-rate inputs",
+      "schema": "tools/lte_frequency_sync.schema.json"
+    },
+    {
+      "name": "lte_layer_map",
+      "source_functions": [
+        "lteLayerMap",
+        "lteLayerDemap"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "coverage": "one/two codewords, 1..8 layers",
+      "schema": "tools/lte_layer_map.schema.json"
+    },
+    {
+      "name": "lte_mcs",
+      "source_functions": [
+        "lteMCS"
+      ],
+      "product": "LTE Toolbox",
+      "status": "validated",
+      "schema": "tools/lte_mcs.schema.json"
+    },
+    {
+      "name": "lte_mimo_equalizer",
+      "source_functions": [
+        "lteEqualizeMIMO",
+        "lteEqualizeULMIMO"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "coverage": "explicit precoder or one/two-port codebook joint MMSE equalization",
+      "schema": "tools/lte_mimo_equalizer.schema.json"
+    },
+    {
+      "name": "lte_modulation",
+      "source_functions": [
+        "lteSymbolModulate",
+        "lteSymbolDemodulate"
+      ],
+      "product": "LTE Toolbox",
+      "status": "validated",
+      "schema": "tools/lte_modulation.schema.json"
+    },
+    {
+      "name": "lte_ofdm",
+      "source_functions": [
+        "lteOFDMInfo",
+        "lteOFDMModulate",
+        "lteOFDMDemodulate"
+      ],
+      "product": "LTE Toolbox",
+      "status": "validated",
+      "schema": "tools/lte_ofdm.schema.json"
+    },
+    {
+      "name": "lte_pdsch_indices",
+      "source_functions": [
+        "ltePDSCHIndices"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "coverage": "FDD Release 8/9 CRS schemes with control, CRS, sync and PBCH exclusion",
+      "schema": "tools/lte_pdsch_indices.schema.json"
+    },
+    {
+      "name": "lte_pdsch_prbs",
+      "source_functions": [
+        "ltePDSCHPRBS"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "coverage": "binary/signed sequence with arbitrary zero-based segment",
+      "schema": "tools/lte_pdsch_prbs.schema.json"
+    },
+    {
+      "name": "lte_pmi_info",
+      "source_functions": [
+        "ltePMIInfo"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "coverage": "wideband/subband metadata and standard/alternative codebook bounds",
+      "schema": "tools/lte_pmi_info.schema.json"
+    },
+    {
+      "name": "lte_pmi_select",
+      "source_functions": [
+        "ltePMISelect"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "coverage": "two-port rank-1/rank-2 wideband/subband LMMSE SINR selection",
+      "schema": "tools/lte_pmi_select.schema.json"
+    },
+    {
+      "name": "lte_prbs",
+      "source_functions": [
+        "ltePRBS"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "schema": "tools/lte_prbs.schema.json"
+    },
+    {
+      "name": "lte_pss",
+      "source_functions": [
+        "ltePSS"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "schema": "tools/lte_pss.schema.json"
+    },
+    {
+      "name": "lte_pusch_dmrs",
+      "source_functions": [
+        "ltePUSCHDRS",
+        "ltePUSCHDRSIndices"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "coverage": "single-layer explicit PRB allocation, >=3 PRBs, no hopping/precoding",
+      "schema": "tools/lte_pusch_dmrs.schema.json"
+    },
+    {
+      "name": "lte_pusch_indices",
+      "source_functions": [
+        "ltePUSCHIndices"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "coverage": "explicit slot-wise PRB allocation, DM-RS exclusion, shortened subframe and G/Gd",
+      "schema": "tools/lte_pusch_indices.schema.json"
+    },
+    {
+      "name": "lte_rank_select",
+      "source_functions": [
+        "lteRISelect"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "coverage": "two-port rank-1/rank-2 LMMSE SINR with PMI and hysteresis",
+      "schema": "tools/lte_rank_select.schema.json"
+    },
+    {
+      "name": "lte_rate_match_convolutional",
+      "source_functions": [
+        "lteRateMatchConvolutional",
+        "lteRateRecoverConvolutional"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "schema": "tools/lte_rate_match_convolutional.schema.json"
+    },
+    {
+      "name": "lte_resource_grid",
+      "source_functions": [
+        "lteResourceGridSize",
+        "lteResourceGrid"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "coverage": "grid sizing and zero-grid descriptor",
+      "schema": "tools/lte_resource_grid.schema.json"
+    },
+    {
+      "name": "lte_scfdma",
+      "source_functions": [
+        "lteSCFDMAInfo",
+        "lteSCFDMAModulate",
+        "lteSCFDMADemodulate"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "coverage": "whole-subframe grid, DFT spreading and half-subcarrier shift",
+      "schema": "tools/lte_scfdma.schema.json"
+    },
+    {
+      "name": "lte_srs",
+      "source_functions": [
+        "lteSRS",
+        "lteSRSIndices"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "coverage": "single antenna, explicit contiguous >=6 PRBs, no ConfigIdx/hopping",
+      "schema": "tools/lte_srs.schema.json"
+    },
+    {
+      "name": "lte_sss",
+      "source_functions": [
+        "lteSSS"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "schema": "tools/lte_sss.schema.json"
+    },
+    {
+      "name": "lte_standard_fading",
+      "source_functions": [
+        "lteFadingChannel"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "coverage": "EPA/EVA/ETU SISO or parallel-channel Rayleigh subset with correlated Doppler approximation",
+      "schema": "tools/lte_standard_fading.schema.json"
+    },
+    {
+      "name": "lte_sync_indices",
+      "source_functions": [
+        "ltePSSIndices",
+        "lteSSSIndices"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "coverage": "FDD subframes 0/5, normal and extended CP",
+      "schema": "tools/lte_sync_indices.schema.json"
+    },
+    {
+      "name": "lte_tbs",
+      "source_functions": [
+        "lteTBS"
+      ],
+      "product": "LTE Toolbox",
+      "status": "validated",
+      "schema": "tools/lte_tbs.schema.json"
+    },
+    {
+      "name": "lte_ul_channel_estimate",
+      "source_functions": [
+        "lteULChannelEstimate"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "coverage": "single-layer PUSCH DM-RS allocated-PRB estimate",
+      "schema": "tools/lte_ul_channel_estimate.schema.json"
+    },
+    {
+      "name": "lte_ul_precode",
+      "source_functions": [
+        "lteULPrecode",
+        "lteULDeprecode"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "coverage": "PRB/subcarrier normalized block DFT and inverse",
+      "schema": "tools/lte_ul_precode.schema.json"
+    },
+    {
+      "name": "lte_ul_scrambling",
+      "source_functions": [
+        "lteULScramble",
+        "lteULDescramble"
+      ],
+      "product": "LTE Toolbox",
+      "status": "independent_validated",
+      "coverage": "transport data without UCI placeholders",
+      "schema": "tools/lte_ul_scrambling.schema.json"
+    },
+    {
+      "name": "nr_crc",
+      "source_functions": [
+        "nrCRCEncode",
+        "nrCRCDecode"
+      ],
+      "product": "5G Toolbox",
+      "status": "validated",
+      "schema": "tools/nr_crc.schema.json"
+    },
+    {
+      "name": "nr_csi_rs",
+      "source_functions": [
+        "nrCSIRS"
+      ],
+      "product": "5G Toolbox",
+      "status": "validated",
+      "coverage": "Single-port CSI-RS sequence for contiguous RBs from RB 0 at density 0.5, 1, or 3; no resource-grid indices",
+      "schema": "tools/nr_csi_rs.schema.json"
+    },
+    {
+      "name": "nr_dci",
+      "source_functions": [
+        "nrDCIEncode",
+        "nrPDCCHPRBS"
+      ],
+      "product": "5G Toolbox",
+      "status": "validated",
+      "coverage": "DCI encode (CRC24C calculated over 24 leading ones plus payload, then payload plus RNTI-masked CRC Polar coding and rate matching) plus PDCCH scrambling; no DCI decode",
+      "schema": "tools/nr_dci.schema.json"
+    },
+    {
+      "name": "nr_dmrs",
+      "source_functions": [
+        "nrPDSCHDMRS"
+      ],
+      "product": "5G Toolbox",
+      "status": "validated",
+      "coverage": "Single-port PDSCH DM-RS sequence and per-PRB locations for contiguous PRBs, configuration types 1/2; no full grid indices",
+      "schema": "tools/nr_dmrs.schema.json"
+    },
+    {
+      "name": "nr_equalize_mmse",
+      "source_functions": [
+        "nrEqualizeMMSE"
+      ],
+      "product": "5G Toolbox",
+      "status": "validated",
+      "coverage": "MMSE equalization with CSI output; SISO/SIMO/MIMO 2x2 subset",
+      "schema": "tools/nr_equalize_mmse.schema.json"
+    },
+    {
+      "name": "nr_layer_map",
+      "source_functions": [
+        "nrLayerMap",
+        "nrLayerDemap"
+      ],
+      "product": "5G Toolbox",
+      "status": "validated",
+      "schema": "tools/nr_layer_map.schema.json"
+    },
+    {
+      "name": "nr_ldpc",
+      "source_functions": [
+        "nrLDPCEncode",
+        "nrLDPCDecode"
+      ],
+      "product": "5G Toolbox",
+      "status": "validated",
+      "schema": "tools/nr_ldpc.schema.json"
+    },
+    {
+      "name": "nr_ldpc_code_block",
+      "source_functions": [
+        "nrCodeBlockSegmentLDPC",
+        "nrCodeBlockDesegmentLDPC"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "LDPC code-block segmentation with CRC24B and filler bits; BG1/BG2",
+      "schema": "tools/nr_ldpc_code_block.schema.json"
+    },
+    {
+      "name": "nr_ldpc_rm",
+      "source_functions": [
+        "nrRateMatchLDPC",
+        "nrRateRecoverLDPC"
+      ],
+      "product": "5G Toolbox",
+      "status": "validated",
+      "coverage": "rate match + rate recover with de-interleaving",
+      "schema": "tools/nr_ldpc_rm.schema.json"
+    },
+    {
+      "name": "nr_mcs_tables",
+      "source_functions": [
+        "nrPDSCHMCSTables"
+      ],
+      "product": "5G Toolbox",
+      "status": "validated",
+      "coverage": "PDSCH MCS tables 1-4; CQI tables are not implemented",
+      "schema": "tools/nr_mcs_tables.schema.json"
+    },
+    {
+      "name": "nr_modulation",
+      "source_functions": [
+        "nrSymbolModulate",
+        "nrSymbolDemodulate"
+      ],
+      "product": "5G Toolbox",
+      "status": "validated",
+      "coverage": "BPSK, pi/2-BPSK, QPSK and square QAM through 1024QAM, includes soft demodulation (LLR)",
+      "schema": "tools/nr_modulation.schema.json"
+    },
+    {
+      "name": "nr_ofdm",
+      "source_functions": [
+        "nrOFDMModulate",
+        "nrOFDMDemodulate"
+      ],
+      "product": "5G Toolbox",
+      "status": "validated",
+      "coverage": "OFDM modulation with CP, demodulation roundtrip",
+      "schema": "tools/nr_ofdm.schema.json"
+    },
+    {
+      "name": "nr_pbch",
+      "source_functions": [
+        "nrPBCH",
+        "nrPBCHDecode"
+      ],
+      "product": "5G Toolbox",
+      "status": "validated",
+      "coverage": "PBCH bit scrambling + QPSK mapping; hard/soft decode path",
+      "schema": "tools/nr_pbch.schema.json"
+    },
+    {
+      "name": "nr_pbch_ref",
+      "source_functions": [
+        "nrPBCHDMRS",
+        "nrPBCHDMRSIndices",
+        "nrPBCHIndices"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "PBCH DM-RS sequence and RE indices for the PBCH resource set",
+      "schema": "tools/nr_pbch_ref.schema.json"
+    },
+    {
+      "name": "nr_pdcch",
+      "source_functions": [
+        "nrPDCCH"
+      ],
+      "product": "5G Toolbox",
+      "status": "validated",
+      "coverage": "PDCCH scrambling and QPSK modulation of an encoded DCI codeword; no CORESET or resource-grid mapping",
+      "schema": "tools/nr_pdcch.schema.json"
+    },
+    {
+      "name": "nr_pdsch",
+      "source_functions": [
+        "nrPDSCH",
+        "nrDLSCH"
+      ],
+      "product": "5G Toolbox",
+      "status": "validated",
+      "coverage": "end-to-end PDSCH TX/RX cascade: CRC→LDPC→RM→modulation→layer map→OFDM",
+      "schema": "tools/nr_pdsch.schema.json"
+    },
+    {
+      "name": "nr_polar",
+      "source_functions": [
+        "nrPolarEncode",
+        "nrPolarDecode"
+      ],
+      "product": "5G Toolbox",
+      "status": "validated",
+      "schema": "tools/nr_polar.schema.json"
+    },
+    {
+      "name": "nr_polar_rm",
+      "source_functions": [
+        "nrRateMatchPolar",
+        "nrRateRecoverPolar"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "Polar rate match/recover: subblock interleave + bit selection (puncture/repeat/shorten)",
+      "schema": "tools/nr_polar_rm.schema.json"
+    },
+    {
+      "name": "nr_prbs",
+      "source_functions": [
+        "nrPRBS"
+      ],
+      "product": "5G Toolbox",
+      "status": "validated",
+      "coverage": "Gold code PRBS generator, cinit init, binary/signed output",
+      "schema": "tools/nr_prbs.schema.json"
+    },
+    {
+      "name": "nr_pss",
+      "source_functions": [
+        "nrPSS",
+        "nrPSSIndices"
+      ],
+      "product": "5G Toolbox",
+      "status": "validated",
+      "coverage": "PSS m-sequence generation + RE indices",
+      "schema": "tools/nr_pss.schema.json"
+    },
+    {
+      "name": "nr_pusch",
+      "source_functions": [
+        "nrPUSCH",
+        "nrPUSCHDecode"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "PUSCH scramble + modulation + layer map; optional DFT-s-OFDM transform precoding",
+      "schema": "tools/nr_pusch.schema.json"
+    },
+    {
+      "name": "nr_pusch_ref",
+      "source_functions": [
+        "nrPUSCHDMRS",
+        "nrPUSCHDMRSIndices",
+        "nrPUSCHIndices"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "PUSCH DM-RS sequence and data RE indices for one BWP allocation",
+      "schema": "tools/nr_pusch_ref.schema.json"
+    },
+    {
+      "name": "nr_srs",
+      "source_functions": [
+        "nrSRS",
+        "nrSRSIndices"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "Zadoff-Chu SRS sequence and comb-based resource indices",
+      "schema": "tools/nr_srs.schema.json"
+    },
+    {
+      "name": "nr_sss",
+      "source_functions": [
+        "nrSSS",
+        "nrSSSIndices"
+      ],
+      "product": "5G Toolbox",
+      "status": "validated",
+      "coverage": "SSS dual m-sequence generation + RE indices",
+      "schema": "tools/nr_sss.schema.json"
+    },
+    {
+      "name": "nr_tbs",
+      "source_functions": [
+        "nrTBS"
+      ],
+      "product": "5G Toolbox",
+      "status": "validated",
+      "coverage": "Transport block size determination per TS 38.214",
+      "schema": "tools/nr_tbs.schema.json"
+    },
+    {
+      "name": "nr_timing_estimate",
+      "source_functions": [
+        "nrTimingEstimate"
+      ],
+      "product": "5G Toolbox",
+      "status": "validated",
+      "coverage": "cross-correlation timing estimate; direct waveform pair or built-in NR reference grid",
+      "schema": "tools/nr_timing_estimate.schema.json"
+    },
+    {
+      "name": "wlan_bcc",
+      "source_functions": [
+        "wlanBCCEncode",
+        "wlanBCCDecode"
+      ],
+      "product": "WLAN Toolbox",
+      "status": "validated",
+      "schema": "tools/wlan_bcc.schema.json"
+    },
+    {
+      "name": "wlan_cfo_estimate",
+      "source_functions": [
+        "wlanFineCFOEstimate",
+        "wlanCoarseCFOEstimate"
+      ],
+      "product": "WLAN Toolbox",
+      "status": "independent_validated",
+      "coverage": "L-STF coarse and L-LTF fine carrier frequency offset estimates",
+      "schema": "tools/wlan_cfo_estimate.schema.json"
+    },
+    {
+      "name": "wlan_constellation",
+      "source_functions": [
+        "wlanConstellationMap",
+        "wlanConstellationDemap"
+      ],
+      "product": "WLAN Toolbox",
+      "status": "independent_validated",
+      "coverage": "IEEE 802.11 constellation map/demap BPSK..4096QAM, Gray and hard/soft demap",
+      "schema": "tools/wlan_constellation.schema.json"
+    },
+    {
+      "name": "wlan_golay",
+      "source_functions": [
+        "wlanGolaySequence"
+      ],
+      "product": "WLAN Toolbox",
+      "status": "independent_validated",
+      "coverage": "802.11ad Golay complementary Ga/Gb pairs, lengths 32/64/128",
+      "schema": "tools/wlan_golay.schema.json"
+    },
+    {
+      "name": "wlan_ldpc",
+      "source_functions": [
+        "wlanLDPCDecode",
+        "wlanLDPCEncode"
+      ],
+      "product": "WLAN Toolbox",
+      "status": "validated",
+      "schema": "tools/wlan_ldpc.schema.json"
+    },
+    {
+      "name": "wlan_ofdm_info",
+      "source_functions": [
+        "wlanNonHTOFDMInfo"
+      ],
+      "product": "WLAN Toolbox",
+      "status": "independent_validated",
+      "coverage": "Non-HT OFDM parameters for L-LTF/L-SIG/NonHT-Data at 20/40 MHz",
+      "schema": "tools/wlan_ofdm_info.schema.json"
+    },
+    {
+      "name": "wlan_packet_detect",
+      "source_functions": [
+        "wlanPacketDetect"
+      ],
+      "product": "WLAN Toolbox",
+      "status": "independent_validated",
+      "coverage": "Schmidl-Cox L-STF autocorrelation packet detect with offset and decision metric",
+      "schema": "tools/wlan_packet_detect.schema.json"
+    },
+    {
+      "name": "wlan_scramble",
+      "source_functions": [
+        "wlanScramble",
+        "wlanDescramble"
+      ],
+      "product": "WLAN Toolbox",
+      "status": "validated",
+      "schema": "tools/wlan_scramble.schema.json"
+    },
+    {
+      "name": "wlan_symbol_timing",
+      "source_functions": [
+        "wlanSymbolTimingEstimate"
+      ],
+      "product": "WLAN Toolbox",
+      "status": "validated",
+      "coverage": "L-LTF cross-correlation timing with CSD-aware multi-bandwidth L-LTF generation",
+      "schema": "tools/wlan_symbol_timing.schema.json"
+    },
+    {
+      "name": "ble_angle_estimate",
+      "source_functions": [
+        "bleAngleEstimate",
+        "bleAngleEstimateConfig"
+      ],
+      "product": "Bluetooth Toolbox",
+      "status": "validated",
+      "coverage": "ULA MUSIC broadside-angle estimate with 0.1-degree scan plus serializable ULA/custom-array configuration and derived element positions; URA/custom-array MUSIC estimation remains excluded",
+      "schema": "tools/ble_angle_estimate.schema.json"
+    },
+    {
+      "name": "ble_att",
+      "source_functions": [
+        "bleATTPDUConfig",
+        "bleATTPDU",
+        "bleATTPDUDecode"
+      ],
+      "product": "Bluetooth Toolbox",
+      "status": "validated",
+      "coverage": "All 25 documented ATT opcodes, configuration defaults, byte encoding and structured decoding status",
+      "schema": "tools/ble_att.schema.json"
+    },
+    {
+      "name": "ble_channel_selection",
+      "source_functions": [
+        "bleChannelSelection"
+      ],
+      "product": "Bluetooth Toolbox",
+      "status": "validated",
+      "coverage": "CSA #1 and #2 for connection/periodic events, plus sequential isochronous subevent selection with explicit state",
+      "schema": "tools/ble_channel_selection.schema.json"
+    },
+    {
+      "name": "ble_cs_waveform",
+      "source_functions": [
+        "bleCSWaveform"
+      ],
+      "product": "Bluetooth Toolbox",
+      "status": "validated",
+      "coverage": "CS step modes 0..3 with explicit reproducible access-address, optional-sequence, and tone-extension randomness; MATLAB DRBG lookup distribution not reproduced",
+      "schema": "tools/ble_cs_waveform.schema.json"
+    },
+    {
+      "name": "ble_cte_iq_sample",
+      "source_functions": [
+        "bleCTEIQSample"
+      ],
+      "product": "Bluetooth Toolbox",
+      "status": "validated",
+      "coverage": "LE1M/LE2M CTE Gaussian matched filtering, reference/slot sampling, DC removal and frequency-offset compensation",
+      "schema": "tools/ble_cte_iq_sample.schema.json"
+    },
+    {
+      "name": "ble_gap_data",
+      "source_functions": [
+        "bleGAPDataBlockConfig",
+        "bleGAPDataBlock",
+        "bleGAPDataBlockDecode"
+      ],
+      "product": "Bluetooth Toolbox",
+      "status": "validated",
+      "coverage": "All six supported GAP AD types, configuration defaults, byte encoding and structured decoding status",
+      "schema": "tools/ble_gap_data.schema.json"
+    },
+    {
+      "name": "ble_ideal_receiver",
+      "source_functions": [
+        "bleIdealReceiver"
+      ],
+      "product": "Bluetooth Toolbox",
+      "status": "validated",
+      "coverage": "All four LE PHY modes, noiseless GFSK pulse spans 1..4, coded hard Viterbi recovery, dewhitening, LE CTE bit trimming/IQ sampling, and inline/NPZ inputs; noisy-channel and frequency-offset behavior excluded",
+      "schema": "tools/ble_ideal_receiver.schema.json"
+    },
+    {
+      "name": "ble_l2cap",
+      "source_functions": [
+        "bleL2CAPFrameConfig",
+        "bleL2CAPFrame",
+        "bleL2CAPFrameDecode"
+      ],
+      "product": "Bluetooth Toolbox",
+      "status": "validated",
+      "coverage": "All eight LE signaling command encoders, fixed CID B-frames, single-segment dynamic CID LE-frames, matching decoders and structured status values",
+      "schema": "tools/ble_l2cap.schema.json"
+    },
+    {
+      "name": "ble_ll_advertising",
+      "source_functions": [
+        "bleLLAdvertisingChannelPDUConfig",
+        "bleLLAdvertisingChannelPDU",
+        "bleLLAdvertisingChannelPDUDecode"
+      ],
+      "product": "Bluetooth Toolbox",
+      "status": "validated",
+      "coverage": "Seven legacy advertising PDU types, configuration validation, CRC24, encoding and structured decoding status",
+      "schema": "tools/ble_ll_advertising.schema.json"
+    },
+    {
+      "name": "ble_ll_data",
+      "source_functions": [
+        "bleLLControlPDUConfig",
+        "bleLLDataChannelPDUConfig",
+        "bleLLDataChannelPDU",
+        "bleLLDataChannelPDUDecode"
+      ],
+      "product": "Bluetooth Toolbox",
+      "status": "validated",
+      "coverage": "Data and six control opcode PDUs, configuration validation, CRC24, encoding and structured decoding status",
+      "schema": "tools/ble_ll_data.schema.json"
+    },
+    {
+      "name": "ble_network_config",
+      "source_functions": [
+        "bleCSConfig",
+        "bluetoothLEBIGConfig",
+        "bluetoothLECISConfig",
+        "bluetoothLEConnectionConfig",
+        "bluetoothLEGAPConfig",
+        "bluetoothLEPeriodicAdvConfig",
+        "bluetoothMeshFriendshipConfig",
+        "bluetoothMeshProfileConfig"
+      ],
+      "product": "Bluetooth Toolbox",
+      "status": "validated",
+      "coverage": "Public constructor defaults and core property validation for eight LE/CS/mesh configurations; node associations and MATLAB object methods excluded",
+      "schema": "tools/ble_network_config.schema.json"
+    },
+    {
+      "name": "ble_packet_decode_status",
+      "source_functions": [
+        "blePacketDecodeStatus"
+      ],
+      "product": "Bluetooth Toolbox",
+      "status": "validated",
+      "coverage": "Complete R2026a enum name/code lookup and equality comparison",
+      "schema": "tools/ble_packet_decode_status.schema.json"
+    },
+    {
+      "name": "ble_pcap_writer",
+      "source_functions": [
+        "blePCAPWriter"
+      ],
+      "product": "Bluetooth Toolbox",
+      "status": "validated",
+      "coverage": "PCAP 2.4 and PCAPNG capture creation for DLT 251/256 with endian selection, packet/interface/file comments, multiple packets and microsecond timestamps; node callbacks excluded",
+      "schema": "tools/ble_pcap_writer.schema.json"
+    },
+    {
+      "name": "ble_position_estimate",
+      "source_functions": [
+        "blePositionEstimate"
+      ],
+      "product": "Bluetooth Toolbox",
+      "status": "validated",
+      "coverage": "2-D and 3-D angulation, lateration, and distance-angle localization",
+      "schema": "tools/ble_position_estimate.schema.json"
+    },
+    {
+      "name": "ble_waveform",
+      "source_functions": [
+        "bleWaveformGenerator"
+      ],
+      "product": "Bluetooth Toolbox",
+      "status": "validated",
+      "coverage": "All four LE PHY modes with coded FEC/S=8/S=2 mapping, whitening and GMSK pulse spans 1..4; ConnectionCTE and LE1M-only ConnectionlessCTE generation supported",
+      "schema": "tools/ble_waveform.schema.json"
+    },
+    {
+      "name": "bluetooth_classic_config",
+      "source_functions": [
+        "bluetoothConnectionConfig",
+        "bluetoothPhyConfig",
+        "bluetoothWaveformConfig",
+        "bluetoothRFPHYTestConfig",
+        "bluetoothTestWaveformConfig"
+      ],
+      "product": "Bluetooth Toolbox",
+      "status": "validated",
+      "coverage": "Serializable constructor defaults and core property validation for connection, PHY, waveform, test-waveform and RF-PHY test configurations; advanced MATLAB object methods are excluded",
+      "schema": "tools/bluetooth_classic_config.schema.json"
+    },
+    {
+      "name": "bluetooth_classic_receiver",
+      "source_functions": [
+        "bluetoothIdealReceiver"
+      ],
+      "product": "Bluetooth Toolbox",
+      "status": "validated",
+      "coverage": "BR/EDR2M/EDR3M ideal receiver with GFSK/DPSK hard demodulation, HEC/CRC checks, systematic FEC recovery and inline/NPZ inputs; noisy-channel correction excluded",
+      "schema": "tools/bluetooth_classic_receiver.schema.json"
+    },
+    {
+      "name": "bluetooth_classic_waveform",
+      "source_functions": [
+        "bluetoothWaveformGenerator"
+      ],
+      "product": "Bluetooth Toolbox",
+      "status": "validated",
+      "coverage": "BR GFSK and EDR2M/EDR3M DPSK packet access code, HEC, CRC, FEC, raised-cosine pulse shaping and slot padding; 16 EDR packet samples checked against MATLAB",
+      "schema": "tools/bluetooth_classic_waveform.schema.json"
+    },
+    {
+      "name": "bluetooth_classic_whitening",
+      "source_functions": [
+        "bluetoothWhiten"
+      ],
+      "product": "Bluetooth Toolbox",
+      "status": "validated",
+      "coverage": "x^7+x^4+1 whitening/dewhitening with explicit serializable state and arbitrary nonzero 7-bit initial conditions",
+      "schema": "tools/bluetooth_classic_whitening.schema.json"
+    },
+    {
+      "name": "bluetooth_frequency_hop",
+      "source_functions": [
+        "bluetoothFrequencyHop"
+      ],
+      "product": "Bluetooth Toolbox",
+      "status": "validated",
+      "coverage": "All eleven hopping sequence types, 79-channel register bank and AFH remapping",
+      "schema": "tools/bluetooth_frequency_hop.schema.json"
+    },
+    {
+      "name": "bluetooth_nodes",
+      "source_functions": [
+        "bluetoothNode",
+        "bluetoothLENode"
+      ],
+      "product": "Bluetooth Toolbox",
+      "status": "validated",
+      "coverage": "Classic/LE node constructors and public RF properties; persistent object methods, event subscriptions and deterministic traffic simulation are provided by bluetooth_session, while complete link-layer protocol simulation remains in progress",
+      "schema": "tools/bluetooth_nodes.schema.json"
+    },
+    {
+      "name": "bluetooth_packet_duration",
+      "source_functions": [
+        "bluetoothPacketDuration"
+      ],
+      "product": "Bluetooth Toolbox",
+      "status": "validated",
+      "coverage": "BR, EDR2M, EDR3M, LE1M, LE2M, LE500K and LE125K packet duration for every documented packet type",
+      "schema": "tools/bluetooth_packet_duration.schema.json"
+    },
+    {
+      "name": "bluetooth_path_loss",
+      "source_functions": [
+        "bluetoothPathLoss",
+        "bluetoothPathLossConfig"
+      ],
+      "product": "Bluetooth Toolbox",
+      "status": "validated",
+      "coverage": "Outdoor two-ray and Industrial log-normal propagation with scalar/vector RF parameters; deterministic zero-shadowing results match R2026a, while callers can supply shadow_fading_db for reproducible stochastic scenarios",
+      "schema": "tools/bluetooth_path_loss.schema.json"
+    },
+    {
+      "name": "bluetooth_range",
+      "source_functions": [
+        "bluetoothRange",
+        "bluetoothRangeConfig"
+      ],
+      "product": "Bluetooth Toolbox",
+      "status": "validated",
+      "coverage": "Outdoor two-ray, Industrial, Home and Office link-budget range inversion with receiver-sensitivity or received-power inputs, including MATLAB-compatible shadow-fading bounds",
+      "schema": "tools/bluetooth_range.schema.json"
+    },
+    {
+      "name": "bluetooth_test_waveform",
+      "source_functions": [
+        "bluetoothTestWaveform"
+      ],
+      "product": "Bluetooth Toolbox",
+      "status": "validated",
+      "coverage": "BR/EDR2M/EDR3M and all four LE PHY RF-test waveforms with PRBS9/15 and six repeated patterns, including LE1M/LE2M ConnectionCTE; EDR test lengths and sampled waveforms checked against MATLAB",
+      "schema": "tools/bluetooth_test_waveform.schema.json"
+    },
+    {
+      "name": "bluetooth_test_waveform_validate",
+      "source_functions": [
+        "bluetoothTestWaveformValidate"
+      ],
+      "product": "Bluetooth Toolbox",
+      "status": "validated",
+      "coverage": "LE1M/LE2M access-address and CRC verdicts for Blocking, C/I, Intermodulation and PER report integrity plus LE125K/LE500K C/I and PER branches; Modulation characteristics and Carrier frequency offset/drift measurements; CTE IQ coherency and dynamic-range measurement fields; inline/NPZ inputs",
+      "schema": "tools/bluetooth_test_waveform_validate.schema.json"
+    },
+    {
+      "name": "awgn",
+      "source_functions": [
+        "awgn"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "schema": "tools/awgn.schema.json"
+    },
+    {
+      "name": "bch_code",
+      "source_functions": [
+        "bchenc",
+        "bchdec",
+        "bchgenpoly",
+        "bchnumerr"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "coverage": "primitive narrow-sense binary BCH, m=2..8",
+      "schema": "tools/bch_code.schema.json"
+    },
+    {
+      "name": "ber_awgn",
+      "source_functions": [
+        "berawgn"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "coverage": "BPSK/QPSK, square QAM, PAM, PSK, binary DPSK/orthogonal FSK",
+      "schema": "tools/ber_awgn.schema.json"
+    },
+    {
+      "name": "ber_coding",
+      "source_functions": [
+        "bercoding"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "coverage": "BPSK convolutional distance-spectrum, binary block and Hamming hard/soft bounds",
+      "schema": "tools/ber_coding.schema.json"
+    },
+    {
+      "name": "ber_fading",
+      "source_functions": [
+        "berfading"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "coverage": "coherent BPSK/QPSK, Rayleigh/Rician and MRC diversity",
+      "schema": "tools/ber_fading.schema.json"
+    },
+    {
+      "name": "binary_symmetric_channel",
+      "source_functions": [
+        "bsc"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "schema": "tools/binary_symmetric_channel.schema.json"
+    },
+    {
+      "name": "bit_int_conversion",
+      "source_functions": [
+        "bit2int",
+        "int2bit"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "schema": "tools/bit_int_conversion.schema.json"
+    },
+    {
+      "name": "biterr",
+      "source_functions": [
+        "biterr"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "schema": "tools/biterr.schema.json"
+    },
+    {
+      "name": "convert_snr",
+      "source_functions": [
+        "convertSNR"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "schema": "tools/convert_snr.schema.json"
+    },
+    {
+      "name": "convolutional_codec",
+      "source_functions": [
+        "convenc",
+        "vitdec",
+        "poly2trellis"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "coverage": "rate-1/N, hard Viterbi, encoder puncture",
+      "schema": "tools/convolutional_codec.schema.json"
+    },
+    {
+      "name": "dpsk_modulation",
+      "source_functions": [
+        "dpskmod",
+        "dpskdemod"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "schema": "tools/dpsk_modulation.schema.json"
+    },
+    {
+      "name": "fading_channel",
+      "source_functions": [
+        "stdchan"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "coverage": "memoryless/block flat Rayleigh and Rician subset",
+      "schema": "tools/fading_channel.schema.json"
+    },
+    {
+      "name": "frequency_offset",
+      "source_functions": [
+        "frequencyOffset"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "schema": "tools/frequency_offset.schema.json"
+    },
+    {
+      "name": "fsk_modulation",
+      "source_functions": [
+        "fskmod",
+        "fskdemod"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "coverage": "baseband waveform, noncoherent hard demodulation",
+      "schema": "tools/fsk_modulation.schema.json"
+    },
+    {
+      "name": "hamming_code",
+      "source_functions": [
+        "hammgen",
+        "encode",
+        "decode"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "coverage": "systematic-position binary Hamming mode",
+      "schema": "tools/hamming_code.schema.json"
+    },
+    {
+      "name": "interleaver",
+      "source_functions": [
+        "matintrlv",
+        "matdeintrlv",
+        "randintrlv",
+        "randdeintrlv",
+        "intrlv",
+        "deintrlv"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "schema": "tools/interleaver.schema.json"
+    },
+    {
+      "name": "ofdm_channel_estimate",
+      "source_functions": [
+        "ofdmChannelEstimate"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "coverage": "pilot-aided LS with linear frequency/time interpolation",
+      "schema": "tools/ofdm_channel_estimate.schema.json"
+    },
+    {
+      "name": "ofdm_channel_response",
+      "source_functions": [
+        "ofdmChannelResponse"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "coverage": "static/slow-varying path-gain averaging, MIMO and active subcarriers",
+      "schema": "tools/ofdm_channel_response.schema.json"
+    },
+    {
+      "name": "ofdm_equalizer",
+      "source_functions": [
+        "ofdmEqualize",
+        "lteEqualizeZF",
+        "lteEqualizeMMSE"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "coverage": "per-RE SISO/MIMO ZF and MMSE",
+      "schema": "tools/ofdm_equalizer.schema.json"
+    },
+    {
+      "name": "ofdm_modulation",
+      "source_functions": [
+        "ofdmmod",
+        "ofdmdemod"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "coverage": "1x sampling, nulls and pilots",
+      "schema": "tools/ofdm_modulation.schema.json"
+    },
+    {
+      "name": "pam_modulation",
+      "source_functions": [
+        "pammod",
+        "pamdemod"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "schema": "tools/pam_modulation.schema.json"
+    },
+    {
+      "name": "psk_modulation",
+      "source_functions": [
+        "pskmod",
+        "pskdemod"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "schema": "tools/psk_modulation.schema.json"
+    },
+    {
+      "name": "q_function",
+      "source_functions": [
+        "qfunc",
+        "qfuncinv"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "schema": "tools/q_function.schema.json"
+    },
+    {
+      "name": "qam_modulation",
+      "source_functions": [
+        "qammod",
+        "qamdemod"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "coverage": "square power-of-two QAM",
+      "schema": "tools/qam_modulation.schema.json"
+    },
+    {
+      "name": "rectangular_pulse",
+      "source_functions": [
+        "rectpulse"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "schema": "tools/rectangular_pulse.schema.json"
+    },
+    {
+      "name": "reed_solomon_code",
+      "source_functions": [
+        "rsenc",
+        "rsdec",
+        "rsgenpoly",
+        "rsgenpolycoeffs"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "coverage": "GF(2^m), m=2..8, shortened systematic narrow-sense codes",
+      "schema": "tools/reed_solomon_code.schema.json"
+    },
+    {
+      "name": "signal_timing_estimate",
+      "source_functions": [
+        "timingEstimate",
+        "channelDelay"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "coverage": "reference correlation and perfect channel delay modes",
+      "schema": "tools/signal_timing_estimate.schema.json"
+    },
+    {
+      "name": "symerr",
+      "source_functions": [
+        "symerr"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "schema": "tools/symerr.schema.json"
+    },
+    {
+      "name": "white_gaussian_noise",
+      "source_functions": [
+        "wgn"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "schema": "tools/white_gaussian_noise.schema.json"
+    },
+    {
+      "name": "zadoff_chu_seq",
+      "source_functions": [
+        "zadoffChuSeq"
+      ],
+      "product": "Communications Toolbox",
+      "status": "independent_validated",
+      "schema": "tools/zadoff_chu_seq.schema.json"
+    },
+    {
+      "name": "node_mobility_constant_velocity",
+      "source_functions": [
+        "nodeMobilityConstantVelocity"
+      ],
+      "product": "Wireless Network Toolbox",
+      "status": "independent_validated",
+      "coverage": "stateless trajectory form",
+      "schema": "tools/node_mobility_constant_velocity.schema.json"
+    },
+    {
+      "name": "node_mobility_random_walk",
+      "source_functions": [
+        "nodeMobilityRandomWalk"
+      ],
+      "product": "Wireless Network Toolbox",
+      "status": "independent_validated",
+      "coverage": "stateless sampled trajectory form",
+      "schema": "tools/node_mobility_random_walk.schema.json"
+    },
+    {
+      "name": "node_mobility_random_waypoint",
+      "source_functions": [
+        "nodeMobilityRandomWaypoint"
+      ],
+      "product": "Wireless Network Toolbox",
+      "status": "independent_validated",
+      "coverage": "stateless sampled trajectory form",
+      "schema": "tools/node_mobility_random_waypoint.schema.json"
+    },
+    {
+      "name": "node_position_grid",
+      "source_functions": [
+        "nodePositionGrid"
+      ],
+      "product": "Wireless Network Toolbox",
+      "status": "independent_validated",
+      "coverage": "rectangular-boundary forms",
+      "schema": "tools/node_position_grid.schema.json"
+    },
+    {
+      "name": "node_position_random",
+      "source_functions": [
+        "nodePositionRandom"
+      ],
+      "product": "Wireless Network Toolbox",
+      "status": "independent_validated",
+      "coverage": "rectangle and circle forms",
+      "schema": "tools/node_position_random.schema.json"
+    },
+    {
+      "name": "wireless_packet",
+      "source_functions": [
+        "wirelessPacket"
+      ],
+      "product": "Wireless Network Toolbox",
+      "status": "independent_validated",
+      "schema": "tools/wireless_packet.schema.json"
+    },
+    {
+      "name": "closed_loop_validator",
+      "source_functions": [],
+      "product": "WirelessAgent Workflow",
+      "status": "independent_validated",
+      "coverage": "weighted KPI comparison, hard constraints and rollback signal",
+      "schema": "tools/closed_loop_validator.schema.json"
+    },
+    {
+      "name": "link_adaptation_optimizer",
+      "source_functions": [],
+      "product": "WirelessAgent Workflow",
+      "status": "independent_validated",
+      "coverage": "conservative SNR thresholds combined with converted LTE MCS/TBS tables",
+      "schema": "tools/link_adaptation_optimizer.schema.json"
+    },
+    {
+      "name": "link_capacity",
+      "source_functions": [],
+      "product": "WirelessAgent Workflow",
+      "status": "independent_validated",
+      "coverage": "SISO and equal-power MIMO Shannon bound",
+      "schema": "tools/link_capacity.schema.json"
+    },
+    {
+      "name": "policy_decision_validator",
+      "source_functions": [],
+      "product": "WirelessAgent Workflow",
+      "status": "independent_validated",
+      "coverage": "QoS rate ordering, aggregate capacity and observed KPI validation",
+      "schema": "tools/policy_decision_validator.schema.json"
+    },
+    {
+      "name": "qos_policy_builder",
+      "source_functions": [],
+      "product": "WirelessAgent Workflow",
+      "status": "independent_validated",
+      "coverage": "5QI-oriented service templates and GBR capacity feasibility",
+      "schema": "tools/qos_policy_builder.schema.json"
+    },
+    {
+      "name": "radio_link_diagnosis",
+      "source_functions": [],
+      "product": "WirelessAgent Workflow",
+      "status": "independent_validated",
+      "coverage": "evidence rules over SNR/EVM/BER/BLER/frequency/timing/delay KPIs",
+      "schema": "tools/radio_link_diagnosis.schema.json"
+    },
+    {
+      "name": "resource_allocation_optimizer",
+      "source_functions": [],
+      "product": "WirelessAgent Workflow",
+      "status": "independent_validated",
+      "coverage": "weighted marginal TBS PRB allocation",
+      "schema": "tools/resource_allocation_optimizer.schema.json"
+    },
+    {
+      "name": "traffic_steering_optimizer",
+      "source_functions": [],
+      "product": "WirelessAgent Workflow",
+      "status": "independent_validated",
+      "coverage": "capacity/latency/quality/cost scoring with assignment hysteresis",
+      "schema": "tools/traffic_steering_optimizer.schema.json"
+    },
+    {
+      "name": "bluetooth_session",
+      "source_functions": [],
+      "product": "WirelessAgent Helper",
+      "status": "validated",
+      "coverage": "SQLite-backed pure-Python Bluetooth configuration/node objects, supported public-method dispatch, deterministic traffic simulation, snapshots and filtered event logs",
+      "schema": "tools/bluetooth_session.schema.json"
+    },
+    {
+      "name": "wireless_utils",
+      "source_functions": [],
+      "product": "WirelessAgent Helper",
+      "status": "validated",
+      "coverage": "AWGN noise, BER, theoretical BER, BCC interleaving, Golay sequence",
+      "schema": "tools/wireless_utils.schema.json"
+    }
+  ]
+}

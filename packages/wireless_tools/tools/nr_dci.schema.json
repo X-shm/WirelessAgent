@@ -1,0 +1,59 @@
+{
+  "name": "nr_dci",
+  "description": "简化的 5G NR DCI 编码与扰码工具：CRC24C 的计算输入包含 24 个前置 1，随后将原始 payload 与 RNTI 掩码 CRC 送入 Polar 编码和速率匹配。",
+  "implementation": "nrDCIEncode 子集；位置子命令 encode（默认）或 scramble。",
+  "script": "nr_dci.py",
+  "inputs": {
+    "dci-bits": {
+      "type": "string",
+      "required": true,
+      "description": "encode 时为逗号分隔 DCI 消息比特；scramble 时为待扰码的已编码比特"
+    },
+    "rnti": {
+      "type": "integer",
+      "required": true,
+      "description": "RNTI，范围 0..65535"
+    },
+    "edci": {
+      "type": "integer",
+      "required": false,
+      "description": "encode 时的速率匹配输出长度；scramble 模式不使用"
+    }
+  },
+  "subcommands": {
+    "encode": {
+      "description": "DCI 编码。该位置子命令可省略，省略时同样执行编码。",
+      "inputs": {
+        "edci": {
+          "type": "integer",
+          "required": true,
+          "description": "速率匹配后的 DCI 码字长度"
+        }
+      }
+    },
+    "scramble": {
+      "description": "对已有 DCI 码字执行 PDCCH 扰码。",
+      "inputs": {
+        "n-id": {
+          "type": "integer",
+          "required": true,
+          "description": "扰码 ID"
+        }
+      }
+    }
+  },
+  "outputs": {
+    "codeword": "encode 时的 DCI 码字或 scramble 时的扰码比特",
+    "rnti": "RNTI",
+    "edci": "速率匹配输出长度（encode）",
+    "cinit": {
+      "description": "扰码初始化值（scramble）",
+      "optional": true
+    },
+    "k": "CRC24C 附加后的 Polar 信息长度（encode）"
+  },
+  "example": {
+    "cmd": "python tools/nr_dci.py --dci-bits 1,0,1,1,0,0,1,0,1,0,1,1 --rnti 4660 --edci 108 encode",
+    "result": "{\"rnti\":4660,\"edci\":108,\"dci_len\":12,\"k\":36,\"codeword\":[...]}"
+  }
+}

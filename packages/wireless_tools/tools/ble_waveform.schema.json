@@ -1,0 +1,44 @@
+{
+  "name": "ble_waveform",
+  "script": "ble_waveform.py",
+  "description": "Bluetooth LE1M/LE2M/LE500K/LE125K 物理层波形生成，对应 MATLAB bleWaveformGenerator。",
+  "implementation": "纯 Python 前导码、白化、编码 PHY FEC/映射、LE1M/LE2M CTE 及 R2026a GMSK 离散 CPM。",
+  "inputs": {
+    "input": {
+      "type": "string",
+      "required": true,
+      "description": "JSON：message 及可选 mode/channel_index/samples_per_symbol/access_address/whiten_status/modulation_index/pulse_length/df_packet_type"
+    },
+    "input_file": {
+      "type": "string",
+      "required": false,
+      "description": "与 input 互斥的 JSON 文件"
+    },
+    "output_file": {
+      "type": "string",
+      "required": false,
+      "description": "大波形的 .npz 输出路径"
+    },
+    "inline_limit": {
+      "type": "integer",
+      "required": false,
+      "default": 4096,
+      "description": "内联标量数量阈值"
+    },
+    "overwrite": {
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "允许覆盖 output_file"
+    }
+  },
+  "outputs": {
+    "waveform": "内联复数样本或 NPZ artifact",
+    "frame_bits": "形成后的 PHY 帧比特数",
+    "cte_symbols": "附加 CTE 符号数"
+  },
+  "example": {
+    "cmd": "python tools/ble_waveform.py --input '{\"message\":[1,0,1,1]}'",
+    "result": "{\"ok\":true,...}"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "bluetooth_classic_config",
+  "script": "bluetooth_classic_config.py",
+  "description": "五类 Bluetooth BR/EDR 配置对象的纯 Python 可序列化语义封装。",
+  "implementation": "对应构造器默认值、核心属性验证和派生测试波形负载长度。",
+  "inputs": {
+    "input": {
+      "type": "string",
+      "required": true,
+      "description": "JSON：kind=connection|phy|waveform|test_waveform|rf_phy_test，以及可选 properties 对象"
+    },
+    "input_file": {
+      "type": "string",
+      "required": false,
+      "description": "与 input 互斥的 JSON 文件"
+    }
+  },
+  "outputs": {
+    "configuration": {
+      "description": "可传递给后续 CLI 的规范化配置对象",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/bluetooth_classic_config.py --input '{\"kind\":\"phy\",\"properties\":{\"mode\":\"EDR2M\"}}'",
+    "result": "{\"ok\":true,...}"
+  }
+}

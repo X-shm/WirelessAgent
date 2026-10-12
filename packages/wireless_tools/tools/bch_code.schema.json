@@ -1,0 +1,76 @@
+{
+  "name": "bch_code",
+  "script": "bch_code.py",
+  "description": "本原窄义二进制 BCH 编码、纠错解码和生成多项式，对应 bchenc/bchdec/bchgenpoly/bchnumerr。",
+  "implementation": "纯 Python GF(2^m) 生成多项式综合、Berlekamp-Massey 和 Chien 搜索；支持 n=2^m-1、m=2..8。",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "encode",
+        "decode",
+        "generator"
+      ],
+      "required": true,
+      "description": "操作"
+    },
+    "bits": {
+      "type": "string",
+      "required": false,
+      "default": "",
+      "description": "逗号分隔二进制值"
+    },
+    "n": {
+      "type": "integer",
+      "required": true,
+      "description": "码长 2^m-1"
+    },
+    "k": {
+      "type": "integer",
+      "required": true,
+      "description": "消息长度"
+    },
+    "primitive": {
+      "type": "string",
+      "required": false,
+      "description": "可选本原多项式整数"
+    },
+    "parity_position": {
+      "type": "string",
+      "enum": [
+        "end",
+        "beginning"
+      ],
+      "required": false,
+      "default": "end",
+      "description": "校验位位置"
+    }
+  },
+  "outputs": {
+    "codeword": {
+      "description": "编码码字",
+      "optional": true
+    },
+    "message": {
+      "description": "纠错后的消息",
+      "optional": true
+    },
+    "corrected_codeword": {
+      "description": "纠错码字",
+      "optional": true
+    },
+    "corrected_errors": {
+      "description": "实际纠错数",
+      "optional": true
+    },
+    "correctable_errors": "最大纠错数",
+    "generator": {
+      "description": "生成多项式",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/bch_code.py --mode encode --bits 1,0,1,1 --n 7 --k 4",
+    "result": "{\"codeword\":[1,0,1,1,0,0,0],...}"
+  }
+}

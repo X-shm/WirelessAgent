@@ -1,0 +1,45 @@
+{
+  "name": "lte_ul_precode",
+  "script": "lte_ul_precode.py",
+  "description": "执行 LTE SC-FDMA 归一化 DFT 预编码或 IDFT 解预编码，对应 lteULPrecode/lteULDeprecode。",
+  "implementation": "按本机 R2026a 公开 M 文件逻辑，以 PRB 或子载波为块沿各层执行单位功率 DFT/IDFT。",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "precode",
+        "deprecode"
+      ],
+      "required": true,
+      "description": "预编码或逆变换"
+    },
+    "values": {
+      "type": "string",
+      "required": true,
+      "description": "[符号,层] 复数 JSON"
+    },
+    "n": {
+      "type": "integer",
+      "required": true,
+      "description": "PRB 或子载波数量"
+    },
+    "resource_type": {
+      "type": "string",
+      "enum": [
+        "PRB",
+        "Subcarrier"
+      ],
+      "required": false,
+      "default": "PRB",
+      "description": "n 的单位"
+    }
+  },
+  "outputs": {
+    "output": "预编码/解预编码复矩阵",
+    "block_size": "DFT 块长"
+  },
+  "example": {
+    "cmd": "python tools/lte_ul_precode.py --mode precode --values '[1,0,0,0]' --n 4 --resource_type Subcarrier",
+    "result": "{\"output\":{\"real\":[...],\"imag\":[...]},\"block_size\":4}"
+  }
+}

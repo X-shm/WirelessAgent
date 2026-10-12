@@ -1,0 +1,60 @@
+{
+  "name": "lte_pusch_indices",
+  "script": "lte_pusch_indices.py",
+  "description": "生成显式时隙 PRB 分配的 LTE PUSCH 数据 RE 零基索引及 G/Gd，对应 ltePUSCHIndices。",
+  "implementation": "排除每时隙 PUSCH DM-RS 符号，并支持 SRS shortened 子帧、1/2/4 端口和调制层数比特计数。",
+  "inputs": {
+    "nulrb": {
+      "type": "integer",
+      "required": true,
+      "description": "上行总资源块数 1..110"
+    },
+    "prb_set": {
+      "type": "string",
+      "required": true,
+      "description": "JSON PRB 数组或 [slot0,slot1]"
+    },
+    "cyclic_prefix": {
+      "type": "string",
+      "enum": [
+        "Normal",
+        "Extended"
+      ],
+      "required": false,
+      "default": "Normal",
+      "description": "上行循环前缀"
+    },
+    "shortened": {
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "为 SRS 保留子帧最后一个符号"
+    },
+    "n_tx_ants": {
+      "type": "integer",
+      "required": false,
+      "default": 1,
+      "description": "发送端口数 1/2/4"
+    },
+    "modulation": {
+      "type": "string",
+      "required": false,
+      "default": "QPSK",
+      "description": "调制格式"
+    },
+    "n_layers": {
+      "type": "integer",
+      "required": false,
+      "default": 1,
+      "description": "层数 1..4"
+    }
+  },
+  "outputs": {
+    "ports": "各发送端口的 [子载波,符号,端口] 索引",
+    "info": "G、Gd、每时隙 RE 数与索引基数"
+  },
+  "example": {
+    "cmd": "python tools/lte_pusch_indices.py --nulrb 15 --prb_set '[0,1,2]' --modulation 16QAM",
+    "result": "{\"ports\":{\"0\":[...]},\"info\":{\"G\":[1728],\"Gd\":432,...}}"
+  }
+}

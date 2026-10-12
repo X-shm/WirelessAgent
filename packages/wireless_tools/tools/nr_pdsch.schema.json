@@ -1,0 +1,113 @@
+{
+  "name": "nr_pdsch",
+  "description": "简化的单层单码块 5G NR PDSCH 端到端链路：TX 为 CRC24A→LDPC→速率匹配→调制→层映射→OFDM，RX 为相反的软判决链路。",
+  "implementation": "组合 nrCRC、nrLDPC、nrRateMatchLDPC、nrSymbolModulate、nrLayerMap 和 nrOFDM；矩形 OFDM，单层、单码块。",
+  "script": "nr_pdsch.py",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "tx",
+        "rx"
+      ],
+      "required": true,
+      "description": "tx 为发送级联，rx 为接收级联"
+    },
+    "bgn": {
+      "type": "integer",
+      "enum": [
+        1,
+        2
+      ],
+      "required": true,
+      "description": "LDPC 基图编号"
+    },
+    "modulation": {
+      "type": "string",
+      "enum": [
+        "QPSK",
+        "16QAM",
+        "64QAM",
+        "256QAM",
+        "1024QAM"
+      ],
+      "required": true,
+      "description": "调制方式"
+    },
+    "nfft": {
+      "type": "integer",
+      "required": false,
+      "default": 128,
+      "description": "OFDM FFT 长度"
+    },
+    "n-sc": {
+      "type": "integer",
+      "required": false,
+      "default": 12,
+      "description": "有效子载波数量"
+    },
+    "n-symbols": {
+      "type": "integer",
+      "required": false,
+      "default": 1,
+      "description": "OFDM 符号数量"
+    },
+    "rv": {
+      "type": "integer",
+      "enum": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "required": false,
+      "default": 0,
+      "description": "冗余版本"
+    },
+    "tb-bits": {
+      "type": "string",
+      "required": false,
+      "description": "tx 模式：逗号分隔的传输块比特；加 CRC 后长度须为 BG 信息节点数的整数倍"
+    },
+    "waveform": {
+      "type": "string",
+      "required": false,
+      "description": "rx 模式：JSON 平坦数组 [re0,im0,re1,im1,...]"
+    },
+    "noise-var": {
+      "type": "number",
+      "required": false,
+      "default": 1.0,
+      "description": "rx 模式软解调的噪声方差"
+    },
+    "max-iter": {
+      "type": "integer",
+      "required": false,
+      "default": 8,
+      "description": "rx 模式 LDPC 最大迭代次数"
+    },
+    "zc": {
+      "type": "integer",
+      "required": false,
+      "default": null,
+      "description": "rx 模式 LDPC 提升大小；重打孔较多时建议显式传入"
+    }
+  },
+  "outputs": {
+    "tx": {
+      "description": "包含 CRC 比特、LDPC 码字、速率匹配比特、调制符号、层映射结果和复波形实虚部的完整发送中间结果。",
+      "optional": true
+    },
+    "rx": {
+      "description": "包含资源网格、符号、LLR、速率恢复 LLR、解码信息比特、传输块和 crc_ok 的完整接收中间结果。",
+      "optional": true
+    },
+    "mode": "执行模式",
+    "bgn": "LDPC 基图编号",
+    "modulation": "调制方式"
+  },
+  "example": {
+    "cmd": "python tools/nr_pdsch.py --mode tx --bgn 2 --modulation QPSK --nfft 128 --n-sc 12 --n-symbols 1 --tb-bits 1,0,1,1,0,0",
+    "result": "{\"mode\":\"tx\",\"bgn\":2,\"modulation\":\"QPSK\",\"waveform_real\":[...],\"waveform_imag\":[...]}"
+  }
+}

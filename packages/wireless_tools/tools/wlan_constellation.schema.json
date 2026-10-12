@@ -1,0 +1,29 @@
+{
+  "name": "wlan_constellation",
+  "script": "wlan_constellation.py",
+  "description": "IEEE 802.11 星座映射/解映射工具。map：比特→复符号（BPSK/QPSK/16/64/256/1024/4096QAM，IEEE 802.11 Gray 映射）；demap：复符号→硬判决比特或近似 LLR 软比特。可选相位旋转。对应 MATLAB wlanConstellationMap / wlanConstellationDemap。",
+  "implementation": "IEEE 802.11-2016 §17.3.5.8 / 802.11ac §21.3.10.9.1 / 802.11ax §27.3.12.9 / 802.11be §36.3.13.7，单位平均功率归一化",
+  "inputs": {
+    "mode": {"type": "string", "enum": ["map", "demap"], "required": true, "description": "操作模式"},
+    "num_bpscs": {"type": "integer", "required": true, "enum": [1, 2, 4, 6, 8, 10, 12], "description": "每子载波每空间流编码比特数"},
+    "bits": {"type": "string", "required": false, "description": "[map] 逗号分隔的比特串，长度须为 numBPSCS 的整数倍"},
+    "symbols": {"type": "string", "required": false, "description": "[demap] 复符号 JSON，如 [-0.7+0.7j,...] 或 {\"real\":[...],\"imag\":[...]}"},
+    "noise_var": {"type": "number", "required": false, "default": 1.0, "description": "[demap soft] 噪声方差"},
+    "demap_type": {"type": "string", "enum": ["hard", "soft"], "required": false, "default": "soft", "description": "[demap] 判决类型"},
+    "phase": {"type": "number", "required": false, "description": "相位旋转（弧度），map 逆时针 / demap 顺时针"}
+  },
+  "outputs": {
+    "symbols_real": {"description": "[map] 符号实部", "optional": true},
+    "symbols_imag": {"description": "[map] 符号虚部", "optional": true},
+    "bits": {"description": "[demap hard] 硬判决比特", "optional": true},
+    "llr": {"description": "[demap soft] 软比特 LLR", "optional": true},
+    "n_symbols": {"description": "[map] 符号数", "optional": true},
+    "n_out": {"description": "[demap] 输出长度", "optional": true},
+    "num_bpscs": {"description": "每子载波比特数"},
+    "demap_type": {"description": "[demap] 判决类型", "optional": true}
+  },
+  "example": {
+    "cmd": "python tools/wlan_constellation.py --mode map --num_bpscs 2 --bits 0,1,1,0,1,0,0,1",
+    "result": "{\"symbols_real\": [-0.7071, 0.7071, ...], \"symbols_imag\": [-0.7071, 0.7071, ...], \"n_symbols\": 4, \"num_bpscs\": 2}"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "name": "nr_pbch_ref",
+  "script": "nr_pbch_ref.py",
+  "description": "5G NR PBCH 参考信号和索引工具。生成 PBCH DM-RS 序列、DM-RS 资源索引和 PBCH 数据资源索引。对应 MATLAB nrPBCHDMRS、nrPBCHDMRSIndices、nrPBCHIndices。",
+  "implementation": "3GPP TS 38.211 §7.4.1.4 和 §7.4.3.1",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": ["dmrs", "dmrs_indices", "pbch_indices"],
+      "required": true,
+      "description": "操作模式"
+    },
+    "ncellid": {
+      "type": "integer",
+      "required": true,
+      "description": "物理小区 ID (0..1007)"
+    },
+    "ibar_ssb": {
+      "type": "integer",
+      "required": false,
+      "default": 0,
+      "description": "[dmrs] SS/PBCH 块索引相关值 (0..7)"
+    }
+  },
+  "outputs": {
+    "symbols_real": {"description": "DM-RS 符号实部", "optional": true},
+    "symbols_imag": {"description": "DM-RS 符号虚部", "optional": true},
+    "indices": {"description": "资源元素索引", "optional": true},
+    "n_symbols": {"description": "符号数量", "optional": true},
+    "n_indices": {"description": "索引数量", "optional": true},
+    "info": {"description": "PBCH 信息 (G, Gd)", "optional": true}
+  },
+  "example": {
+    "cmd": "python tools/nr_pbch_ref.py --mode dmrs --ncellid 17 --ibar_ssb 2",
+    "result": "{\"symbols_real\": [...], \"symbols_imag\": [...], \"n_symbols\": 144}"
+  }
+}

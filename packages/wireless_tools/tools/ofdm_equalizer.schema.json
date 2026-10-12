@@ -1,0 +1,42 @@
+{
+  "name": "ofdm_equalizer",
+  "script": "ofdm_equalizer.py",
+  "description": "逐资源元素执行 SISO/MIMO ZF 或 MMSE 均衡，对应 ofdmEqualize/lteEqualizeZF/lteEqualizeMMSE。",
+  "implementation": "输入接收矩阵 NRE×NRx 和信道 NRE×NRx×NTx，输出均衡流与软 CSI。",
+  "inputs": {
+    "received": {
+      "type": "string",
+      "required": true,
+      "description": "接收复符号 JSON，NRE×NRx"
+    },
+    "channel": {
+      "type": "string",
+      "required": true,
+      "description": "信道复矩阵 JSON，NRE×NRx×NTx"
+    },
+    "noise_variance": {
+      "type": "number",
+      "required": false,
+      "default": 0,
+      "description": "MMSE 噪声方差"
+    },
+    "algorithm": {
+      "type": "string",
+      "enum": [
+        "zf",
+        "mmse"
+      ],
+      "required": false,
+      "default": "mmse",
+      "description": "均衡算法"
+    }
+  },
+  "outputs": {
+    "equalized": "均衡后复数据流",
+    "csi": "软信道状态信息"
+  },
+  "example": {
+    "cmd": "python tools/ofdm_equalizer.py --received '{\"real\":[[2]],\"imag\":[[0]]}' --channel '{\"real\":[[[2]]],\"imag\":[[[0]]]}' --algorithm zf",
+    "result": "{\"equalized\":{\"real\":[[1.0]],...},...}"
+  }
+}

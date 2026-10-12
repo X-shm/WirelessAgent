@@ -1,0 +1,78 @@
+{
+  "name": "radio_link_diagnosis",
+  "script": "radio_link_diagnosis.py",
+  "description": "联合 SNR、EVM、BER/BLER、频偏、定时和时延扩展诊断无线链路主要劣化因素。",
+  "implementation": "面向 OpenClaw 的确定性证据规则，输出严重度、触发证据、建议动作和下一工具，不替代原始测量。",
+  "inputs": {
+    "snr_db": {
+      "type": "number",
+      "required": false,
+      "description": "测量 SNR dB"
+    },
+    "evm_percent": {
+      "type": "number",
+      "required": false,
+      "description": "RMS EVM 百分比"
+    },
+    "ber": {
+      "type": "number",
+      "required": false,
+      "description": "误比特率"
+    },
+    "bler": {
+      "type": "number",
+      "required": false,
+      "description": "块错误率"
+    },
+    "frequency_offset_hz": {
+      "type": "number",
+      "required": false,
+      "description": "残余频偏 Hz"
+    },
+    "timing_offset_samples": {
+      "type": "number",
+      "required": false,
+      "description": "定时偏移样本"
+    },
+    "cp_samples": {
+      "type": "number",
+      "required": false,
+      "description": "CP 长度样本"
+    },
+    "delay_spread_samples": {
+      "type": "number",
+      "required": false,
+      "description": "时延扩展样本"
+    },
+    "target_snr_db": {
+      "type": "number",
+      "required": false,
+      "default": 10,
+      "description": "目标 SNR"
+    },
+    "subcarrier_spacing_hz": {
+      "type": "number",
+      "required": false,
+      "default": 15000,
+      "description": "子载波间隔"
+    }
+  },
+  "outputs": {
+    "status": {
+      "description": "总体严重度",
+      "optional": true
+    },
+    "findings": {
+      "description": "根因、证据和动作",
+      "optional": true
+    },
+    "recommended_next_tool": {
+      "description": "首选后续动作",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/radio_link_diagnosis.py --snr_db 0 --frequency_offset_hz 3000 --cp_samples 9 --timing_offset_samples 12",
+    "result": "{\"status\":\"critical\",\"findings\":[...]}"
+  }
+}

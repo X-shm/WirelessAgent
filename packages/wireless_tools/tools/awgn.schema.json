@@ -1,0 +1,53 @@
+{
+  "name": "awgn",
+  "script": "awgn.py",
+  "description": "为实数或复数信号添加白高斯噪声，覆盖 MATLAB Communications Toolbox awgn 的常用参数形式。",
+  "implementation": "独立 NumPy 实现；噪声功率公式与 awgn 对齐，随机数序列不承诺与 MATLAB RNG 逐样本一致。",
+  "inputs": {
+    "signal": {
+      "type": "string",
+      "required": false,
+      "description": "JSON 实数数组或 real/imag 对象"
+    },
+    "signal_file": {
+      "type": "string",
+      "required": false,
+      "description": "信号 JSON 文件，与 signal 二选一"
+    },
+    "snr": {
+      "type": "number",
+      "required": true,
+      "description": "目标信噪比"
+    },
+    "signal_power": {
+      "type": "string",
+      "required": false,
+      "default": "0",
+      "description": "信号功率数值，或 measured"
+    },
+    "power_type": {
+      "type": "string",
+      "enum": [
+        "db",
+        "linear"
+      ],
+      "required": false,
+      "default": "db",
+      "description": "SNR 与功率单位"
+    },
+    "seed": {
+      "type": "integer",
+      "required": false,
+      "description": "NumPy 随机种子"
+    }
+  },
+  "outputs": {
+    "signal_real": "加噪信号实部",
+    "signal_imag": "加噪信号虚部",
+    "noise_variance": "使用的总噪声方差"
+  },
+  "example": {
+    "cmd": "python tools/awgn.py --signal '[1,1,1,1]' --snr 10 --signal_power measured --seed 1",
+    "result": "{\"signal_real\":[...],\"signal_imag\":[0,0,0,0],\"noise_variance\":0.1}"
+  }
+}

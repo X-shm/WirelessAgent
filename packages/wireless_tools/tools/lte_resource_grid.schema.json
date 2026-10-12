@@ -1,0 +1,61 @@
+{
+  "name": "lte_resource_grid",
+  "script": "lte_resource_grid.py",
+  "description": "查询或创建 LTE 上下行子帧资源网格描述，对应 lteResourceGridSize/lteResourceGrid。",
+  "implementation": "12×NRB 子载波、Normal 14/Extended 12 符号和端口维度公式。",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "size",
+        "create"
+      ],
+      "required": true,
+      "description": "查询或创建描述"
+    },
+    "link": {
+      "type": "string",
+      "enum": [
+        "downlink",
+        "uplink"
+      ],
+      "required": true,
+      "description": "链路方向"
+    },
+    "nrb": {
+      "type": "integer",
+      "required": true,
+      "description": "资源块数 1..110"
+    },
+    "cyclic_prefix": {
+      "type": "string",
+      "enum": [
+        "Normal",
+        "Extended"
+      ],
+      "required": false,
+      "default": "Normal",
+      "description": "循环前缀"
+    },
+    "ports": {
+      "type": "integer",
+      "required": false,
+      "default": 1,
+      "description": "天线端口数"
+    }
+  },
+  "outputs": {
+    "size": {
+      "description": "[子载波,符号,端口]",
+      "optional": true
+    },
+    "grid": {
+      "description": "零填充网格描述",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/lte_resource_grid.py --mode size --link downlink --nrb 6 --ports 2",
+    "result": "{\"size\":[72,14,2]}"
+  }
+}

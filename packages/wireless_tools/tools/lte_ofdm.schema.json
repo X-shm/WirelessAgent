@@ -1,0 +1,85 @@
+{
+  "name": "lte_ofdm",
+  "description": "LTE OFDM 信息/调制/解调工具 (3GPP TS 36.211 §6.2, 复现 MATLAB lteOFDMInfo / lteOFDMModulate / lteOFDMDemodulate)。info 子命令查询 Nfft、循环前缀长度、默认加窗、采样率;modulate 子命令把资源网格(72×14×1 等)变为时域波形(复数拆分 real/imag);demodulate 子命令把波形还原为资源网格(FFT 定位在循环前缀内 cpFraction 处并做频域相位校正)。",
+  "implementation": "3GPP TS 36.211 §6.2.3/6.2.4 + lteOFDMInfo/lteOFDMModulate/lteOFDMDemodulate 逐样本复现(相位校正按编译库实际约定:fftshift 后乘 +2*pi*(cp-fftStart)*(k+nfft/2)/nfft),经 MATLAB 黄金样本校验(210 条 info 表 + 9 组样本,1e-9)",
+  "script": "lte_ofdm.py",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "required": true,
+      "enum": [
+        "info",
+        "modulate",
+        "demodulate"
+      ],
+      "description": "info=查询 OFDM 参数;modulate=资源网格→波形;demodulate=波形→资源网格"
+    },
+    "nrb": {
+      "type": "string",
+      "required": false,
+      "description": "资源块数 6..110(数字或带宽如 10MHz, 1.4/3/5/10/15/20MHz);modulate 时可省略(由网格行数推导)"
+    },
+    "cp": {
+      "type": "string",
+      "required": false,
+      "default": "Normal",
+      "description": "循环前缀类型:Normal(14 符号/slot 对)或 Extended(12 符号/slot 对)"
+    },
+    "windowing": {
+      "type": "integer",
+      "required": false,
+      "default": null,
+      "description": "modulate 加窗长度;省略用默认(Nfft={128:4,256:6,512:4,1024:6,2048:8})"
+    },
+    "nfft": {
+      "type": "integer",
+      "required": false,
+      "default": null,
+      "description": "自定义 FFT 点数;省略按 NRB 取最小 2 的幂(>=12*NRB/0.85)"
+    },
+    "cpfraction": {
+      "type": "number",
+      "required": false,
+      "default": 0.55,
+      "description": "demodulate:FFT 窗口在循环前缀中的位置(0..1),默认 0.55 适配默认加窗"
+    },
+    "grid_file": {
+      "type": "string",
+      "required": false,
+      "description": "modulate:资源网格 JSON 文件,{\"real\":[[...]],\"imag\":[[...]]},复数按 real/imag 拆分"
+    },
+    "grid": {
+      "type": "string",
+      "required": false,
+      "description": "modulate:内联资源网格 JSON，结构同 grid_file"
+    },
+    "waveform_file": {
+      "type": "string",
+      "required": false,
+      "description": "demodulate:时域波形 JSON 文件,{\"real\":[[...]],\"imag\":[[...]]}"
+    },
+    "waveform": {
+      "type": "string",
+      "required": false,
+      "description": "demodulate:内联时域波形 JSON，结构同 waveform_file"
+    }
+  },
+  "outputs": {
+    "info": {
+      "description": "info 模式:nfft/windowing/samplingrate/cplengths;modulate 模式附带 info 字段",
+      "optional": true
+    },
+    "waveform": {
+      "description": "modulate 模式:时域波形(复数拆 real/imag,长度=子帧数*每子帧样本数)",
+      "optional": true
+    },
+    "regrid": {
+      "description": "demodulate 模式:接收资源网格(复数拆 real/imag,形状 nrb*12 × 每子帧符号数 × 天线数)",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python lte_ofdm.py --mode info --nrb 6",
+    "result": "{\"nfft\": 128, \"windowing\": 4, \"samplingrate\": 1920000.0, \"cplengths\": [10, 9, 9, 9, 9, 9, 9, 10, 9, 9, 9, 9, 9, 9]} (info); modulate 返回 {\"info\": ..., \"waveform\": {\"real\": [[...]], \"imag\": [[...]]}}; demodulate 返回 {\"regrid\": {\"real\": [[...]], \"imag\": [[...]]}}"
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "name": "nr_pusch",
+  "script": "nr_pusch.py",
+  "description": "5G NR 物理上行共享信道 PUSCH 编码/解码工具。编码方向：码字经 PUSCH 加扰后调制、层映射，可选 DFT-s-OFDM 变换预编码；解码方向：接收符号经可选变换解预编码、层解映射、软解调、解扰输出软比特 LLR。",
+  "implementation": "3GPP TS 38.211 §6.3.1，加扰 c_init = RNTI*2^15 + NID，变换预编码使用 DFT/IDFT",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": ["encode", "decode"],
+      "required": true,
+      "description": "操作模式：encode（编码）或 decode（解码）"
+    },
+    "bits": {
+      "type": "string",
+      "required": false,
+      "description": "[编码] 逗号分隔的比特串（如 0,1,1,0），经过加扰+调制+层映射"
+    },
+    "symbols": {
+      "type": "string",
+      "required": false,
+      "description": "[解码] 接收符号 JSON，格式：{\"real\":[...],\"imag\":[...]}，形状 [n_symbols, nlayers]"
+    },
+    "modulation": {
+      "type": "string",
+      "enum": ["pi/2-BPSK", "QPSK", "16QAM", "64QAM", "256QAM"],
+      "required": false,
+      "default": "QPSK",
+      "description": "调制方式"
+    },
+    "nlayers": {
+      "type": "integer",
+      "required": false,
+      "default": 1,
+      "description": "[编码] 层数（1..4）"
+    },
+    "ncellid": {
+      "type": "integer",
+      "required": false,
+      "description": "[编码] 物理小区 ID（0..1007），用作加扰身份 NID"
+    },
+    "nid": {
+      "type": "integer",
+      "required": false,
+      "description": "[解码] 加扰身份（0..1023）"
+    },
+    "rnti": {
+      "type": "integer",
+      "required": false,
+      "description": "RNTI（0..65535），与 NID 共同初始化加扰序列"
+    },
+    "tprecode": {
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "启用变换预编码（DFT-s-OFDM）"
+    },
+    "mrb": {
+      "type": "integer",
+      "required": false,
+      "default": 1,
+      "description": "资源块数量（用于变换预编码）"
+    },
+    "nvar": {
+      "type": "number",
+      "required": false,
+      "default": 1e-10,
+      "description": "[解码] 噪声方差（用于软解调）"
+    }
+  },
+  "outputs": {
+    "symbols_real": {
+      "description": "编码输出：符号实部（encode 模式）",
+      "optional": true
+    },
+    "symbols_imag": {
+      "description": "编码输出：符号虚部（encode 模式）",
+      "optional": true
+    },
+    "n_symbols": {
+      "description": "编码输出：符号数量（encode 模式）",
+      "optional": true
+    },
+    "n_layers": {
+      "description": "编码输出：层数（encode 模式）",
+      "optional": true
+    },
+    "soft_bits": {
+      "description": "解码输出：软比特 LLR 值数组（decode 模式）",
+      "optional": true
+    },
+    "n_bits": {
+      "description": "解码输出：软比特数量（decode 模式）",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/nr_pusch.py --mode encode --bits 0,1,1,0,1,0,0,1,1,0,0,1 --modulation QPSK --nlayers 1 --ncellid 17 --rnti 111",
+    "result": "{\"symbols_real\": [0.7071, -0.7071, ...], \"symbols_imag\": [0.7071, 0.7071, ...], \"n_symbols\": 6, \"n_layers\": 1}"
+  }
+}

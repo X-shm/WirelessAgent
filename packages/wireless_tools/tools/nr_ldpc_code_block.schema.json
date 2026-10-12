@@ -1,0 +1,62 @@
+{
+  "name": "nr_ldpc_code_block",
+  "description": "5G NR LDPC 码块分段/解分段。将传输块分段为码块（添加 CRC-24B 和填充比特），或逆向合并。支持 BG1(Kcb=8448) 和 BG2(Kcb=3840)。",
+  "implementation": "3GPP TS 38.212 §5.2.2，经 MATLAB 5G Toolbox nrCodeBlockSegmentLDPC/nrCodeBlockDesegmentLDPC 逻辑实现",
+  "script": "nr_ldpc_code_block.py",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "encode",
+        "decode"
+      ],
+      "required": true,
+      "description": "encode: 传输块分段; decode: 码块合并"
+    },
+    "bgn": {
+      "type": "integer",
+      "enum": [
+        1,
+        2
+      ],
+      "required": true,
+      "description": "基图编号：1=BG1(Kcb=8448), 2=BG2(Kcb=3840)"
+    },
+    "bits": {
+      "type": "string",
+      "required": false,
+      "description": "逗号分隔的传输比特（encode 模式）"
+    },
+    "cbs": {
+      "type": "string",
+      "required": false,
+      "description": "JSON 二维数组，码块矩阵（decode 模式）"
+    },
+    "blk-len": {
+      "type": "integer",
+      "required": false,
+      "description": "原始传输块长度（decode 模式）"
+    }
+  },
+  "outputs": {
+    "cbs": {
+      "description": "码块分段矩阵 K×C（encode 模式），填充比特为 -1",
+      "optional": true
+    },
+    "blk": {
+      "description": "合并后的传输块比特（decode 模式）",
+      "optional": true
+    },
+    "crc_errors": {
+      "description": "每个码块的 CRC 错误标志（decode 模式，C=1 时为空）",
+      "optional": true
+    },
+    "info": {
+      "description": "分段参数：C(码块数), CBZ(码块数据比特), F(填充数), K(码块总长), Zc(提升大小), Kb(基图系统比特)"
+    }
+  },
+  "example": {
+    "cmd": "python tools/nr_ldpc_code_block.py --mode encode --bgn 2 --bits 1,0,1,1,0,0,1,0,1,1,0,1,1,0,0,1,0,1,1,0,0,1,1,0,1,1,0,0,1,0,1,1,0,1,1,0,0,1,0,1",
+    "result": "{\"mode\":\"encode\",\"bgn\":2,\"blk_len\":40,\"C\":1,\"K\":160,\"cbs\":[...],\"info\":{...}}"
+  }
+}

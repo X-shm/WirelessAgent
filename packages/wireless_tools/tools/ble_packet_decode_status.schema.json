@@ -1,0 +1,40 @@
+{
+  "name": "ble_packet_decode_status",
+  "script": "ble_packet_decode_status.py",
+  "description": "BLE 数据包解码状态枚举名称、数值与比较。",
+  "implementation": "纯 Python 静态 R2026a 枚举映射。",
+  "inputs": {
+    "input": {
+      "type": "string",
+      "required": true,
+      "description": "JSON：operation=list|lookup|compare，status 或 left/right"
+    },
+    "input_file": {
+      "type": "string",
+      "required": false,
+      "description": "与 input 互斥的 JSON 文件"
+    }
+  },
+  "outputs": {
+    "name": {
+      "description": "状态名称",
+      "optional": true
+    },
+    "code": {
+      "description": "状态数值",
+      "optional": true
+    },
+    "equal": {
+      "description": "比较结果",
+      "optional": true
+    },
+    "status": {
+      "description": "完整枚举表",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/ble_packet_decode_status.py --input '{\"status\":\"CRCFailed\"}'",
+    "result": "{"
+  }
+}

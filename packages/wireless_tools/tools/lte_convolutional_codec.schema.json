@@ -1,0 +1,40 @@
+{
+  "name": "lte_convolutional_codec",
+  "script": "lte_convolutional_codec.py",
+  "description": "LTE 约束长度 7、码率 1/3 尾咬合卷积编码与硬判决 Viterbi 解码。",
+  "implementation": "TS 36.212 G0=133/G1=171/G2=165 八进制；输出按三路流块拼接。",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "encode",
+        "decode"
+      ],
+      "required": true,
+      "description": "方向"
+    },
+    "bits": {
+      "type": "string",
+      "required": true,
+      "description": "逗号二进制序列"
+    }
+  },
+  "outputs": {
+    "coded_bits": {
+      "description": "编码比特",
+      "optional": true
+    },
+    "decoded_bits": {
+      "description": "解码比特",
+      "optional": true
+    },
+    "path_metric": {
+      "description": "硬判决路径度量",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/lte_convolutional_codec.py --mode encode --bits 1,0,1,1,0,0,1,0",
+    "result": "{\"coded_bits\":[...]}"
+  }
+}

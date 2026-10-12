@@ -1,0 +1,44 @@
+{
+  "name": "lte_cqi_select",
+  "script": "lte_cqi_select.py",
+  "description": "从显式宽带/子带 SINR 选择 LTE CQI 报告，对应 lteCQISelect 的最终 SINR 查表子集。",
+  "implementation": "直接移植公开 lteCQISelect.m 的各传输方案 90% 吞吐线性门限，并实现子带差分 CQI 的 [-1,2] 饱和。",
+  "inputs": {
+    "sinr_db": {
+      "type": "string",
+      "required": true,
+      "description": "标量或子带 SINR dB JSON 数组"
+    },
+    "tx_scheme": {
+      "type": "string",
+      "required": false,
+      "default": "Port0",
+      "description": "LTE 传输方案"
+    },
+    "reporting": {
+      "type": "string",
+      "enum": [
+        "Wideband",
+        "Subband"
+      ],
+      "required": false,
+      "default": "Wideband",
+      "description": "报告模式"
+    },
+    "custom_thresholds": {
+      "type": "string",
+      "required": false,
+      "description": "可选 15 个 CQI 门限 JSON 数组"
+    }
+  },
+  "outputs": {
+    "cqi_report": "宽带或宽带+子带差分报告",
+    "wideband_cqi": "宽带 CQI",
+    "subband_cqi": "逐子带原始 CQI",
+    "sinr_thresholds_db": "实际门限"
+  },
+  "example": {
+    "cmd": "python tools/lte_cqi_select.py --sinr_db '[5,10,15]' --tx_scheme SpatialMux --reporting Subband",
+    "result": "{\"cqi_report\":[...],\"wideband_cqi\":...}"
+  }
+}

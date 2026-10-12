@@ -1,0 +1,34 @@
+{
+  "name": "qos_policy_builder",
+  "script": "qos_policy_builder.py",
+  "description": "根据业务类型、速率、时延和可靠性需求生成可审计的 5QI-oriented QoS 建议。",
+  "implementation": "提供 voice/live_video/gaming/IMS/buffered_video/web/industrial 模板，允许显式覆盖，并检查 GBR 是否超过链路保留容量。",
+  "inputs": {
+    "services": {
+      "type": "string",
+      "required": true,
+      "description": "业务需求 JSON 数组"
+    },
+    "link_capacity_kbps": {
+      "type": "number",
+      "required": false,
+      "description": "可用链路容量"
+    },
+    "reserve_fraction": {
+      "type": "number",
+      "required": false,
+      "default": 0.9,
+      "description": "可承诺容量比例"
+    }
+  },
+  "outputs": {
+    "qos_data": "逐业务 QoS 建议",
+    "total_gfbr_kbps": "GBR 合计",
+    "capacity_feasible": "容量是否可承诺",
+    "warning": "容量警告"
+  },
+  "example": {
+    "cmd": "python tools/qos_policy_builder.py --services '[{\"id\":\"v\",\"service_type\":\"voice\",\"guaranteed_kbps\":100,\"max_kbps\":200}]' --link_capacity_kbps 1000",
+    "result": "{\"qos_data\":[{\"five_qi\":1,...}],\"capacity_feasible\":true}"
+  }
+}

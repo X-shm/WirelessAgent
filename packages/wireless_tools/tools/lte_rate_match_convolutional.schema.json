@@ -1,0 +1,34 @@
+{
+  "name": "lte_rate_match_convolutional",
+  "script": "lte_rate_match_convolutional.py",
+  "description": "LTE 卷积码子块交织、虚拟循环缓冲区速率匹配及软合并恢复。",
+  "implementation": "3GPP TS 36.212 §5.1.4.2。",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "match",
+        "recover"
+      ],
+      "required": true,
+      "description": "方向"
+    },
+    "values": {
+      "type": "string",
+      "required": true,
+      "description": "JSON 数值数组"
+    },
+    "output_length": {
+      "type": "integer",
+      "required": true,
+      "description": "目标输出长度"
+    }
+  },
+  "outputs": {
+    "values": "匹配或恢复后的值"
+  },
+  "example": {
+    "cmd": "python tools/lte_rate_match_convolutional.py --mode match --values '[0,1,0,1,1,0,1,0,0,1,1,0]' --output_length 20",
+    "result": "{\"values\":[...]}"
+  }
+}

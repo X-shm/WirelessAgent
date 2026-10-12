@@ -1,0 +1,40 @@
+{
+  "name": "ble_pcap_writer",
+  "script": "ble_pcap_writer.py",
+  "description": "将 BLE Link Layer 数据包封装为 PCAP 或 PCAPNG 捕获文件。",
+  "implementation": "纯 Python PCAP 2.4/PCAPNG 写入，支持大小端、DLT 251/256、接口及注释、多个包和微秒时间戳；节点回调未实现。",
+  "inputs": {
+    "input": {
+      "type": "string",
+      "required": true,
+      "description": "JSON：packets=[{packet,timestamp_us,phy_header?,packet_comment?}]，file_extension=pcap|pcapng、byte_order、phy_header_present、file_comment、interface、output_path 可选"
+    },
+    "input_file": {
+      "type": "string",
+      "required": false,
+      "description": "与 input 互斥的 JSON 文件"
+    }
+  },
+  "outputs": {
+    "pcapng_hex": {
+      "description": "PCAPNG 十六进制内容（选择 pcapng 时）",
+      "optional": true
+    },
+    "packet_count": {
+      "description": "包数量",
+      "optional": true
+    },
+    "packets": {
+      "description": "PCAP 十六进制内容（选择 pcap 时）",
+      "optional": true
+    },
+    "file": {
+      "description": "可选新建文件路径",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/ble_pcap_writer.py --input '{\"file_extension\":\"pcapng\",\"packets\":[{\"packet\":\"D6BE898E4009AB8967452301020106A8F1DF\",\"timestamp_us\":0}]}'",
+    "result": "{"
+  }
+}

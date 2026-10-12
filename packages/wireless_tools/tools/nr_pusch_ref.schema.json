@@ -1,0 +1,29 @@
+{
+  "name": "nr_pusch_ref",
+  "script": "nr_pusch_ref.py",
+  "description": "5G NR PUSCH 参考信号和索引工具。生成 PUSCH DM-RS 序列、DM-RS 资源索引和 PUSCH 数据资源索引。对应 MATLAB nrPUSCHDMRS、nrPUSCHDMRSIndices、nrPUSCHIndices。",
+  "implementation": "3GPP TS 38.211 §6.4.1.1（简化版）",
+  "inputs": {
+    "mode": {"type": "string", "enum": ["dmrs", "dmrs_indices", "pusch_indices"], "required": true},
+    "ncellid": {"type": "integer", "required": false, "default": 0},
+    "nslot": {"type": "integer", "required": false, "default": 0},
+    "symbol_start": {"type": "integer", "required": false, "default": 0},
+    "num_symbols": {"type": "integer", "required": false, "default": 1},
+    "n_rb": {"type": "integer", "required": false, "default": 1},
+    "num_ports": {"type": "integer", "required": false, "default": 1},
+    "ktc": {"type": "integer", "required": false, "default": 2}
+  },
+  "outputs": {
+    "symbols_real": {"description": "DM-RS 符号实部", "optional": true},
+    "symbols_imag": {"description": "DM-RS 符号虚部", "optional": true},
+    "indices": {"description": "资源元素索引", "optional": true},
+    "n_re": {"description": "资源元素数量", "optional": true},
+    "n_ports": {"description": "端口数量", "optional": true},
+    "n_indices": {"description": "索引数量", "optional": true},
+    "info": {"description": "分配信息", "optional": true}
+  },
+  "example": {
+    "cmd": "python tools/nr_pusch_ref.py --mode dmrs --ncellid 17 --symbol_start 0 --num_symbols 1 --n_rb 1",
+    "result": "{\"symbols_real\": [...], \"symbols_imag\": [...], \"n_re\": 6, \"n_ports\": 1}"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "node_position_grid",
+  "script": "node_position_grid.py",
+  "description": "在矩形网格中按中心、左下角或随机方式生成三维节点位置。",
+  "implementation": "转换 Wireless Network Toolbox nodePositionGrid 的矩形边界主要调用形式。",
+  "inputs": {
+    "boundary_dimension": {"type": "string", "required": true, "description": "length,width"},
+    "center": {"type": "string", "required": false, "default": "0,0,0", "description": "x,y,z"},
+    "grid_size": {"type": "string", "required": false, "default": "1,1", "description": "rows,cols"},
+    "num_nodes_per_cell": {"type": "integer", "required": false, "default": 1, "description": "每个单元节点数"},
+    "placement_type": {"type": "string", "enum": ["center", "bottom-left", "random"], "required": false, "default": "center", "description": "放置方式"},
+    "z_coordinate": {"type": "number", "required": false, "default": 0, "description": "节点高度"},
+    "x_delta": {"type": "number", "required": false, "description": "横向节点间距"},
+    "y_delta": {"type": "number", "required": false, "description": "纵向节点间距"},
+    "seed": {"type": "integer", "required": false, "description": "随机种子"}
+  },
+  "outputs": {"positions": "N×3 节点位置", "cell_polygons": "网格单元顶点"},
+  "example": {"cmd": "python tools/node_position_grid.py --boundary_dimension 100,50 --grid_size 2,2", "result": "{\"positions\":[[-25,12.5,0],...],\"cell_polygons\":[...]}"}
+}

@@ -1,0 +1,36 @@
+{
+  "name": "bluetooth_classic_whitening",
+  "script": "bluetooth_classic_whitening.py",
+  "description": "可续传的 Bluetooth x^7+x^4+1 白化/解白化，对应 MATLAB bluetoothWhiten。",
+  "implementation": "纯 Python、显式 JSON state；BLE channel seed 与 MATLAB 位序一致。",
+  "inputs": {
+    "input": {
+      "type": "string",
+      "required": true,
+      "description": "JSON：bits 与 channel_index，或 initial_conditions"
+    },
+    "input_file": {
+      "type": "string",
+      "required": false,
+      "description": "与 input 互斥的 JSON 文件"
+    },
+    "state": {
+      "type": "string",
+      "required": false,
+      "description": "前一调用返回的 JSON state"
+    },
+    "state_file": {
+      "type": "string",
+      "required": false,
+      "description": "前一调用 state 的 JSON 文件"
+    }
+  },
+  "outputs": {
+    "bits": "白化或解白化后的位",
+    "state": "可继续调用的状态"
+  },
+  "example": {
+    "cmd": "python tools/bluetooth_classic_whitening.py --input '{\"bits\":[1,0,1],\"channel_index\":37}'",
+    "result": "{\"ok\":true,...}"
+  }
+}

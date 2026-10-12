@@ -1,0 +1,60 @@
+{
+  "name": "interleaver",
+  "script": "interleaver.py",
+  "description": "矩阵、种子随机或显式排列交织/解交织。",
+  "implementation": "覆盖 matintrlv/matdeintrlv、randintrlv/randdeintrlv、intrlv/deintrlv 的主要行为。",
+  "inputs": {
+    "direction": {
+      "type": "string",
+      "enum": [
+        "interleave",
+        "deinterleave"
+      ],
+      "required": true,
+      "description": "方向"
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "matrix",
+        "random",
+        "explicit"
+      ],
+      "required": true,
+      "description": "交织类型"
+    },
+    "data": {
+      "type": "string",
+      "required": true,
+      "description": "JSON 数组"
+    },
+    "rows": {
+      "type": "integer",
+      "required": false,
+      "description": "矩阵行数"
+    },
+    "columns": {
+      "type": "integer",
+      "required": false,
+      "description": "矩阵列数"
+    },
+    "seed": {
+      "type": "integer",
+      "required": false,
+      "description": "随机种子"
+    },
+    "indices": {
+      "type": "string",
+      "required": false,
+      "description": "零基显式排列"
+    }
+  },
+  "outputs": {
+    "data": "交织结果",
+    "permutation": "使用的零基排列"
+  },
+  "example": {
+    "cmd": "python tools/interleaver.py --direction interleave --kind matrix --data '[1,2,3,4,5,6]' --rows 2 --columns 3",
+    "result": "{\"data\":[1,4,2,5,3,6]}"
+  }
+}

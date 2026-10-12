@@ -1,0 +1,27 @@
+{
+  "name": "bluetooth_range",
+  "script": "bluetooth_range.py",
+  "description": "Bluetooth BR/EDR 或 LE 链路预算距离估算，对应 bluetoothRange 和 bluetoothRangeConfig。",
+  "implementation": "纯 Python 室外 two-ray、工业、家庭及办公室模型；输出 88% 阴影衰落范围及链路预算。",
+  "inputs": {
+    "input": {
+      "type": "string",
+      "required": true,
+      "description": "JSON：environment、signal_power_type、功率/灵敏度/增益/损耗、室外天线高度及环境模型参数"
+    },
+    "input_file": {
+      "type": "string",
+      "required": false,
+      "description": "与 input 互斥的 JSON 文件"
+    }
+  },
+  "outputs": {
+    "range_m": "估算距离下限和上限（米）",
+    "path_loss_db": "链路预算路径损耗",
+    "received_power_dbm": "接收功率"
+  },
+  "example": {
+    "cmd": "python tools/bluetooth_range.py --input '{\"environment\":\"Outdoor\",\"transmitter_antenna_height\":2}'",
+    "result": "{\"ok\":true,...}"
+  }
+}

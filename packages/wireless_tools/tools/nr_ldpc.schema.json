@@ -1,0 +1,70 @@
+{
+  "name": "nr_ldpc",
+  "description": "5G NR LDPC 编解码。支持 BG1(22/66)和 BG2(10/50)，可指定提升大小 Zc。经 MATLAB nrLDPCEncode 黄金样本校验。",
+  "implementation": "3GPP TS 38.212 §5.3.2，经 MATLAB 5G Toolbox nrLDPCEncode/nrLDPCDecode 黄金样本校验",
+  "script": "nr_ldpc.py",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "encode",
+        "decode"
+      ],
+      "required": true,
+      "description": "编码或解码模式"
+    },
+    "bgn": {
+      "type": "integer",
+      "enum": [
+        1,
+        2
+      ],
+      "required": true,
+      "description": "基图编号：1=BG1(码率1/3), 2=BG2(码率1/5)"
+    },
+    "zc": {
+      "type": "integer",
+      "required": true,
+      "description": "提升大小，如 8/16/32/64/128/256"
+    },
+    "bits": {
+      "type": "string",
+      "required": false,
+      "description": "逗号分隔的比特串（编码方向=信息比特，解码方向=LLR硬判决）"
+    },
+    "hex": {
+      "type": "string",
+      "required": false,
+      "description": "十六进制比特串（高位在前），与 bits 二选一"
+    },
+    "llr": {
+      "type": "string",
+      "required": false,
+      "description": "逗号分隔的 LLR 值（解码模式可选）"
+    },
+    "max-iter": {
+      "type": "integer",
+      "required": false,
+      "default": 25,
+      "description": "解码最大迭代次数"
+    }
+  },
+  "outputs": {
+    "output_bits": {
+      "description": "编码后的码字比特列表（编码方向）",
+      "optional": true
+    },
+    "decoded_bits": {
+      "description": "解码后的信息比特列表（解码方向）",
+      "optional": true
+    },
+    "iterations": {
+      "description": "解码实际迭代次数（解码方向）",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/nr_ldpc.py --mode encode --bgn 1 --zc 8 --bits 1,0,1,1,0,0,1,0,1,1,0,1,1,0,0,1,0,1,1,0,0,1",
+    "result": "{\"mode\":\"encode\",\"bgn\":1,\"zc\":8,\"output_bits\":[...]}"
+  }
+}

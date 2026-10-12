@@ -1,0 +1,66 @@
+{
+  "name": "nr_pbch",
+  "description": "5G NR 物理广播信道 PBCH 编码/解码工具。编码方向：BCH 码字经 PBCH PRBS 加扰后 QPSK 调制输出复符号；解码方向：接收符号经 QPSK 软解调后 PBCH PRBS 解扰输出软比特 LLR。",
+  "implementation": "3GPP TS 38.211 §7.3.3，加扰序列 = nrPRBS(ncellid, [v*n, n])，调制/解调采用 QPSK，软解调使用 max-log-MAP LLR",
+  "script": "nr_pbch.py",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": ["encode", "decode"],
+      "required": true,
+      "description": "操作模式：encode（编码）或 decode（解码）"
+    },
+    "bits": {
+      "type": "string",
+      "required": false,
+      "description": "encode 模式输入：逗号分隔的比特串（标准 PBCH 长度 864 bit），如 0,1,1,0"
+    },
+    "symbols": {
+      "type": "string",
+      "required": false,
+      "description": "decode 模式输入：JSON 格式复符号 {\"real\":[...],\"imag\":[...]}"
+    },
+    "ncellid": {
+      "type": "integer",
+      "required": true,
+      "description": "物理小区 ID（0..1007），用于初始化 PBCH PRBS"
+    },
+    "v": {
+      "type": "integer",
+      "required": true,
+      "description": "SS/PBCH 块索引的 2 或 3 个最低有效位（0..7），用于选择 PRBS 偏移"
+    },
+    "nvar": {
+      "type": "number",
+      "required": false,
+      "default": 1e-10,
+      "description": "解码时噪声方差估计值，用于 QPSK 软解调（默认 1e-10）"
+    }
+  },
+  "outputs": {
+    "symbols_real": {
+      "description": "编码输出：QPSK 符号实部数组（encode 模式）",
+      "optional": true
+    },
+    "symbols_imag": {
+      "description": "编码输出：QPSK 符号虚部数组（encode 模式）",
+      "optional": true
+    },
+    "n_symbols": {
+      "description": "编码输出：QPSK 符号数量（= 比特数 / 2）（encode 模式）",
+      "optional": true
+    },
+    "soft_bits": {
+      "description": "解码输出：解扰后的软比特 LLR 值数组，正为 0、负为 1（decode 模式）",
+      "optional": true
+    },
+    "n_bits": {
+      "description": "解码输出：软比特数量（= 符号数 * 2）（decode 模式）",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/nr_pbch.py --mode encode --bits 0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1 --ncellid 17 --v 0",
+    "result": "{\"symbols_real\": [0.7071, -0.7071, 0.7071, -0.7071, ...], \"symbols_imag\": [0.7071, 0.7071, -0.7071, -0.7071, ...], \"n_symbols\": 20}"
+  }
+}

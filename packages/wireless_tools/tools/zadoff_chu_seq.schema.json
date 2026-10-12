@@ -1,0 +1,12 @@
+{
+  "name": "zadoff_chu_seq",
+  "script": "zadoff_chu_seq.py",
+  "description": "生成奇数长度的根 Zadoff-Chu 复数序列。",
+  "implementation": "逐公式转换自 MATLAB Communications Toolbox zadoffChuSeq 的公开 M 文件。",
+  "inputs": {
+    "root": {"type": "integer", "required": true, "description": "正整数根序号，与 length 互质"},
+    "length": {"type": "integer", "required": true, "description": "正奇数序列长度"}
+  },
+  "outputs": {"symbols_real": "序列实部", "symbols_imag": "序列虚部"},
+  "example": {"cmd": "python tools/zadoff_chu_seq.py --root 25 --length 63", "result": "{\"root\":25,\"length\":63,\"symbols_real\":[...],\"symbols_imag\":[...]}"}
+}

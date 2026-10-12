@@ -1,0 +1,26 @@
+{
+  "name": "wlan_symbol_timing",
+  "script": "wlan_symbol_timing.py",
+  "description": "IEEE 802.11 符号定时估计工具。基于 L-LTF 互相关（含 CSD 循环移位延迟细化）估计 L-STF 起始位置；也可单独生成本地 L-LTF 时域波形。对应 MATLAB wlanSymbolTimingEstimate / wlanLLTF。",
+  "implementation": "L-LTF 频域 52 tones（IEEE 802.11-2012 Eq. 20-11），CP=32，2 个 OFDM 符号共 160 采样，幅度归一化 Nfft/sqrt(numTones)；互相关功率峰值 + ΔCSD=200ns 细化",
+  "inputs": {
+    "subcmd": {"type": "string", "enum": ["estimate", "lltf"], "required": false, "default": "estimate", "description": "estimate: 定时估计; lltf: 生成本地 L-LTF 波形"},
+    "waveform": {"type": "string", "required": false, "description": "[estimate] 接收波形 JSON：{\"real\":[...],\"imag\":[...]}，形状 [Ns] 或 [Ns,Nr]"},
+    "chanbw": {"type": "string", "enum": ["CBW5", "CBW10", "CBW20", "CBW40", "CBW80", "CBW160", "CBW320"], "required": false, "default": "CBW20", "description": "信道带宽"},
+    "threshold": {"type": "number", "required": false, "default": 1.0, "description": "[estimate] 检测门限 (0..1)"}
+  },
+  "outputs": {
+    "start_offset": {"description": "[estimate] 估计的 L-STF 起始偏移，输入过短为 null", "optional": true},
+    "n_metric": {"description": "[estimate] 判决度量长度", "optional": true},
+    "metric": {"description": "[estimate] 判决度量曲线", "optional": true},
+    "lltf_real": {"description": "[lltf] L-LTF 波形实部", "optional": true},
+    "lltf_imag": {"description": "[lltf] L-LTF 波形虚部", "optional": true},
+    "length": {"description": "[lltf] 波形长度", "optional": true},
+    "channel_bandwidth": {"description": "信道带宽"},
+    "threshold": {"description": "[estimate] 检测门限", "optional": true}
+  },
+  "example": {
+    "cmd": "python tools/wlan_symbol_timing.py --subcmd lltf --chanbw CBW20",
+    "result": "{\"lltf_real\": [...], \"lltf_imag\": [...], \"length\": 160, \"channel_bandwidth\": \"CBW20\"}"
+  }
+}

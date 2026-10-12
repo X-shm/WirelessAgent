@@ -1,0 +1,69 @@
+{
+  "name": "ofdm_modulation",
+  "script": "ofdm_modulation.py",
+  "description": "通用 OFDM 调制/解调，支持可变 CP、空载波和导频。",
+  "implementation": "对应 ofdmmod/ofdmdemod 的基础 1 倍采样形式。载波索引采用 MATLAB 1-based。",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "modulate",
+        "demodulate"
+      ],
+      "required": true,
+      "description": "方向"
+    },
+    "data": {
+      "type": "string",
+      "required": true,
+      "description": "real/imag JSON 数据或波形"
+    },
+    "nfft": {
+      "type": "integer",
+      "required": true,
+      "description": "FFT 长度"
+    },
+    "cp_length": {
+      "type": "string",
+      "required": true,
+      "description": "CP 标量或逗号向量"
+    },
+    "symbol_offset": {
+      "type": "string",
+      "required": false,
+      "description": "解调 FFT 窗口偏移"
+    },
+    "null_indices": {
+      "type": "string",
+      "required": false,
+      "default": "",
+      "description": "1-based 空载波索引"
+    },
+    "pilot_indices": {
+      "type": "string",
+      "required": false,
+      "default": "",
+      "description": "1-based 导频索引"
+    },
+    "pilots": {
+      "type": "string",
+      "required": false,
+      "description": "调制导频 real/imag JSON"
+    }
+  },
+  "outputs": {
+    "waveform": "时域波形（调制方向）",
+    "data": {
+      "description": "解调数据（解调方向）",
+      "optional": true
+    },
+    "pilots": {
+      "description": "解调导频（解调方向）",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/ofdm_modulation.py --mode modulate --nfft 8 --cp_length 2 --data '{\"real\":[0.707,0.707,-0.707,-0.707,0.707,0.707,-0.707,-0.707],\"imag\":[0.707,-0.707,0.707,-0.707,0.707,-0.707,0.707,-0.707]}'",
+    "result": "{\"waveform\":{...}}"
+  }
+}

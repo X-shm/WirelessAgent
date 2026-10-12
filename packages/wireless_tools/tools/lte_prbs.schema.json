@@ -1,0 +1,14 @@
+{
+  "name": "lte_prbs",
+  "script": "lte_prbs.py",
+  "description": "生成 LTE 31 位 Gold 伪随机二进制序列，支持偏移和 signed 映射。",
+  "implementation": "3GPP TS 36.211 §7.2 独立实现，对应 ltePRBS。",
+  "inputs": {
+    "cinit": {"type": "integer", "required": true, "description": "31 位初始化值"},
+    "length": {"type": "integer", "required": true, "description": "输出长度"},
+    "start": {"type": "integer", "required": false, "default": 0, "description": "零基起始位置"},
+    "mapping": {"type": "string", "enum": ["binary", "signed"], "required": false, "default": "binary", "description": "0/1 或 +1/-1 映射"}
+  },
+  "outputs": {"sequence": "PRBS 序列", "cinit": "初始化值"},
+  "example": {"cmd": "python tools/lte_prbs.py --cinit 1 --length 8", "result": "{\"sequence\":[0,0,0,0,0,0,0,0]}"}
+}

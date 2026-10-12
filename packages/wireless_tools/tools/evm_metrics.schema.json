@@ -1,0 +1,35 @@
+{
+  "name": "evm_metrics",
+  "script": "evm_metrics.py",
+  "description": "计算归一化误差向量、RMS/峰值 EVM、百分比和 dB 指标，对应 lteEVM。",
+  "implementation": "严格采用 lteEVM 的参考信号 RMS 功率归一化定义，也可直接汇总已有误差向量。",
+  "inputs": {
+    "measured": {
+      "type": "string",
+      "required": false,
+      "description": "测量复符号 JSON"
+    },
+    "reference": {
+      "type": "string",
+      "required": false,
+      "description": "参考复符号 JSON"
+    },
+    "error_vector": {
+      "type": "string",
+      "required": false,
+      "description": "已有归一化误差向量 JSON"
+    }
+  },
+  "outputs": {
+    "rms": "线性 RMS EVM",
+    "peak": "线性峰值 EVM",
+    "rms_percent": "RMS 百分比",
+    "peak_percent": "峰值百分比",
+    "rms_db": "20log10(RMS)",
+    "error_vector": "归一化误差向量"
+  },
+  "example": {
+    "cmd": "python tools/evm_metrics.py --measured '{\"real\":[1.1,0],\"imag\":[0,1.1]}' --reference '{\"real\":[1,0],\"imag\":[0,1]}'",
+    "result": "{\"rms\":0.1,...}"
+  }
+}

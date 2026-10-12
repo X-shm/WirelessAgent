@@ -1,0 +1,25 @@
+{
+  "name": "bluetooth_path_loss",
+  "script": "bluetooth_path_loss.py",
+  "description": "Bluetooth BR/EDR 或 LE 的路径损耗，语义封装 bluetoothPathLoss 与 bluetoothPathLossConfig。",
+  "implementation": "纯 Python 的 Outdoor two-ray、Industrial log-normal、Home/Office NIST 模型。若要跨运行精确复现随机阴影衰落，请显式传入 shadow_fading_db。",
+  "inputs": {
+    "input": {
+      "type": "string",
+      "required": true,
+      "description": "JSON：distance，以及 environment、增益/损耗、高度、指数、方差和可选 shadow_fading_db"
+    },
+    "input_file": {
+      "type": "string",
+      "required": false,
+      "description": "与 input 互斥的 JSON 文件"
+    }
+  },
+  "outputs": {
+    "path_loss_db": "每个输入距离的路径损耗 dB"
+  },
+  "example": {
+    "cmd": "python tools/bluetooth_path_loss.py --input '{\"distance\":[1,10],\"environment\":\"Industrial\",\"standard_deviation\":0}'",
+    "result": "{\"ok\":true,...}"
+  }
+}

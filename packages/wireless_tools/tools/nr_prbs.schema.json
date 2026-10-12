@@ -1,0 +1,50 @@
+{
+  "name": "nr_prbs",
+  "script": "nr_prbs.py",
+  "description": "5G NR 伪随机二进制序列（PRBS）生成器。基于 Gold 序列（TS 38.211 Section 5.2.1），用于加扰和参考信号生成。",
+  "implementation": "3GPP TS 38.211 §5.2.1，两条 m-序列 (x^31+x^3+1 和 x^31+x^3+x^2+x+1) 异或",
+  "inputs": {
+    "cinit": {
+      "type": "integer",
+      "required": true,
+      "description": "PRBS 初始化值（31 位）"
+    },
+    "n": {
+      "type": "integer",
+      "required": false,
+      "description": "生成序列长度（与 range 二选一）"
+    },
+    "mapping": {
+      "type": "string",
+      "required": false,
+      "default": "binary",
+      "description": "输出映射 (binary=0/1, signed=±1)"
+    },
+    "offset": {
+      "type": "string",
+      "required": false,
+      "description": "序列范围 [offset, length]（JSON 数组，与 n 二选一）"
+    }
+  },
+  "outputs": {
+    "cinit": {
+      "description": "PRBS 初始化值"
+    },
+    "n": {
+      "description": "序列长度"
+    },
+    "offset": {
+      "description": "序列起始偏移"
+    },
+    "mapping": {
+      "description": "输出映射方式"
+    },
+    "seq": {
+      "description": "PRBS 序列"
+    }
+  },
+  "example": {
+    "cmd": "python tools/nr_prbs.py --cinit 12345 --n 100",
+    "result": "{\"cinit\": 12345, \"n\": 100, \"offset\": 0, \"mapping\": \"binary\", \"seq\": [0,1,1,0,1,...]}"
+  }
+}

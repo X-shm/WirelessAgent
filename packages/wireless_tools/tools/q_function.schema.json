@@ -1,0 +1,29 @@
+{
+  "name": "q_function",
+  "script": "q_function.py",
+  "description": "计算高斯 Q 函数或其反函数，对应 qfunc/qfuncinv。",
+  "implementation": "使用 erfc 和标准正态分布逆累积分布实现。",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "qfunc",
+        "qfuncinv"
+      ],
+      "required": true,
+      "description": "方向"
+    },
+    "values": {
+      "type": "string",
+      "required": true,
+      "description": "JSON 数组或逗号分隔数值"
+    }
+  },
+  "outputs": {
+    "output": "逐元素计算结果"
+  },
+  "example": {
+    "cmd": "python tools/q_function.py --mode qfunc --values '[0,1]'",
+    "result": "{\"output\":[0.5,0.1586552539]}"
+  }
+}

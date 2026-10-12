@@ -1,0 +1,44 @@
+{
+  "name": "lte_layer_map",
+  "script": "lte_layer_map.py",
+  "description": "LTE 一或两码字的层映射/解映射。",
+  "implementation": "3GPP TS 36.211 §5.3.2A/6.3.3 的交织层分配，适配 real/imag JSON。",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "map",
+        "demap"
+      ],
+      "required": true,
+      "description": "方向"
+    },
+    "data": {
+      "type": "string",
+      "required": true,
+      "description": "码字列表或层矩阵 JSON"
+    },
+    "nlayers": {
+      "type": "integer",
+      "required": false,
+      "description": "map 模式层数 1..8"
+    },
+    "ncodewords": {
+      "type": "integer",
+      "required": false,
+      "default": 1,
+      "description": "demap 输出码字数"
+    }
+  },
+  "outputs": {
+    "layers": "层矩阵（map 模式）",
+    "codewords": {
+      "description": "解映射码字（demap 模式）",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/lte_layer_map.py --mode map --nlayers 2 --data '[{\"real\":[1.0,0.0,-1.0,0.0],\"imag\":[0.0,1.0,0.0,-1.0]}]'",
+    "result": "{\"layers\":{\"real\":[...],\"imag\":[...]}"
+  }
+}

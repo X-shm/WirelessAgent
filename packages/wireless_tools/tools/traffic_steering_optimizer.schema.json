@@ -1,0 +1,33 @@
+{
+  "name": "traffic_steering_optimizer",
+  "script": "traffic_steering_optimizer.py",
+  "description": "根据容量、时延、丢包、SNR、成本和滞回为业务流选择接入网络。",
+  "implementation": "按优先级处理业务，过滤容量/时延不可行接入，使用可解释质量分数并保留接近最优的当前接入以避免乒乓。",
+  "inputs": {
+    "flows": {
+      "type": "string",
+      "required": true,
+      "description": "业务流 JSON 数组"
+    },
+    "accesses": {
+      "type": "string",
+      "required": true,
+      "description": "候选接入网络 JSON 数组"
+    },
+    "hysteresis": {
+      "type": "number",
+      "required": false,
+      "default": 0.05,
+      "description": "保持当前接入的相对滞回"
+    }
+  },
+  "outputs": {
+    "assignments": "逐流接入、分配速率和切换标记",
+    "remaining_capacity_kbps": "剩余容量",
+    "unserved_flow_count": "未完全服务流数"
+  },
+  "example": {
+    "cmd": "python tools/traffic_steering_optimizer.py --flows '[{\"id\":\"f1\",\"required_kbps\":1000,\"max_latency_ms\":20}]' --accesses '[{\"id\":\"lte\",\"capacity_kbps\":2000,\"latency_ms\":15,\"snr_db\":15}]'",
+    "result": "{\"assignments\":[...],\"unserved_flow_count\":0}"
+  }
+}

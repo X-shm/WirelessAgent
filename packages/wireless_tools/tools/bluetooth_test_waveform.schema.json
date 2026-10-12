@@ -1,0 +1,43 @@
+{
+  "name": "bluetooth_test_waveform",
+  "script": "bluetooth_test_waveform.py",
+  "description": "生成 Bluetooth BR/EDR/LE RF-PHY 测试包和理想波形。",
+  "implementation": "纯 Python BR、EDR2M、EDR3M 与四种 LE PHY，PRBS9/15、六种固定载荷模式及 LE1M/LE2M ConnectionCTE；EDR 长度和波形已与 MATLAB 样本核对。",
+  "inputs": {
+    "input": {
+      "type": "string",
+      "required": true,
+      "description": "JSON：properties 为 test_waveform 配置字段"
+    },
+    "input_file": {
+      "type": "string",
+      "required": false,
+      "description": "与 input 互斥的 JSON 文件"
+    },
+    "output_file": {"type": "string", "required": false, "description": "大波形的 .npz 输出路径"},
+    "inline_limit": {"type": "integer", "required": false, "default": 4096, "description": "内联标量数量上限"},
+    "overwrite": {"type": "boolean", "required": false, "default": false, "description": "允许覆盖 output_file"}
+  },
+  "outputs": {
+    "waveform": {
+      "description": "复基带波形或 NPZ 产物",
+      "optional": true
+    },
+    "message_bits": {
+      "description": "测试载荷或带 CRC 的 LE 测试 PDU",
+      "optional": true
+    },
+    "access_address": {
+      "description": "LE 测试访问地址（LE 模式）",
+      "optional": true
+    },
+    "payload_length": {
+      "description": "Classic 包类型（BR/EDR 模式）",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/bluetooth_test_waveform.py --input '{\"properties\":{\"payload_length\":4}}'",
+    "result": "{"
+  }
+}

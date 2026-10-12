@@ -1,0 +1,31 @@
+{
+  "name": "frequency_offset",
+  "script": "frequency_offset.py",
+  "description": "对信号各列施加频率偏移，对应 frequencyOffset。",
+  "implementation": "公开 M 文件公式的 NumPy 实现。",
+  "inputs": {
+    "signal": {
+      "type": "string",
+      "required": true,
+      "description": "real/imag JSON"
+    },
+    "sample_rate": {
+      "type": "number",
+      "required": true,
+      "description": "Hz"
+    },
+    "offset": {
+      "type": "string",
+      "required": true,
+      "description": "标量或逐列 Hz"
+    }
+  },
+  "outputs": {
+    "signal_real": "输出实部",
+    "signal_imag": "输出虚部"
+  },
+  "example": {
+    "cmd": "python tools/frequency_offset.py --signal '{\"real\":[1.0,0.7071,0.0,-0.7071,-1.0,-0.7071,0.0,0.7071],\"imag\":[0.0,0.7071,1.0,0.7071,0.0,-0.7071,-1.0,-0.7071]}' --sample_rate 1000 --offset 50",
+    "result": "{\"signal_real\":[...]}"
+  }
+}

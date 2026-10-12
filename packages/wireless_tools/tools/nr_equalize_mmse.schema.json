@@ -1,0 +1,34 @@
+{
+  "name": "nr_equalize_mmse",
+  "description": "5G NR MMSE 均衡器。对每个资源元素（RE）执行最小均方误差（MMSE）均衡，输出均衡后符号和软信道状态信息（CSI）。对应 MATLAB 5G Toolbox nrEqualizeMMSE。",
+  "implementation": "逐 RE 计算 W = (H^H H + nVar*I)^(-1) H^H，out = W y，csi = 1 / diag(nVar * (H^H H + nVar*I)^(-1))，即等效后处理 SINR。使用 np.linalg.solve 保证数值稳定性。",
+  "script": "nr_equalize_mmse.py",
+  "inputs": {
+    "rx_sym": {
+      "type": "string",
+      "required": true,
+      "description": "接收符号 JSON（NRE × R），格式：{\"real\": [[...],...], \"imag\": [[...],...]}，R 为接收天线数"
+    },
+    "hest": {
+      "type": "string",
+      "required": true,
+      "description": "信道估计 JSON（NRE × R × P），格式：{\"real\": [[[...],...],...], \"imag\": [[[...],...],...]}，P 为层数"
+    },
+    "nvar": {
+      "type": "number",
+      "required": true,
+      "description": "噪声方差（标量），须为非负数"
+    }
+  },
+  "outputs": {
+    "eq_symbols_real": "均衡后符号实部（NRE × P）",
+    "eq_symbols_imag": "均衡后符号虚部（NRE × P）",
+    "csi": "软信道状态信息 — 等效 SINR（NRE × P），越大表示该层质量越好",
+    "n_re": "资源元素数量",
+    "n_layers": "层数（发射端层数 P）"
+  },
+  "example": {
+    "cmd": "python tools/nr_equalize_mmse.py --rx_sym '{\"real\":[[1.0],[0.5]],\"imag\":[[0.0],[0.5]]}' --hest '{\"real\":[[[1.0]],[[1.0]]],\"imag\":[[[0.0]],[[0.0]]]}' --nvar 0.01",
+    "result": "{\"eq_symbols_real\": [[0.990099...], [0.495049...]], \"eq_symbols_imag\": [[0.0], [0.495049...]], \"csi\": [[101.0], [101.0]], \"n_re\": 2, \"n_layers\": 1}"
+  }
+}

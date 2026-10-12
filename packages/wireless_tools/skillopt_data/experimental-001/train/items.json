@@ -1,0 +1,1442 @@
+[
+  {
+    "id": "D01",
+    "scenario_id": "curated_D01",
+    "split": "train",
+    "kind": "tool_call",
+    "tool": "radio_link_diagnosis",
+    "task_type": "WirelessAgent Workflow",
+    "question": "某 LTE 链路测得 SNR 8 dB、EVM 12%、BER 0.003、残余频偏 1800 Hz。按工具内置规则列出触发的劣化因素、证据和建议动作；给出下一步检查，不要求工具判断唯一排查优先级。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:references/network_optimization_workflow.md",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "snr_db": 8,
+      "evm_percent": 12,
+      "ber": 0.003,
+      "frequency_offset_hz": 1800
+    },
+    "expected": {
+      "status": "warning",
+      "finding_count": 4,
+      "findings": [
+        {
+          "cause": "noise_or_interference",
+          "severity": "warning",
+          "evidence": {
+            "snr_gap_db": 2.0
+          },
+          "actions": [
+            "降低 MCS",
+            "检查同频干扰与接收功率",
+            "增加测量样本后重新估计信道"
+          ]
+        },
+        {
+          "cause": "carrier_frequency_offset",
+          "severity": "warning",
+          "evidence": {
+            "normalized_offset": 0.12
+          },
+          "actions": [
+            "执行 lte_frequency_sync",
+            "检查本振和多普勒补偿"
+          ]
+        },
+        {
+          "cause": "poor_signal_quality",
+          "severity": "warning",
+          "evidence": {
+            "evm_percent": 12.0
+          },
+          "actions": [
+            "检查功放压缩、相噪和 IQ 失衡",
+            "运行 evm_metrics 并按层/子带定位"
+          ]
+        },
+        {
+          "cause": "high_bit_error_rate",
+          "severity": "warning",
+          "evidence": {
+            "ber": 0.003
+          },
+          "actions": [
+            "降低 MCS",
+            "检查软解调、扰码和编码链"
+          ]
+        }
+      ],
+      "recommended_next_tool": "降低 MCS"
+    },
+    "answer_paths": [
+      "/status",
+      "/findings",
+      "/recommended_next_tool"
+    ]
+  },
+  {
+    "id": "D04",
+    "scenario_id": "curated_D04",
+    "split": "train",
+    "kind": "tool_call",
+    "tool": "closed_loop_validator",
+    "task_type": "WirelessAgent Workflow",
+    "question": "同口径测量下，一次外部调整前吞吐为 10 Mbps、BER 为 0.01、时延为 30 ms；调整后分别为 12 Mbps、0.001、25 ms。数值约束为 BER≤0.002、时延≤30 ms。仅做数值规则核验：是否通过、是否建议回滚？",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:references/network_optimization_workflow.md",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "before": "{\"throughput\":10,\"ber\":0.01,\"latency_ms\":30}",
+      "after": "{\"throughput\":12,\"ber\":0.001,\"latency_ms\":25}",
+      "constraints": "{\"ber\":{\"max\":0.002},\"latency_ms\":{\"max\":30}}"
+    },
+    "expected": {
+      "accepted": true,
+      "score": 0.4222222222222223,
+      "comparisons": {
+        "ber": {
+          "before": 0.01,
+          "after": 0.001,
+          "direction": "lower",
+          "improvement_fraction": 0.9000000000000001,
+          "result": "improved"
+        },
+        "latency_ms": {
+          "before": 30.0,
+          "after": 25.0,
+          "direction": "lower",
+          "improvement_fraction": 0.16666666666666666,
+          "result": "improved"
+        },
+        "throughput": {
+          "before": 10.0,
+          "after": 12.0,
+          "direction": "higher",
+          "improvement_fraction": 0.2,
+          "result": "improved"
+        }
+      },
+      "constraint_violations": [],
+      "rollback_recommended": false
+    },
+    "answer_paths": [
+      "/accepted",
+      "/rollback_recommended"
+    ]
+  },
+  {
+    "id": "D07",
+    "scenario_id": "curated_D07",
+    "split": "train",
+    "kind": "tool_call",
+    "tool": "bluetooth_path_loss",
+    "task_type": "Bluetooth Toolbox",
+    "question": "在 Industrial 环境，蓝牙设备相距 2 米和 15 米，暂不考虑随机阴影衰落。两处的路径损耗各是多少？",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/bluetooth_path_loss.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "input": "{\"distance\":[2,15],\"environment\":\"Industrial\",\"standard_deviation\":0}"
+    },
+    "expected": {
+      "ok": true,
+      "tool": "bluetooth_path_loss",
+      "result": {
+        "path_loss_db": [
+          46.815819527320436,
+          66.06716732193783
+        ]
+      },
+      "state": null,
+      "artifacts": [],
+      "warnings": [],
+      "metadata": {
+        "implementation": "pure_python",
+        "state_protocol": 1
+      }
+    },
+    "answer_paths": [
+      "/result/path_loss_db"
+    ]
+  },
+  {
+    "id": "D10",
+    "scenario_id": "curated_D10",
+    "split": "train",
+    "kind": "tool_call",
+    "tool": "nr_mcs_tables",
+    "task_type": "5G Toolbox",
+    "question": "5G NR 的 QAM64 MCS 表中，索引 9 的调制方式和目标码率是什么？",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/nr_mcs_tables.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "table": "QAM64Table",
+      "mcs": 9
+    },
+    "expected": {
+      "mcs_index": 9,
+      "modulation": "QPSK",
+      "qm": 2,
+      "target_code_rate": 0.6630859375,
+      "spectral_efficiency": 1.3262
+    },
+    "answer_paths": [
+      "/modulation",
+      "/target_code_rate"
+    ]
+  },
+  {
+    "id": "D11",
+    "scenario_id": "curated_D11",
+    "split": "train",
+    "kind": "tool_call",
+    "tool": "lte_mcs",
+    "task_type": "LTE Toolbox",
+    "question": "LTE PDSCH 的 MCS 索引 5 对应什么调制方式和 TBS 索引？",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/lte_mcs.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "imcs": "5",
+      "table": "PDSCH"
+    },
+    "expected": {
+      "table": "PDSCH",
+      "imcs": 5,
+      "itbs": 5,
+      "mod": "QPSK",
+      "rv": 0
+    },
+    "answer_paths": [
+      "/mod",
+      "/itbs"
+    ]
+  },
+  {
+    "id": "D14",
+    "scenario_id": "curated_D14",
+    "split": "train",
+    "kind": "tool_call",
+    "tool": "convert_snr",
+    "task_type": "Communications Toolbox",
+    "question": "链路 Eb/No 为 5 dB，QPSK 每符号 2 比特、编码率 0.5。按每符号 1 个采样点换算成 SNR 是多少 dB？",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/convert_snr.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "x": "5",
+      "input_mode": "ebno",
+      "output_mode": "snr",
+      "bits_per_symbol": 2,
+      "coding_rate": 0.5,
+      "samples_per_symbol": 1
+    },
+    "expected": {
+      "input_mode": "ebno",
+      "output_mode": "snr",
+      "values_db": 5.0
+    },
+    "answer_paths": [
+      "/values_db"
+    ]
+  },
+  {
+    "id": "D17",
+    "scenario_id": "curated_D17",
+    "split": "train",
+    "kind": "tool_call",
+    "tool": "wlan_scramble",
+    "task_type": "WLAN Toolbox",
+    "question": "用初始状态 37 对 WLAN 数据比特 1,0,1,0,1,1,0,0 加扰，输出比特序列是什么？",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/wlan_scramble.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "bits": "1,0,1,0,1,1,0,0",
+      "seed": 37
+    },
+    "expected": {
+      "mode": "scramble",
+      "seed": 37,
+      "input_bits": [
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        0
+      ],
+      "output_bits": [
+        1,
+        0,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1
+      ]
+    },
+    "answer_paths": [
+      "/output_bits"
+    ]
+  },
+  {
+    "id": "D20",
+    "scenario_id": "curated_D20",
+    "split": "train",
+    "kind": "tool_call",
+    "tool": "node_mobility_constant_velocity",
+    "task_type": "Wireless Network Toolbox",
+    "question": "无线节点初始位置为 (0,0,0) 米，速度为 (3,4,0) 米每秒。0、1、5 秒时的位置分别是什么？",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/node_mobility_constant_velocity.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "initial_position": "0,0,0",
+      "velocity": "3,4,0",
+      "times": "0,1,5"
+    },
+    "expected": {
+      "times": [
+        0.0,
+        1.0,
+        5.0
+      ],
+      "positions": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          3.0,
+          4.0,
+          0.0
+        ],
+        [
+          15.0,
+          20.0,
+          0.0
+        ]
+      ],
+      "velocity": [
+        3.0,
+        4.0,
+        0.0
+      ]
+    },
+    "answer_paths": [
+      "/times",
+      "/positions"
+    ]
+  },
+  {
+    "id": "D23",
+    "scenario_id": "curated_D23",
+    "split": "train",
+    "kind": "tool_call",
+    "tool": "biterr",
+    "task_type": "Communications Toolbox",
+    "question": "逐位比较参考比特 0,1,1,0,1,0 与接收比特 0,1,0,0,1,1（每元素 1 位），错误位数和误比特率分别是多少？",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/biterr.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "x": "[0,1,1,0,1,0]",
+      "y": "[0,1,0,0,1,1]",
+      "k": 1
+    },
+    "expected": {
+      "num_errors": 2,
+      "error_ratio": 0.3333333333333333,
+      "individual": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        1
+      ],
+      "k": 1
+    },
+    "answer_paths": [
+      "/num_errors",
+      "/error_ratio"
+    ]
+  },
+  {
+    "id": "W01",
+    "scenario_id": "workflow_lte_mcs_tbs_train",
+    "split": "train",
+    "kind": "tool_workflow",
+    "tool": "lte_mcs",
+    "task_type": "LTE Toolbox",
+    "question": "LTE PDSCH 使用 PDSCH MCS 表，MCS 索引为 18、分配 18 个 PRB、单层传输。请先查出调制方式和 I_TBS，再依据查得的 I_TBS 计算传输块大小（比特）。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/lte_mcs.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "steps": [
+      {
+        "tool": "lte_mcs",
+        "arguments": {
+          "imcs": "18",
+          "table": "PDSCH"
+        },
+        "expected": {
+          "table": "PDSCH",
+          "imcs": 18,
+          "itbs": 16,
+          "mod": "64QAM",
+          "rv": 0
+        },
+        "bindings": []
+      },
+      {
+        "tool": "lte_tbs",
+        "arguments": {
+          "nprb": 18,
+          "itbs": "16",
+          "smnlayer": 1
+        },
+        "expected": {
+          "nprb": 18,
+          "itbs": 16,
+          "smnlayer": 1,
+          "tbs": 5992
+        },
+        "bindings": [
+          {
+            "argument": "itbs",
+            "from_step": 0,
+            "path": "/itbs",
+            "format": "string"
+          }
+        ]
+      }
+    ],
+    "answer_fields": {
+      "mod": {
+        "step": 0,
+        "path": "/mod"
+      },
+      "itbs": {
+        "step": 0,
+        "path": "/itbs"
+      },
+      "tbs": {
+        "step": 1,
+        "path": "/tbs"
+      }
+    }
+  },
+  {
+    "id": "W04",
+    "scenario_id": "workflow_lte_diagnose_validate_train",
+    "split": "train",
+    "kind": "tool_workflow",
+    "tool": "radio_link_diagnosis",
+    "task_type": "WirelessAgent Workflow",
+    "question": "某 LTE 链路测得 SNR 9 dB、EVM 8%、BER 0.0008、残余频偏 200 Hz。可用 30 个 PRB，预留 1 dB 裕量，目标 BLER 0.05。请先诊断链路，再给出链路自适应初步建议。一次由外部人员完成的调整，在相同口径下测得调整前吞吐 3.0 Mbps、BER 0.003、时延 27 ms；调整后吞吐 4.0 Mbps、BER 0.0005、时延 24 ms。约束为 BER 不超过 0.001、时延不超过 25 ms。请核验这组前后数据并说明是否建议回滚。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:references/network_optimization_workflow.md",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "steps": [
+      {
+        "tool": "radio_link_diagnosis",
+        "arguments": {
+          "snr_db": 9,
+          "evm_percent": 8,
+          "ber": 0.0008,
+          "frequency_offset_hz": 200
+        },
+        "expected": {
+          "status": "warning",
+          "finding_count": 1,
+          "findings": [
+            {
+              "cause": "noise_or_interference",
+              "severity": "warning",
+              "evidence": {
+                "snr_gap_db": 1.0
+              },
+              "actions": [
+                "降低 MCS",
+                "检查同频干扰与接收功率",
+                "增加测量样本后重新估计信道"
+              ]
+            }
+          ],
+          "recommended_next_tool": "降低 MCS"
+        },
+        "bindings": []
+      },
+      {
+        "tool": "link_adaptation_optimizer",
+        "arguments": {
+          "snr_db": 9,
+          "nprb": 30,
+          "margin_db": 1,
+          "bler_target": 0.05
+        },
+        "expected": {
+          "recommended_mcs": 10,
+          "itbs": 9,
+          "modulation": "16QAM",
+          "rv": 0,
+          "tbs_bits_per_subframe": 4776,
+          "estimated_peak_mbps": 4.776,
+          "effective_snr_db": 8.0,
+          "margin_db": 1.0,
+          "bler_target": 0.05,
+          "method": "conservative_threshold_plus_3gpp_tables"
+        },
+        "bindings": []
+      },
+      {
+        "tool": "closed_loop_validator",
+        "arguments": {
+          "before": "{\"throughput\":3.0,\"ber\":0.003,\"latency_ms\":27}",
+          "after": "{\"throughput\":4.0,\"ber\":0.0005,\"latency_ms\":24}",
+          "constraints": "{\"ber\":{\"max\":0.001},\"latency_ms\":{\"max\":25}}"
+        },
+        "expected": {
+          "accepted": true,
+          "score": 0.4259259259259259,
+          "comparisons": {
+            "ber": {
+              "before": 0.003,
+              "after": 0.0005,
+              "direction": "lower",
+              "improvement_fraction": 0.8333333333333334,
+              "result": "improved"
+            },
+            "latency_ms": {
+              "before": 27.0,
+              "after": 24.0,
+              "direction": "lower",
+              "improvement_fraction": 0.1111111111111111,
+              "result": "improved"
+            },
+            "throughput": {
+              "before": 3.0,
+              "after": 4.0,
+              "direction": "higher",
+              "improvement_fraction": 0.3333333333333333,
+              "result": "improved"
+            }
+          },
+          "constraint_violations": [],
+          "rollback_recommended": false
+        },
+        "bindings": []
+      }
+    ],
+    "answer_fields": {
+      "status": {
+        "step": 0,
+        "path": "/status"
+      },
+      "findings": {
+        "step": 0,
+        "path": "/findings"
+      },
+      "recommended_mcs": {
+        "step": 1,
+        "path": "/recommended_mcs"
+      },
+      "accepted": {
+        "step": 2,
+        "path": "/accepted"
+      },
+      "rollback_recommended": {
+        "step": 2,
+        "path": "/rollback_recommended"
+      }
+    }
+  },
+  {
+    "id": "A01",
+    "scenario_id": "curated_A01",
+    "split": "train",
+    "kind": "tool_call",
+    "tool": "lte_tbs",
+    "task_type": "LTE Toolbox",
+    "question": "LTE 下行分配 12 个 PRB、I_TBS 为 11、单层传输。查表得到的传输块大小是多少比特？",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/lte_tbs.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "nprb": 12,
+      "itbs": "11",
+      "smnlayer": 1
+    },
+    "expected": {
+      "nprb": 12,
+      "itbs": 11,
+      "smnlayer": 1,
+      "tbs": 2408
+    },
+    "answer_paths": [
+      "/tbs"
+    ]
+  },
+  {
+    "id": "A02",
+    "scenario_id": "curated_A02",
+    "split": "train",
+    "kind": "tool_call",
+    "tool": "lte_modulation",
+    "task_type": "LTE Toolbox",
+    "question": "将 LTE 16QAM 的输入比特 0,0,1,1,1,0,1,0 映射成复符号，列出实部和虚部。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/lte_modulation.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "mod": "16QAM",
+      "bits": "0,0,1,1,1,0,1,0"
+    },
+    "expected": {
+      "modulation": "16QAM",
+      "bits": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        0
+      ],
+      "symbols_real": [
+        0.9486832980505138,
+        -0.9486832980505138
+      ],
+      "symbols_imag": [
+        0.9486832980505138,
+        0.31622776601683794
+      ]
+    },
+    "answer_paths": [
+      "/symbols_real",
+      "/symbols_imag"
+    ]
+  },
+  {
+    "id": "A04",
+    "scenario_id": "curated_A04",
+    "split": "train",
+    "kind": "tool_call",
+    "tool": "nr_layer_map",
+    "task_type": "5G Toolbox",
+    "question": "把四个 5G NR 复符号 1+0.5j、2+1j、3+1.5j、4+2j 映射到两层，给出各层实部和虚部。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/nr_layer_map.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "nlayers": 2,
+      "symbols": "[1+0.5j,2+1j,3+1.5j,4+2j]"
+    },
+    "expected": {
+      "n_layers": 2,
+      "symbols_real": [
+        [
+          1.0,
+          2.0
+        ],
+        [
+          3.0,
+          4.0
+        ]
+      ],
+      "symbols_imag": [
+        [
+          0.5,
+          1.0
+        ],
+        [
+          1.5,
+          2.0
+        ]
+      ]
+    },
+    "answer_paths": [
+      "/symbols_real",
+      "/symbols_imag"
+    ]
+  },
+  {
+    "id": "A05",
+    "scenario_id": "curated_A05",
+    "split": "train",
+    "kind": "tool_call",
+    "tool": "nr_crc",
+    "task_type": "5G Toolbox",
+    "question": "给 5G NR 比特 1,0,1,1,0,1,0,0 追加 CRC11，掩码为 0；给出编码后比特。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/nr_crc.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "poly": "11",
+      "bits": "1,0,1,1,0,1,0,0",
+      "mask": 0,
+      "decode": false
+    },
+    "expected": {
+      "poly": "11",
+      "input_bits": [
+        1,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        0
+      ],
+      "output_bits": [
+        1,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        0
+      ],
+      "n_crc": 11
+    },
+    "answer_paths": [
+      "/output_bits"
+    ]
+  },
+  {
+    "id": "A07",
+    "scenario_id": "curated_A07",
+    "split": "train",
+    "kind": "tool_call",
+    "tool": "wlan_bcc",
+    "task_type": "WLAN Toolbox",
+    "question": "对 WLAN 比特 1,0,1,1,0,0,1,1 使用码率 1/2 的 BCC 编码，给出输出比特。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/wlan_bcc.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "bits": "1,0,1,1,0,0,1,1",
+      "rate": "1/2"
+    },
+    "expected": {
+      "rate": "1/2",
+      "input_bits": [
+        1,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1
+      ],
+      "output_bits": [
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        0
+      ]
+    },
+    "answer_paths": [
+      "/output_bits"
+    ]
+  },
+  {
+    "id": "A08",
+    "scenario_id": "curated_A08",
+    "split": "train",
+    "kind": "tool_call",
+    "tool": "wlan_golay",
+    "task_type": "WLAN Toolbox",
+    "question": "为 802.11ad DMG 训练序列生成长度 32 的 Golay 互补序列对，给出 Ga 和 Gb。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/wlan_golay.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "length": 32
+    },
+    "expected": {
+      "length": 32,
+      "Ga": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0
+      ],
+      "Gb": [
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0
+      ]
+    },
+    "answer_paths": [
+      "/Ga",
+      "/Gb"
+    ]
+  },
+  {
+    "id": "A10",
+    "scenario_id": "curated_A10",
+    "split": "train",
+    "kind": "tool_call",
+    "tool": "ble_gap_data",
+    "task_type": "Bluetooth Toolbox",
+    "question": "在 BLE 广播数据中只编码 Flags 类型，给出数据块十六进制值和字节数。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/ble_gap_data.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "input": "{\"operation\":\"encode\",\"configuration\":{\"advertising_data_types\":[\"Flags\"]}}"
+    },
+    "expected": {
+      "ok": true,
+      "tool": "ble_gap_data",
+      "result": {
+        "data_block_hex": "020106",
+        "octets": 3
+      },
+      "state": null,
+      "artifacts": [],
+      "warnings": [],
+      "metadata": {
+        "implementation": "pure_python",
+        "state_protocol": 1
+      }
+    },
+    "answer_paths": [
+      "/result/data_block_hex",
+      "/result/octets"
+    ]
+  },
+  {
+    "id": "A11",
+    "scenario_id": "curated_A11",
+    "split": "train",
+    "kind": "tool_call",
+    "tool": "ble_att",
+    "task_type": "Bluetooth Toolbox",
+    "question": "把属性句柄 0025 的 BLE ATT Read request 编码成 PDU，给出十六进制值和字节数。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/ble_att.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "input": "{\"operation\":\"encode\",\"configuration\":{\"opcode\":\"Read request\",\"attribute_handle\":\"0025\"}}"
+    },
+    "expected": {
+      "ok": true,
+      "tool": "ble_att",
+      "result": {
+        "pdu_hex": "0A2500",
+        "octets": 3
+      },
+      "state": null,
+      "artifacts": [],
+      "warnings": [],
+      "metadata": {
+        "implementation": "pure_python",
+        "state_protocol": 1
+      }
+    },
+    "answer_paths": [
+      "/result/pdu_hex",
+      "/result/octets"
+    ]
+  },
+  {
+    "id": "A13",
+    "scenario_id": "curated_A13",
+    "split": "train",
+    "kind": "tool_call",
+    "tool": "biterr",
+    "task_type": "Communications Toolbox",
+    "question": "按每元素 3 位比较非负整数序列 [1,4,7] 与 [1,5,3]，给出总比特错误数、误比特率和逐元素错误数。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/biterr.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "x": "[1,4,7]",
+      "y": "[1,5,3]",
+      "k": 3
+    },
+    "expected": {
+      "num_errors": 2,
+      "error_ratio": 0.2222222222222222,
+      "individual": [
+        0,
+        1,
+        1
+      ],
+      "k": 3
+    },
+    "answer_paths": [
+      "/num_errors",
+      "/error_ratio",
+      "/individual"
+    ]
+  },
+  {
+    "id": "A14",
+    "scenario_id": "curated_A14",
+    "split": "train",
+    "kind": "tool_call",
+    "tool": "hamming_code",
+    "task_type": "Communications Toolbox",
+    "question": "把消息比特 1,0,1,1 以 m=3 的 Hamming 码编码，给出完整码字。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/hamming_code.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "mode": "encode",
+      "m": 3,
+      "bits": "1,0,1,1"
+    },
+    "expected": {
+      "codeword": [
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1
+      ]
+    },
+    "answer_paths": [
+      "/codeword"
+    ]
+  },
+  {
+    "id": "A16",
+    "scenario_id": "curated_A16",
+    "split": "train",
+    "kind": "tool_call",
+    "tool": "node_mobility_random_walk",
+    "task_type": "Wireless Network Toolbox",
+    "question": "离线仿真中节点从 (1,1,0) 米开始，在默认矩形边界内随机游走 4 秒，每秒采样；速度范围 0.5–1.0 米/秒，随机种子 11。给出各时间点和位置。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/node_mobility_random_walk.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "initial_position": "1,1,0",
+      "duration": 4,
+      "time_step": 1,
+      "speed_range": "0.5,1.0",
+      "seed": 11
+    },
+    "expected": {
+      "times": [
+        0.0,
+        1.0,
+        2.0,
+        3.0,
+        4.0
+      ],
+      "positions": [
+        [
+          1.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.4357207071616025,
+          1.0025603356080957,
+          0.0
+        ],
+        [
+          1.2234956726223705,
+          1.1461216505953284,
+          0.0
+        ],
+        [
+          1.7400532450805297,
+          0.8959180370133782,
+          0.0
+        ],
+        [
+          2.1069836682525347,
+          1.2855487814553228,
+          0.0
+        ]
+      ],
+      "velocities": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          -0.5642792928383975,
+          0.0025603356080956675,
+          0.0
+        ],
+        [
+          0.7877749654607681,
+          0.14356131498723285,
+          0.0
+        ],
+        [
+          0.5165575724581591,
+          -0.2502036135819502,
+          0.0
+        ],
+        [
+          0.36693042317200497,
+          0.3896307444419446,
+          0.0
+        ]
+      ]
+    },
+    "answer_paths": [
+      "/times",
+      "/positions"
+    ]
+  },
+  {
+    "id": "A17",
+    "scenario_id": "curated_A17",
+    "split": "train",
+    "kind": "tool_call",
+    "tool": "node_mobility_random_waypoint",
+    "task_type": "Wireless Network Toolbox",
+    "question": "离线仿真中节点从 (3,3,0) 米开始，在默认矩形边界内按随机航点移动 4 秒，每秒采样；随机种子 17、无航点暂停。给出时间和位置。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/node_mobility_random_waypoint.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "initial_position": "3,3,0",
+      "duration": 4,
+      "time_step": 1,
+      "pause_duration": 0,
+      "seed": 17
+    },
+    "expected": {
+      "times": [
+        0.0,
+        1.0,
+        2.0,
+        3.0,
+        4.0
+      ],
+      "positions": [
+        [
+          3.0,
+          3.0,
+          0.0
+        ],
+        [
+          3.0780588033004,
+          1.8933576244322652,
+          0.0
+        ],
+        [
+          3.1561176066008,
+          0.7867152488645304,
+          0.0
+        ],
+        [
+          3.2341764099012,
+          -0.31992712670320445,
+          0.0
+        ],
+        [
+          3.3122352132015997,
+          -1.4265695022709393,
+          0.0
+        ]
+      ],
+      "velocities": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.07805880330039976,
+          -1.1066423755677348,
+          0.0
+        ],
+        [
+          0.07805880330039976,
+          -1.1066423755677348,
+          0.0
+        ],
+        [
+          0.07805880330039976,
+          -1.1066423755677348,
+          0.0
+        ],
+        [
+          0.07805880330039976,
+          -1.1066423755677348,
+          0.0
+        ]
+      ]
+    },
+    "answer_paths": [
+      "/times",
+      "/positions"
+    ]
+  },
+  {
+    "id": "A19",
+    "scenario_id": "curated_A19",
+    "split": "train",
+    "kind": "tool_call",
+    "tool": "qos_policy_builder",
+    "task_type": "WirelessAgent Workflow",
+    "question": "为一条保底 200 kbps、上限 500 kbps 的直播视频业务生成 5QI 导向的 QoS 初步建议；链路容量 1000 kbps、可承诺比例 0.8。给出建议和容量可行性。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/qos_policy_builder.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "services": "[{\"id\":\"live1\",\"service_type\":\"live_video\",\"guaranteed_kbps\":200,\"max_kbps\":500}]",
+      "link_capacity_kbps": 1000,
+      "reserve_fraction": 0.8
+    },
+    "expected": {
+      "qos_data": [
+        {
+          "service_id": "live1",
+          "service_type": "live_video",
+          "five_qi": 2,
+          "resource_type": "GBR",
+          "priority": 5,
+          "packet_delay_budget_ms": 150.0,
+          "packet_error_rate": 0.001,
+          "gfbr_kbps": 200.0,
+          "mfbr_kbps": 500.0,
+          "decision_basis": "service_template_with_explicit_overrides"
+        }
+      ],
+      "total_gfbr_kbps": 200.0,
+      "link_capacity_kbps": 1000.0,
+      "reserve_fraction": 0.8,
+      "capacity_feasible": true,
+      "warning": null
+    },
+    "answer_paths": [
+      "/qos_data",
+      "/capacity_feasible"
+    ]
+  },
+  {
+    "id": "A20",
+    "scenario_id": "curated_A20",
+    "split": "train",
+    "kind": "tool_call",
+    "tool": "resource_allocation_optimizer",
+    "task_type": "WirelessAgent Workflow",
+    "question": "LTE 下行共有 18 个 PRB。三名用户的 (SNR dB,需求 kbps,优先级) 分别为 u1(18,3000,2)、u2(8,1500,1)、u3(3,500,1)。按工具的加权边际 TBS 策略试算分配，并列出每人的需求是否满足。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/resource_allocation_optimizer.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "users": "[{\"id\":\"u1\",\"snr_db\":18,\"demand_kbps\":3000,\"priority\":2},{\"id\":\"u2\",\"snr_db\":8,\"demand_kbps\":1500,\"priority\":1},{\"id\":\"u3\",\"snr_db\":3,\"demand_kbps\":500,\"priority\":1}]",
+      "total_prbs": 18
+    },
+    "expected": {
+      "total_prbs": 18,
+      "allocated_prbs": 18,
+      "allocations": [
+        {
+          "id": "u1",
+          "allocated_prbs": 9,
+          "mcs": 18,
+          "modulation": "64QAM",
+          "tbs_bits_per_subframe": 2984,
+          "estimated_kbps": 2984,
+          "demand_kbps": 3000.0,
+          "demand_met": false
+        },
+        {
+          "id": "u2",
+          "allocated_prbs": 6,
+          "mcs": 8,
+          "modulation": "QPSK",
+          "tbs_bits_per_subframe": 808,
+          "estimated_kbps": 808,
+          "demand_kbps": 1500.0,
+          "demand_met": false
+        },
+        {
+          "id": "u3",
+          "allocated_prbs": 3,
+          "mcs": 4,
+          "modulation": "QPSK",
+          "tbs_bits_per_subframe": 208,
+          "estimated_kbps": 208,
+          "demand_kbps": 500.0,
+          "demand_met": false
+        }
+      ],
+      "method": "weighted_marginal_tbs"
+    },
+    "answer_paths": [
+      "/allocations",
+      "/allocated_prbs"
+    ]
+  },
+  {
+    "id": "A22",
+    "scenario_id": "curated_A22",
+    "split": "train",
+    "kind": "tool_call",
+    "tool": "wireless_utils",
+    "task_type": "WirelessAgent Helper",
+    "question": "调用无线测试助手的 bcc-interleave 子命令：对 16 个比特 0,1,0,1,1,0,0,1,1,1,0,0,1,0,1,0 按 N_CBPS=16、N_BPSC=1 交织，给出输出比特。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/wireless_utils.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "command": "bcc-interleave",
+      "bits": "0,1,0,1,1,0,0,1,1,1,0,0,1,0,1,0",
+      "ncbps": 16,
+      "nbpsc": 1
+    },
+    "expected": {
+      "interleaved_bits": [
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0
+      ]
+    },
+    "answer_paths": [
+      "/interleaved_bits"
+    ]
+  },
+  {
+    "id": "A23",
+    "scenario_id": "curated_A23",
+    "split": "train",
+    "kind": "tool_call",
+    "tool": "wireless_utils",
+    "task_type": "WirelessAgent Helper",
+    "question": "使用无线测试助手的 berawgn 子命令，计算 BPSK 在 Eb/N0=3 dB 时的 AWGN 理论 BER。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/wireless_utils.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "command": "berawgn",
+      "ebn0": 3,
+      "mod": "bpsk"
+    },
+    "expected": {
+      "ebn0_db": 3.0,
+      "mod": "bpsk",
+      "ber": 0.02287840756108532
+    },
+    "answer_paths": [
+      "/ber"
+    ]
+  },
+  {
+    "id": "A25",
+    "scenario_id": "curated_A25",
+    "split": "train",
+    "kind": "tool_workflow",
+    "tool": "hamming_code",
+    "task_type": "Communications Toolbox",
+    "question": "将 0,1,1,0 编成 m=3 的 Hamming 码，再把生成的码字原样送入解码器。给出码字和恢复的消息比特。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/hamming_code.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "steps": [
+      {
+        "tool": "hamming_code",
+        "arguments": {
+          "mode": "encode",
+          "m": 3,
+          "bits": "0,1,1,0"
+        },
+        "expected": {
+          "codeword": [
+            1,
+            1,
+            0,
+            0,
+            1,
+            1,
+            0
+          ]
+        },
+        "bindings": []
+      },
+      {
+        "tool": "hamming_code",
+        "arguments": {
+          "mode": "decode",
+          "m": 3,
+          "bits": "1,1,0,0,1,1,0"
+        },
+        "expected": {
+          "message": [
+            0,
+            1,
+            1,
+            0
+          ],
+          "corrected_codeword": [
+            1,
+            1,
+            0,
+            0,
+            1,
+            1,
+            0
+          ],
+          "syndrome": 0,
+          "corrected": false
+        },
+        "bindings": [
+          {
+            "argument": "bits",
+            "from_step": 0,
+            "path": "/codeword",
+            "format": "csv"
+          }
+        ]
+      }
+    ],
+    "answer_fields": {
+      "codeword": {
+        "step": 0,
+        "path": "/codeword"
+      },
+      "message": {
+        "step": 1,
+        "path": "/message"
+      }
+    }
+  }
+]

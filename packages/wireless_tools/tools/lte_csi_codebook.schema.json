@@ -1,0 +1,56 @@
+{
+  "name": "lte_csi_codebook",
+  "script": "lte_csi_codebook.py",
+  "description": "生成 LTE 1/2 端口 CSI 码本，并执行闭环空间复用预编码或伪逆解预编码。",
+  "implementation": "实现 TS 36.211 双端口 rank-1/rank-2 标准码本；对应 lteCSICodebook、lteDLPrecode、lteDLDeprecode 的 Port0/双端口 SpatialMux 常用子集。",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "codebook",
+        "precode",
+        "deprecode"
+      ],
+      "required": true,
+      "description": "操作模式"
+    },
+    "n_layers": {
+      "type": "integer",
+      "required": true,
+      "description": "层数 1 或 2"
+    },
+    "ports": {
+      "type": "integer",
+      "enum": [
+        1,
+        2
+      ],
+      "required": true,
+      "description": "端口数"
+    },
+    "codebook_index": {
+      "type": "integer",
+      "required": true,
+      "description": "码本索引"
+    },
+    "values": {
+      "type": "string",
+      "required": false,
+      "description": "预编码/解预编码复数 JSON"
+    }
+  },
+  "outputs": {
+    "codebook": {
+      "description": "码本复矩阵",
+      "optional": true
+    },
+    "output": {
+      "description": "转换后的复矩阵",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/lte_csi_codebook.py --mode codebook --n_layers 1 --ports 2 --codebook_index 2",
+    "result": "{\"codebook\":{\"real\":[...],\"imag\":[...]}}"
+  }
+}

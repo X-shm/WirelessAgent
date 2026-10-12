@@ -1,0 +1,64 @@
+{
+  "name": "lte_frequency_sync",
+  "script": "lte_frequency_sync.py",
+  "description": "利用循环前缀估计 LTE/OFDM 频偏并校正时域波形，对应 lteFrequencyOffset/lteFrequencyCorrect。",
+  "implementation": "循环前缀与相隔 NFFT 样本的波形相关，支持多接收天线和复数 JSON。",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "estimate",
+        "correct"
+      ],
+      "required": true,
+      "description": "估计或校正"
+    },
+    "waveform": {
+      "type": "string",
+      "required": true,
+      "description": "复波形 JSON"
+    },
+    "sample_rate": {
+      "type": "number",
+      "required": true,
+      "description": "采样率 Hz"
+    },
+    "nfft": {
+      "type": "integer",
+      "required": false,
+      "description": "估计模式 FFT 长度"
+    },
+    "cp_length": {
+      "type": "integer",
+      "required": false,
+      "description": "估计模式 CP 样本数"
+    },
+    "frequency_offset": {
+      "type": "number",
+      "required": false,
+      "description": "校正模式频偏 Hz"
+    }
+  },
+  "outputs": {
+    "frequency_offset_hz": {
+      "description": "估计频偏",
+      "optional": true
+    },
+    "timing_index": {
+      "description": "最强 CP 相关位置",
+      "optional": true
+    },
+    "correlation": {
+      "description": "复相关序列",
+      "optional": true
+    },
+    "output": {
+      "description": "校正后波形",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/lte_frequency_sync.py --mode correct --waveform '[1,1,1]' --sample_rate 1920000 --frequency_offset 100",
+    "result": "{\"output\":{...}}"
+  }
+}

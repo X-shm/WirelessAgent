@@ -1,0 +1,31 @@
+{
+  "name": "bluetooth_classic_waveform",
+  "script": "bluetooth_classic_waveform.py",
+  "description": "生成 Bluetooth Classic BR/EDR 包的访问码、包头、FEC、CRC 与复基带波形。",
+  "implementation": "纯 Python BR GFSK 及 EDR2M π/4-DQPSK、EDR3M 8-DPSK；已对指定包型与 MATLAB 逐样本验证，未覆盖全部输入边界。",
+  "inputs": {
+    "input": {
+      "type": "string",
+      "required": true,
+      "description": "JSON：message 为位数组，properties 为 waveform 配置"
+    },
+    "input_file": {
+      "type": "string",
+      "required": false,
+      "description": "与 input 互斥的 JSON 文件"
+    },
+    "output_file": {"type": "string", "required": false, "description": "大波形的 .npz 输出路径"},
+    "inline_limit": {"type": "integer", "required": false, "default": 4096, "description": "内联标量数量上限"},
+    "overwrite": {"type": "boolean", "required": false, "default": false, "description": "允许覆盖 output_file"}
+  },
+  "outputs": {
+    "waveform": "复基带波形或 NPZ 产物",
+    "access_code_bits": "访问码",
+    "packet_bits": "已调制位数量",
+    "slots": "时隙数量"
+  },
+  "example": {
+    "cmd": "python tools/bluetooth_classic_waveform.py --inline_limit 10000 --input '{\"message\":[1,0,1,0],\"properties\":{\"packet_type\":\"NULL\"}}'",
+    "result": "{"
+  }
+}

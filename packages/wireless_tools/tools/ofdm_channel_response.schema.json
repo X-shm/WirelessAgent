@@ -1,0 +1,48 @@
+{
+  "name": "ofdm_channel_response",
+  "script": "ofdm_channel_response.py",
+  "description": "由采样路径增益和路径滤波器计算 OFDM 活跃子载波信道响应，对应 ofdmChannelResponse 的静态/慢变子集。",
+  "implementation": "每 OFDM 有效符号平均路径增益，合成离散冲激响应并 FFT；支持多发多收、活跃子载波和定时相位。",
+  "inputs": {
+    "path_gains": {
+      "type": "string",
+      "required": true,
+      "description": "[Ns,Np,Nt,Nr] 复数 JSON"
+    },
+    "path_filters": {
+      "type": "string",
+      "required": true,
+      "description": "[Np,Nh] 实数 JSON"
+    },
+    "nfft": {
+      "type": "integer",
+      "required": true,
+      "description": "FFT 长度"
+    },
+    "cp_length": {
+      "type": "integer",
+      "required": true,
+      "description": "CP 样本数"
+    },
+    "active_subcarriers": {
+      "type": "string",
+      "required": false,
+      "description": "零基活跃子载波 JSON 数组"
+    },
+    "timing_offset": {
+      "type": "integer",
+      "required": false,
+      "default": 0,
+      "description": "非负定时偏移"
+    }
+  },
+  "outputs": {
+    "channel_response": "[Nsc,Nsym,Nt,Nr] 复响应",
+    "shape": "输出尺寸",
+    "index_base": "子载波索引基数 0"
+  },
+  "example": {
+    "cmd": "python tools/ofdm_channel_response.py --path_gains '[[[[1]]],[[[1]]],[[[1]]],[[[1]]]]' --path_filters '[[1]]' --nfft 2 --cp_length 0",
+    "result": "{\"channel_response\":{...},\"shape\":[2,2,1,1]}"
+  }
+}

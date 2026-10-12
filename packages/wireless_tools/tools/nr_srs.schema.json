@@ -1,0 +1,92 @@
+{
+  "name": "nr_srs",
+  "script": "nr_srs.py",
+  "description": "5G NR 探测参考信号 SRS 序列和索引生成工具。序列模式生成基于 Zadoff-Chu 的 SRS 复数序列（支持循环移位、梳状传输、多端口）；索引模式计算 SRS 在资源网格中的位置。对应 MATLAB nrSRS 和 nrSRSIndices。",
+  "implementation": "3GPP TS 38.211 §6.4.1.4，序列基于 Zadoff-Chu 根序列 + 循环移位，索引基于带宽配置和梳状参数",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": ["sequence", "indices"],
+      "required": true,
+      "description": "操作模式：sequence（生成序列）或 indices（计算索引）"
+    },
+    "csrs": {
+      "type": "integer",
+      "required": false,
+      "default": 5,
+      "description": "SRS 带宽配置索引 C_SRS (0..63)"
+    },
+    "ktc": {
+      "type": "integer",
+      "required": false,
+      "default": 2,
+      "description": "传输梳齿数 K_TC (2, 4, 8)"
+    },
+    "symbol_start": {
+      "type": "integer",
+      "required": false,
+      "default": 8,
+      "description": "SRS 起始符号位置 (0..13)"
+    },
+    "num_symbols": {
+      "type": "integer",
+      "required": false,
+      "default": 4,
+      "description": "SRS OFDM 符号数 (1, 2, 4)"
+    },
+    "n_rb": {
+      "type": "integer",
+      "required": false,
+      "default": 52,
+      "description": "载波 RB 数"
+    },
+    "num_ports": {
+      "type": "integer",
+      "required": false,
+      "default": 1,
+      "description": "SRS 天线端口数 (1, 2, 4)"
+    },
+    "cyclic_shift": {
+      "type": "integer",
+      "required": false,
+      "default": 0,
+      "description": "[序列] 循环移位号 (0..N_CS_max-1)"
+    },
+    "n_srs_id": {
+      "type": "integer",
+      "required": false,
+      "default": 0,
+      "description": "[序列] SRS 加扰身份 (0..65535)"
+    }
+  },
+  "outputs": {
+    "symbols_real": {
+      "description": "序列输出：SRS 符号实部 [n_re, n_ports]",
+      "optional": true
+    },
+    "symbols_imag": {
+      "description": "序列输出：SRS 符号虚部 [n_re, n_ports]",
+      "optional": true
+    },
+    "indices": {
+      "description": "索引输出：资源网格线性索引 [n_re, n_ports]",
+      "optional": true
+    },
+    "n_re": {
+      "description": "资源元素数量",
+      "optional": false
+    },
+    "n_ports": {
+      "description": "端口数量",
+      "optional": false
+    },
+    "info": {
+      "description": "序列/索引参数信息",
+      "optional": false
+    }
+  },
+  "example": {
+    "cmd": "python tools/nr_srs.py --mode sequence --csrs 5 --ktc 2 --symbol_start 8 --num_symbols 4 --n_rb 52 --num_ports 2",
+    "result": "{\"symbols_real\": [...], \"symbols_imag\": [...], \"n_re\": 1248, \"n_ports\": 2, \"info\": {...}}"
+  }
+}

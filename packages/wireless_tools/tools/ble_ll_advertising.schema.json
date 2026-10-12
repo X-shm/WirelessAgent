@@ -1,0 +1,33 @@
+{
+  "name": "ble_ll_advertising",
+  "script": "ble_ll_advertising.py",
+  "description": "BLE LL 广播信道 PDU 配置、编码和解码。",
+  "implementation": "纯 Python 实现七种广播 PDU、CRC24 和结构化状态。",
+  "inputs": {
+    "input": {
+      "type": "string",
+      "required": true,
+      "description": "JSON：operation=config|encode|decode，configuration 或 pdu"
+    },
+    "input_file": {
+      "type": "string",
+      "required": false,
+      "description": "与 input 互斥的 JSON 文件"
+    }
+  },
+  "outputs": {
+    "configuration": {
+      "description": "规范化 LL 广播配置",
+      "optional": true
+    },
+    "pdu_hex": "PDU 十六进制字节",
+    "status": {
+      "description": "解码状态名称和数值",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/ble_ll_advertising.py --input '{\"operation\":\"encode\"}'",
+    "result": "{"
+  }
+}

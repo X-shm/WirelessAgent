@@ -1,0 +1,18 @@
+{
+  "name": "wlan_golay",
+  "script": "wlan_golay.py",
+  "description": "IEEE 802.11ad Golay 互补序列生成工具。返回长度 32/64/128 的 Ga/Gb 两列互补 Golay 序列（±1），是 802.11ad DMG 训练序列的基础。对应 MATLAB wlanGolaySequence。",
+  "implementation": "IEEE Std 802.11ad-2012 §21.11，标准硬编码互补序列",
+  "inputs": {
+    "length": {"type": "integer", "enum": [32, 64, 128], "required": true, "description": "Golay 序列长度"}
+  },
+  "outputs": {
+    "length": {"description": "序列长度"},
+    "Ga": {"description": "Golay 序列 Ga（±1 数组）"},
+    "Gb": {"description": "Golay 序列 Gb（±1 数组）"}
+  },
+  "example": {
+    "cmd": "python tools/wlan_golay.py --length 32",
+    "result": "{\"length\": 32, \"Ga\": [1,1,1,1,1,-1,1,-1,...], \"Gb\": [-1,-1,-1,-1,-1,1,-1,1,...]}"
+  }
+}

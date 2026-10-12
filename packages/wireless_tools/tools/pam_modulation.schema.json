@@ -1,0 +1,77 @@
+{
+  "name": "pam_modulation",
+  "script": "pam_modulation.py",
+  "description": "M-PAM 调制和硬判决解调，对应 pammod/pamdemod 常用形式。",
+  "implementation": "纯 NumPy，支持 Gray/binary 和单位平均功率。",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "modulate",
+        "demodulate"
+      ],
+      "required": true,
+      "description": "方向"
+    },
+    "order": {
+      "type": "integer",
+      "required": true,
+      "description": "2 的幂调制阶数"
+    },
+    "values": {
+      "type": "string",
+      "required": true,
+      "description": "逗号输入"
+    },
+    "input_type": {
+      "type": "string",
+      "enum": [
+        "bits",
+        "symbols"
+      ],
+      "required": false,
+      "default": "bits",
+      "description": "调制输入类型"
+    },
+    "output_type": {
+      "type": "string",
+      "enum": [
+        "bits",
+        "symbols"
+      ],
+      "required": false,
+      "default": "bits",
+      "description": "解调输出类型"
+    },
+    "symbol_order": {
+      "type": "string",
+      "enum": [
+        "gray",
+        "binary"
+      ],
+      "required": false,
+      "default": "gray",
+      "description": "符号顺序"
+    },
+    "unit_average_power": {
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "单位平均功率"
+    }
+  },
+  "outputs": {
+    "symbols": {
+      "description": "调制符号",
+      "optional": true
+    },
+    "values": {
+      "description": "解调值",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/pam_modulation.py --mode modulate --order 4 --values 0,0,0,1",
+    "result": "{\"symbols\":[-3,-1]}"
+  }
+}

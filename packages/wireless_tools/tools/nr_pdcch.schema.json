@@ -1,0 +1,50 @@
+{
+  "name": "nr_pdcch",
+  "script": "nr_pdcch.py",
+  "description": "5G NR PDCCH（物理下行控制信道）加扰和调制。将编码后的 DCI 码字加扰后 QPSK 调制为复符号。",
+  "implementation": "3GPP TS 38.211 7.3.2，加扰 cinit = RNTI*2^16 + nID",
+  "inputs": {
+    "codeword": {
+      "type": "string",
+      "required": true,
+      "description": "编码后的 DCI 码字比特（逗号分隔）"
+    },
+    "n-id": {
+      "type": "integer",
+      "required": true,
+      "description": "PDCCH-DMRS-ScramblingID 或 NCellID"
+    },
+    "n-rnti": {
+      "type": "integer",
+      "required": true,
+      "description": "C-RNTI (0..65535)"
+    }
+  },
+  "outputs": {
+    "n_id": {
+      "description": "加扰 ID"
+    },
+    "n_rnti": {
+      "description": "C-RNTI"
+    },
+    "cinit": {
+      "description": "PRBS 初始化值"
+    },
+    "input_len": {
+      "description": "输入码字长度"
+    },
+    "output_len": {
+      "description": "输出符号数"
+    },
+    "sym_real": {
+      "description": "PDCCH 符号实部"
+    },
+    "sym_imag": {
+      "description": "PDCCH 符号虚部"
+    }
+  },
+  "example": {
+    "cmd": "python tools/nr_pdcch.py --codeword 1,0,1,1,0,0 --n-id 17 --n-rnti 111",
+    "result": "{\"n_id\": 17, \"n_rnti\": 111, \"input_len\": 6, \"output_len\": 6}"
+  }
+}

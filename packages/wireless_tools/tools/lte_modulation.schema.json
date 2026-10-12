@@ -1,0 +1,44 @@
+{
+  "name": "lte_modulation",
+  "description": "LTE 调制/解调工具。输入比特序列映射为 QAM/PSK 复数符号（3GPP TS 36.211 映射），或符号序列硬判决解调为比特。支持 BPSK/QPSK/16QAM/64QAM/256QAM/1024QAM。",
+  "implementation": "3GPP TS 36.211 §7.1，经 MATLAB LTE Toolbox lteSymbolModulate 黄金样本校验",
+  "script": "lte_modulation.py",
+  "inputs": {
+    "mod": {
+      "type": "string",
+      "enum": ["BPSK", "QPSK", "16QAM", "64QAM", "256QAM", "1024QAM"],
+      "required": true,
+      "description": "调制方式"
+    },
+    "bits": {
+      "type": "string",
+      "required": false,
+      "description": "逗号分隔的比特串，如 0,1,1,0。长度须为每符号比特数的整数倍"
+    },
+    "bits_hex": {
+      "type": "string",
+      "required": false,
+      "description": "十六进制比特串（高位在前），与 bits 二选一"
+    },
+    "inverse": {
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "启用硬判决解调模式"
+    },
+    "symbols": {
+      "type": "string",
+      "required": false,
+      "description": "inverse 模式的复数符号 JSON 数组，例如 [\"0.707+0.707j\"]"
+    }
+  },
+  "outputs": {
+    "bits": "输入比特列表",
+    "symbols_real": "调制符号实部（调制方向）",
+    "symbols_imag": "调制符号虚部（调制方向）"
+  },
+  "example": {
+    "cmd": "python lte_modulation.py --mod QPSK --bits 0,0,1,1",
+    "result": "{\"modulation\": \"QPSK\", \"bits\": [0,0,1,1], \"symbols_real\": [0.7071, -0.7071], \"symbols_imag\": [0.7071, -0.7071]}"
+  }
+}

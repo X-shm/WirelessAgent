@@ -1,0 +1,33 @@
+{
+  "name": "nr_layer_map",
+  "description": "5G NR 层映射。将复数调制符号按 i mod nLayers 分配到传输层。支持 1-8 层，可逆（层解映射）。经 MATLAB nrLayerMap 黄金样本校验（3/3 通过）。",
+  "implementation": "3GPP TS 38.211 §6.3.1.2，经 MATLAB 5G Toolbox nrLayerMap 黄金样本校验",
+  "script": "nr_layer_map.py",
+  "inputs": {
+    "nlayers": {
+      "type": "integer",
+      "required": true,
+      "description": "传输层数 1-8"
+    },
+    "symbols": {
+      "type": "string",
+      "required": true,
+      "description": "JSON 数组格式的复数符号，如 [1+0.5j, 2+1j, ...]"
+    },
+    "inverse": {
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "true=层解映射（从层矩阵恢复符号流）"
+    }
+  },
+  "outputs": {
+    "symbols_real": "输出符号实部（层映射输出为矩阵行优先，层解映射输出为一维数组）",
+    "symbols_imag": "输出符号虚部",
+    "n_layers": "层数"
+  },
+  "example": {
+    "cmd": "python tools/nr_layer_map.py --nlayers 2 --symbols '[1+0.5j,2+1j,3+1.5j,4+2j]'",
+    "result": "{\"n_layers\":2,\"symbols_real\":[[1,3],[2,4]],\"symbols_imag\":[[0.5,1.5],[1,2]]}"
+  }
+}

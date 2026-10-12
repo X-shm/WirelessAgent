@@ -1,0 +1,49 @@
+{
+  "name": "fading_channel",
+  "script": "fading_channel.py",
+  "description": "对实数或复数信号施加归一化平坦 Rayleigh/Rician 衰落，对应 stdchan 的常用无记忆平坦子集。",
+  "implementation": "独立复高斯散射分量，可按 block_length 保持块内路径增益，支持确定性随机种子。",
+  "inputs": {
+    "signal": {
+      "type": "string",
+      "required": true,
+      "description": "JSON 实数数组或 {real,imag}"
+    },
+    "model": {
+      "type": "string",
+      "enum": [
+        "rayleigh",
+        "rician"
+      ],
+      "required": false,
+      "default": "rayleigh",
+      "description": "衰落模型"
+    },
+    "k_factor": {
+      "type": "number",
+      "required": false,
+      "default": 0,
+      "description": "Rician 线性 K 因子"
+    },
+    "seed": {
+      "type": "integer",
+      "required": false,
+      "description": "随机种子"
+    },
+    "block_length": {
+      "type": "integer",
+      "required": false,
+      "default": 1,
+      "description": "每个路径增益保持的样本数"
+    }
+  },
+  "outputs": {
+    "output": "衰落后复信号",
+    "path_gains": "复路径增益",
+    "average_gain_power": "样本平均增益功率"
+  },
+  "example": {
+    "cmd": "python tools/fading_channel.py --signal '[1,1,1,1]' --model rayleigh --seed 1 --block_length 2",
+    "result": "{\"output\":{...},\"path_gains\":{...}}"
+  }
+}

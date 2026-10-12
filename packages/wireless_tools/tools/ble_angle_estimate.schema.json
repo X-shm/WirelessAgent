@@ -1,0 +1,29 @@
+{
+  "name": "ble_angle_estimate",
+  "script": "ble_angle_estimate.py",
+  "description": "BLE ULA AoA/AoD MUSIC 估计与 bleAngleEstimateConfig 可序列化配置。",
+  "implementation": "operation=estimate 为纯 Python ULA、0.1°扫描；operation=config 与 bluetooth_session 支持 ULA/自定义阵列配置和派生阵元位置，但 URA/自定义阵列 MUSIC 估计尚未实现。",
+  "inputs": {
+    "input": {
+      "type": "string",
+      "required": true,
+      "description": "JSON：operation=estimate 时提供 iq_samples={real,imag} 和阵列字段；operation=config 时提供 properties 配置对象"
+    },
+    "input_file": {
+      "type": "string",
+      "required": false,
+      "description": "与 input 互斥的 JSON 文件"
+    }
+  },
+  "outputs": {
+    "angle_degrees": "估计的 broadside/AoA 角度",
+    "configuration": {
+      "description": "operation=config 的规范化配置",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/ble_angle_estimate.py --input '{\"iq_samples\":{\"real\":[1,0.7,0.2,-0.3,-0.8,-0.9,-0.4,0.2,0.8],\"imag\":[0,0.5,0.9,0.8,0.2,-0.4,-0.8,-0.8,-0.3]},\"array_size\":2}'",
+    "result": "{\"ok\":true,...}"
+  }
+}

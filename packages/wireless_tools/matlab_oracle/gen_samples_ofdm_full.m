@@ -1,0 +1,27 @@
+% Golden samples for OFDM (full grid + wave for exact validation)
+fprintf('start\n');
+samples = [];
+rng(9001);
+nrb = 1; scs = 15; nfft = 128;
+grid = (randn(12*nrb, 14) + 1j*randn(12*nrb, 14)) * 0.5;
+[wave, info] = nrOFDMModulate(grid, scs, 0, 'Nfft', nfft);
+grid_back = nrOFDMDemodulate(wave, nrb, scs, 0, 'Nfft', nfft);
+s = struct();
+s.nrb = nrb;
+s.scs = scs;
+s.nfft = nfft;
+s.n_symbols = 14;
+s.grid_real = real(grid.');
+s.grid_imag = imag(grid.');
+s.wave_real = real(wave.');
+s.wave_imag = imag(wave.');
+s.cp_lengths = info.CyclicPrefixLengths;
+s.demod_err = max(abs(grid_back(:) - grid(:)));
+samples = [samples; s];
+fprintf('  wave_len=%d demod_err=%g\n', numel(wave), s.demod_err);
+jsonOut = jsonencode(samples);
+fid = fopen(wt_sample_path('ofdm_samples.json'), 'w', 'n', 'UTF-8');
+fprintf(fid, '%s', jsonOut);
+fclose(fid);
+fprintf('wrote full ofdm sample\n');
+fprintf('done\n');

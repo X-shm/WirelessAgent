@@ -1,0 +1,45 @@
+# Offline training recipe. No credentials belong in this file.
+model:
+  backend: openai_compatible
+  optimizer_backend: openai_compatible
+  target_backend: openai_compatible
+  optimizer: deepseek-v4-pro
+  target: deepseek-flash
+  reasoning_effort: ""
+
+train:
+  num_epochs: 1
+  train_size: 0
+  batch_size: 24
+  accumulation: 1
+  seed: 42
+
+gradient:
+  minibatch_size: 4
+  merge_batch_size: 4
+  analyst_workers: 2
+  failure_only: false
+
+optimizer:
+  learning_rate: 2
+  min_learning_rate: 1
+  lr_scheduler: constant
+  lr_control_mode: fixed
+  skill_update_mode: patch
+  use_slow_update: false
+  use_meta_skill: false
+  use_skill_aware_reflection: true
+  skill_aware_appendix_source: failure_only
+  skill_aware_consolidate_threshold: 8
+
+evaluation:
+  use_gate: true
+  sel_env_num: 48
+  test_env_num: 144
+  eval_test: true
+
+env:
+  name: wireless_mcp
+  split_mode: split_dir
+  split_seed: 42
+  max_turns: 3

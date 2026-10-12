@@ -1,0 +1,47 @@
+{
+  "name": "lte_extract_resources",
+  "script": "lte_extract_resources.py",
+  "description": "使用线性或下标索引从 LTE 二维/三维资源网格抽取 RE，对应 lteExtractResources 常用形式。",
+  "implementation": "线性索引严格使用 MATLAB 列优先顺序；支持零基/一基和复资源网格。",
+  "inputs": {
+    "grid": {
+      "type": "string",
+      "required": true,
+      "description": "二维或三维复资源网格 JSON"
+    },
+    "indices": {
+      "type": "string",
+      "required": true,
+      "description": "线性索引或 N×维数下标 JSON"
+    },
+    "index_format": {
+      "type": "string",
+      "enum": [
+        "linear",
+        "subscript"
+      ],
+      "required": false,
+      "default": "subscript",
+      "description": "索引格式"
+    },
+    "index_base": {
+      "type": "integer",
+      "enum": [
+        0,
+        1
+      ],
+      "required": false,
+      "default": 0,
+      "description": "索引基数"
+    }
+  },
+  "outputs": {
+    "values": "抽取的复 RE",
+    "subscripts": "对应下标",
+    "index_base": "索引基数"
+  },
+  "example": {
+    "cmd": "python tools/lte_extract_resources.py --grid '[[1,2],[3,4]]' --indices '[[0,1],[1,0]]'",
+    "result": "{\"values\":{\"real\":[2,3],...},...}"
+  }
+}

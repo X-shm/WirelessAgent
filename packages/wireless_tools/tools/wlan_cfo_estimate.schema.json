@@ -1,0 +1,70 @@
+{
+  "name": "wlan_cfo_estimate",
+  "script": "wlan_cfo_estimate.py",
+  "description": "IEEE 802.11 载波频偏估计工具。coarse：基于 L-STF 短训练序列（0.8us 周期）的粗频偏估计；fine：基于 L-LTF 长训练序列（3.2us 周期）的细频偏估计。对应 MATLAB wlanCoarseCFOEstimate / wlanFineCFOEstimate。",
+  "implementation": "Van Zelst & Schenk 2004 多天线自相关法：res=Σ conj(x₁..N-D)·x_(D+..)N，foffset=angle(Σres)/(2π)·fs/D",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "coarse",
+        "fine"
+      ],
+      "required": true,
+      "description": "coarse: L-STF 粗估计; fine: L-LTF 细估计"
+    },
+    "waveform": {
+      "type": "string",
+      "required": true,
+      "description": "接收波形 JSON：{\"real\":[...],\"imag\":[...]}，形状 [Ns] 或 [Ns,Nr]"
+    },
+    "chanbw": {
+      "type": "string",
+      "enum": [
+        "CBW5",
+        "CBW10",
+        "CBW20",
+        "CBW40",
+        "CBW80",
+        "CBW160",
+        "CBW320"
+      ],
+      "required": false,
+      "default": "CBW20",
+      "description": "信道带宽"
+    },
+    "corr_offset": {
+      "type": "number",
+      "required": false,
+      "default": 0.75,
+      "description": "相关起始（GI 的比例，0..1）"
+    },
+    "osf": {
+      "type": "number",
+      "required": false,
+      "default": 1.0,
+      "description": "过采样因子 (>=1)"
+    }
+  },
+  "outputs": {
+    "frequency_offset_hz": {
+      "description": "估计的载波频偏 (Hz)"
+    },
+    "mode": {
+      "description": "估计模式"
+    },
+    "channel_bandwidth": {
+      "description": "信道带宽"
+    },
+    "corr_offset": {
+      "description": "相关起始比例"
+    },
+    "oversampling_factor": {
+      "description": "过采样因子"
+    }
+  },
+  "example": {
+    "cmd": "python tools/wlan_cfo_estimate.py --mode coarse --chanbw CBW20 --waveform '{\"real\":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],\"imag\":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}'",
+    "result": "{\"frequency_offset_hz\": 0.0, \"mode\": \"coarse\", \"channel_bandwidth\": \"CBW20\"}"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "node_mobility_constant_velocity",
+  "script": "node_mobility_constant_velocity.py",
+  "description": "计算节点在给定时刻的恒速三维轨迹。",
+  "implementation": "将 Wireless Network Toolbox nodeMobilityConstantVelocity 状态对象转为适合 CLI 的无状态批量轨迹工具。",
+  "inputs": {
+    "initial_position": {"type": "string", "required": true, "description": "初始 x,y,z"},
+    "velocity": {"type": "string", "required": true, "description": "vx,vy,vz，米/秒"},
+    "times": {"type": "string", "required": true, "description": "逗号分隔的时刻，秒"}
+  },
+  "outputs": {"positions": "各时刻三维位置", "velocity": "恒定速度", "times": "输入时刻"},
+  "example": {"cmd": "python tools/node_mobility_constant_velocity.py --initial_position 0,0,0 --velocity 10,0,0 --times 0,1,2", "result": "{\"positions\":[[0,0,0],[10,0,0],[20,0,0]],...}"}
+}

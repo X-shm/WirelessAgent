@@ -1,0 +1,31 @@
+{
+  "name": "lte_tbs",
+  "description": "LTE 传输块大小(TBS)查表工具。按 TS 36.213 Table 7.1.7.2.1-1(Release 15, 110 个 NPRB × 38 个 ITBS)查询传输块大小,支持 1..4 层空间复用(2/3/4 层按 §7.1.7.2.2/2.4/2.5 转换)。ITBS=-1 表示 DTX(TBS=0)。省略 ITBS 时返回该 NPRB 的完整 38 值列。",
+  "implementation": "3GPP TS 36.213 表 7.1.7.2.1-1 + 空间复用层转换,经 MATLAB LTE Toolbox lteTBS 黄金样本校验(表格由 MATLAB 编译库导出)",
+  "script": "lte_tbs.py",
+  "inputs": {
+    "nprb": {
+      "type": "integer",
+      "required": true,
+      "description": "物理资源块数,1..110"
+    },
+    "itbs": {
+      "type": "string",
+      "required": false,
+      "description": "TBS 索引,0..37,逗号分隔可查多个,如 0,10,20;-1=DTX(返回 0);省略则返回该 NPRB 的完整列"
+    },
+    "smnlayer": {
+      "type": "integer",
+      "required": false,
+      "default": 1,
+      "description": "空间复用层数,1..4,默认 1"
+    }
+  },
+  "outputs": {
+    "tbs": "传输块大小(比特;DTX 为 0,保留条目为 null)"
+  },
+  "example": {
+    "cmd": "python lte_tbs.py --nprb 1 --itbs 0,10,20",
+    "result": "{\"nprb\": 1, \"itbs\": [0, 10, 20], \"smnlayer\": 1, \"tbs\": [16, 144, 440]}"
+  }
+}

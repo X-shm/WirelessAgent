@@ -1,0 +1,78 @@
+{
+  "name": "lte_scfdma",
+  "script": "lte_scfdma.py",
+  "description": "LTE 上行 SC-FDMA 参数、调制和解调，对应 lteSCFDMAInfo/lteSCFDMAModulate/lteSCFDMADemodulate。",
+  "implementation": "单位能量 DFT 扩频、LTE OFDM 映射/CP 和半子载波时域移位；支持 Normal/Extended CP。",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "info",
+        "modulate",
+        "demodulate"
+      ],
+      "required": true,
+      "description": "操作"
+    },
+    "nrb": {
+      "type": "integer",
+      "required": true,
+      "description": "上行资源块数"
+    },
+    "cyclic_prefix": {
+      "type": "string",
+      "enum": [
+        "Normal",
+        "Extended"
+      ],
+      "required": false,
+      "default": "Normal",
+      "description": "上行 CP"
+    },
+    "nfft": {
+      "type": "integer",
+      "required": false,
+      "description": "可选 FFT 长度"
+    },
+    "windowing": {
+      "type": "integer",
+      "required": false,
+      "default": 0,
+      "description": "调制加窗长度"
+    },
+    "cp_fraction": {
+      "type": "number",
+      "required": false,
+      "default": 0.55,
+      "description": "解调 CP 采样位置"
+    },
+    "grid": {
+      "type": "string",
+      "required": false,
+      "description": "调制输入复网格"
+    },
+    "waveform": {
+      "type": "string",
+      "required": false,
+      "description": "解调输入复波形"
+    }
+  },
+  "outputs": {
+    "info": {
+      "description": "FFT/CP/采样率",
+      "optional": true
+    },
+    "waveform": {
+      "description": "SC-FDMA 波形",
+      "optional": true
+    },
+    "grid": {
+      "description": "解调资源网格",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/lte_scfdma.py --mode info --nrb 6",
+    "result": "{\"info\":{\"nfft\":128,...}}"
+  }
+}

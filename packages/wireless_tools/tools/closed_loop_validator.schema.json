@@ -1,0 +1,41 @@
+{
+  "name": "closed_loop_validator",
+  "script": "closed_loop_validator.py",
+  "description": "比较无线网络优化前后 KPI，执行约束验收并给出是否回滚。",
+  "implementation": "按吞吐/SNR高优和 BER/BLER/EVM/时延/资源低优方向计算加权相对改进，同时强制 min/max 约束。",
+  "inputs": {
+    "before": {
+      "type": "string",
+      "required": true,
+      "description": "优化前 KPI JSON 对象"
+    },
+    "after": {
+      "type": "string",
+      "required": true,
+      "description": "优化后 KPI JSON 对象"
+    },
+    "constraints": {
+      "type": "string",
+      "required": false,
+      "default": "{}",
+      "description": "各 KPI min/max 约束 JSON"
+    },
+    "weights": {
+      "type": "string",
+      "required": false,
+      "default": "{}",
+      "description": "KPI 权重 JSON"
+    }
+  },
+  "outputs": {
+    "accepted": "是否通过验收",
+    "score": "加权改进分数",
+    "comparisons": "逐 KPI 比较",
+    "constraint_violations": "约束违规",
+    "rollback_recommended": "是否建议回滚"
+  },
+  "example": {
+    "cmd": "python tools/closed_loop_validator.py --before '{\"throughput\":10,\"ber\":0.01}' --after '{\"throughput\":12,\"ber\":0.001}' --constraints '{\"ber\":{\"max\":0.002}}'",
+    "result": "{\"accepted\":true,\"rollback_recommended\":false,...}"
+  }
+}

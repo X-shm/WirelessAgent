@@ -1,0 +1,63 @@
+{
+  "name": "lte_crc",
+  "description": "LTE CRC 编码/校验工具。按 3GPP TS 36.212 §5.1.1 多项式（24A/24B/16/8）计算并追加 CRC 校验位，支持 RNTI mask 异或和填充位（-1 按 0 参与计算）。",
+  "implementation": "3GPP TS 36.212 §5.1.1，经 MATLAB LTE Toolbox lteCRCEncode 黄金样本校验",
+  "script": "lte_crc.py",
+  "inputs": {
+    "poly": {
+      "type": "string",
+      "enum": [
+        "24A",
+        "24B",
+        "16",
+        "8"
+      ],
+      "required": true,
+      "description": "CRC 多项式"
+    },
+    "bits": {
+      "type": "string",
+      "required": false,
+      "description": "逗号分隔的比特串（-1 表示填充位，如 0,1,-1,0）"
+    },
+    "bits_hex": {
+      "type": "string",
+      "required": false,
+      "description": "十六进制比特串（高位在前），与 bits 二选一"
+    },
+    "mask": {
+      "type": "integer",
+      "required": false,
+      "default": 0,
+      "description": "CRC 校验位异或掩码（如 RNTI），MSB-first，默认 0"
+    },
+    "verify": {
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "true=校验已含 CRC 的输入"
+    }
+  },
+  "outputs": {
+    "crc": {
+      "description": "追加 CRC 后的完整输出比特（编码方向）",
+      "optional": true
+    },
+    "parity": {
+      "description": "CRC 校验位（编码方向）",
+      "optional": true
+    },
+    "valid": {
+      "description": "校验是否通过（校验方向）",
+      "optional": true
+    },
+    "data": {
+      "description": "去掉 CRC 后的数据比特（校验方向）",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python lte_crc.py --poly 24A --bits 0,1,1,0,1,0,0,1",
+    "result": "{\"poly\": \"24A\", \"parity\": [...], \"crc\": [0,1,1,0,1,0,0,1,...]}"
+  }
+}

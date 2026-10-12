@@ -1,0 +1,40 @@
+{
+  "name": "ble_l2cap",
+  "script": "ble_l2cap.py",
+  "description": "BLE L2CAP 配置、帧编码与解码，对应 bleL2CAPFrameConfig、bleL2CAPFrame、bleL2CAPFrameDecode。",
+  "implementation": "纯 Python 信令命令、固定 CID B-frame 与动态 CID 单段 LE-frame。",
+  "inputs": {
+    "input": {
+      "type": "string",
+      "required": true,
+      "description": "JSON：operation=config|encode|decode，configuration、sdu 或 frame"
+    },
+    "input_file": {
+      "type": "string",
+      "required": false,
+      "description": "与 input 互斥的 JSON 文件"
+    }
+  },
+  "outputs": {
+    "configuration": {
+      "description": "规范化 L2CAP 配置",
+      "optional": true
+    },
+    "frame_hex": {
+      "description": "大端显示的连续十六进制帧字节",
+      "optional": true
+    },
+    "status": {
+      "description": "解码状态名称和数值",
+      "optional": true
+    },
+    "sdu": {
+      "description": "数据帧负载",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/ble_l2cap.py --input '{\"operation\":\"encode\",\"configuration\":{\"channel_identifier\":\"0004\"},\"sdu\":\"0A0100\"}'",
+    "result": "{\"ok\":true,\"result\":{\"frame_hex\":\"030004000A0100\",\"octets\":7},...}"
+  }
+}

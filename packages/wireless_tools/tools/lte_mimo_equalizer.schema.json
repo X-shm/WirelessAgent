@@ -1,0 +1,58 @@
+{
+  "name": "lte_mimo_equalizer",
+  "script": "lte_mimo_equalizer.py",
+  "description": "执行预编码感知的 LTE 下行/上行联合 MMSE MIMO 均衡并输出逐层 CSI。",
+  "implementation": "按 lteEqualizeMIMO/lteEqualizeULMIMO 的 G=HW、(GᴴG+nI)⁻¹Gᴴ 计算；内置 1/2Tx 标准码本，也可显式提供任意预编码矩阵。",
+  "inputs": {
+    "link": {
+      "type": "string",
+      "enum": [
+        "downlink",
+        "uplink"
+      ],
+      "required": true,
+      "description": "链路方向标签"
+    },
+    "received": {
+      "type": "string",
+      "required": true,
+      "description": "[M,NRx] 复数 JSON"
+    },
+    "channel_estimate": {
+      "type": "string",
+      "required": true,
+      "description": "[M,NRx,NTx] 复数 JSON"
+    },
+    "noise_variance": {
+      "type": "number",
+      "required": true,
+      "description": "每 RE 噪声方差"
+    },
+    "n_layers": {
+      "type": "integer",
+      "required": false,
+      "default": 1,
+      "description": "传输层数"
+    },
+    "codebook_index": {
+      "type": "integer",
+      "required": false,
+      "default": 0,
+      "description": "1/2Tx 内置码本索引"
+    },
+    "precoder": {
+      "type": "string",
+      "required": false,
+      "description": "可选 [NTx,层] 显式复预编码矩阵"
+    }
+  },
+  "outputs": {
+    "output": "均衡后的层符号",
+    "csi": "逐符号逐层软 CSI",
+    "precoder": "实际使用的预编码矩阵"
+  },
+  "example": {
+    "cmd": "python tools/lte_mimo_equalizer.py --link downlink --received '{\"real\":[[1,0]]}' --channel_estimate '{\"real\":[[[1,0],[0,1]]]}' --noise_variance 0.01 --n_layers 2",
+    "result": "{\"output\":{...},\"csi\":[...]}"
+  }
+}

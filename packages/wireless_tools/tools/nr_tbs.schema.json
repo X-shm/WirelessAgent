@@ -1,0 +1,75 @@
+{
+  "name": "nr_tbs",
+  "script": "nr_tbs.py",
+  "description": "5G NR 传输块大小（TBS）计算。根据 TS 38.214 Sections 5.1.3.2 / 6.1.4.2 计算给定资源分配下的传输块大小。",
+  "implementation": "3GPP TS 38.214 5.1.3.2，支持查表法（Ninfo<=3824）和公式法（Ninfo>3824）",
+  "inputs": {
+    "modulation": {
+      "type": "string",
+      "required": true,
+      "description": "调制方式"
+    },
+    "nlayers": {
+      "type": "integer",
+      "required": true,
+      "description": "传输层数 (1..8)"
+    },
+    "nprb": {
+      "type": "integer",
+      "required": true,
+      "description": "分配的 PRB 数量 (0..275)"
+    },
+    "tcr": {
+      "type": "number",
+      "required": true,
+      "description": "目标码率 (0..1)"
+    },
+    "xoh": {
+      "type": "integer",
+      "required": false,
+      "default": 0,
+      "description": "额外开销 (0, 6, 12, 18)"
+    },
+    "nre-per-prb": {
+      "type": "integer",
+      "required": true,
+      "description": "每 PRB 的 RE 数"
+    },
+    "tb-scaling": {
+      "type": "number",
+      "required": false,
+      "default": 1.0,
+      "description": "TB 缩放因子 (0.25, 0.5, 1.0)"
+    }
+  },
+  "outputs": {
+    "modulation": {
+      "description": "调制方式"
+    },
+    "nlayers": {
+      "description": "传输层数"
+    },
+    "nPRB": {
+      "description": "分配的 PRB 数量"
+    },
+    "NREPerPRB": {
+      "description": "每 PRB 的 RE 数"
+    },
+    "tcr": {
+      "description": "目标码率"
+    },
+    "xOh": {
+      "description": "额外开销"
+    },
+    "tbScaling": {
+      "description": "TB 缩放因子"
+    },
+    "tbs": {
+      "description": "传输块大小 (比特)"
+    }
+  },
+  "example": {
+    "cmd": "python tools/nr_tbs.py --modulation QPSK --nlayers 1 --nprb 52 --nre-per-prb 120 --tcr 0.5",
+    "result": "{\"modulation\": \"QPSK\", \"nlayers\": 1, \"nPRB\": 52, \"NREPerPRB\": 120, \"tcr\": 0.5, \"xOh\": 0, \"tbScaling\": 1.0, \"tbs\": 6272}"
+  }
+}
