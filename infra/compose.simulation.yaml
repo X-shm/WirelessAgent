@@ -1,0 +1,35 @@
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.simulation
+    command: ["python", "-m", "uvicorn", "services.api.app:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      WIRELESS_SIM_DATA_ROOT: /data
+    volumes:
+      - simulation_data:/data
+    ports:
+      - "127.0.0.1:8000:8000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/readyz', timeout=2)"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+  worker:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.simulation
+    command: ["python", "-m", "services.worker"]
+    environment:
+      WIRELESS_SIM_DATA_ROOT: /data
+    volumes:
+      - simulation_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-m", "services.worker", "--healthcheck"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+volumes:
+  simulation_data:

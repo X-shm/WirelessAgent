@@ -1,0 +1,5 @@
+FROM python:3.11-slim
+WORKDIR /app
+COPY . /app
+RUN python -m pip install --no-cache-dir -r requirements-simulation.txt
+ENV WIRELESS_SIM_DATA_ROOT=/data PYTHONUNBUFFERED=1
