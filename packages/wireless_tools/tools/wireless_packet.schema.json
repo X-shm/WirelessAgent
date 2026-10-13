@@ -1,0 +1,104 @@
+{
+  "name": "wireless_packet",
+  "script": "wireless_packet.py",
+  "description": "创建并校验 JSON 安全的 Wireless Network Toolbox wirelessPacket 结构。",
+  "implementation": "字段和默认值来自 R2026a wirelessPacket 公开 M 文件。",
+  "inputs": {
+    "technology_type": {
+      "type": "integer",
+      "required": false,
+      "default": 0,
+      "description": "技术类型"
+    },
+    "transmitter_id": {
+      "type": "integer",
+      "required": false,
+      "description": "发射节点 ID"
+    },
+    "transmitter_position": {
+      "type": "string",
+      "required": false,
+      "description": "x,y,z"
+    },
+    "transmitter_velocity": {
+      "type": "string",
+      "required": false,
+      "default": "0,0,0",
+      "description": "vx,vy,vz"
+    },
+    "num_transmit_antennas": {
+      "type": "integer",
+      "required": false,
+      "description": "发射天线数"
+    },
+    "start_time": {
+      "type": "number",
+      "required": false,
+      "description": "开始时间"
+    },
+    "duration": {
+      "type": "number",
+      "required": false,
+      "description": "时长"
+    },
+    "power": {
+      "type": "number",
+      "required": false,
+      "description": "dBm"
+    },
+    "center_frequency": {
+      "type": "number",
+      "required": false,
+      "description": "Hz"
+    },
+    "bandwidth": {
+      "type": "number",
+      "required": false,
+      "description": "Hz"
+    },
+    "abstraction": {
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "抽象 PHY"
+    },
+    "sample_rate": {
+      "type": "number",
+      "required": false,
+      "description": "采样率"
+    },
+    "direct_to_destination": {
+      "type": "integer",
+      "required": false,
+      "default": 0,
+      "description": "直达节点 ID"
+    },
+    "data": {
+      "type": "string",
+      "required": false,
+      "default": "[]",
+      "description": "JSON 数据"
+    },
+    "metadata": {
+      "type": "string",
+      "required": false,
+      "description": "JSON 元数据"
+    },
+    "tags": {
+      "type": "string",
+      "required": false,
+      "default": "[]",
+      "description": "JSON 标签"
+    }
+  },
+  "outputs": {
+    "packet": {
+      "description": "wirelessPacket 兼容结构",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/wireless_packet.py --transmitter_id 1 --duration 0.001 --power 20",
+    "result": "{\"TransmitterID\":1,...}"
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "kind": "draft_experiment",
+  "publishable": false,
+  "review_status": "draft",
+  "complete": true,
+  "registry_sha256": "08b80a882667bb39ed1c3691482466bc0e45cfb90fd5e77aba93f73b908baf15",
+  "input_sha256": "717b1d19d35ebdee8a527c8ccb06dcccdc5cd6f8f787049e65bdbe5a751d2632",
+  "cases_by_split": {
+    "train": 28,
+    "selection": 19,
+    "holdout": 24
+  },
+  "coverage": {
+    "train": {
+      "by_product": {
+        "5G Toolbox": 3,
+        "Bluetooth Toolbox": 3,
+        "Communications Toolbox": 5,
+        "LTE Toolbox": 4,
+        "WLAN Toolbox": 3,
+        "Wireless Network Toolbox": 3,
+        "WirelessAgent Helper": 2,
+        "WirelessAgent Workflow": 5
+      },
+      "by_kind": {
+        "tool_call": 25,
+        "tool_workflow": 3
+      },
+      "by_origin": {
+        "expert_authored": 28
+      },
+      "tool_count": 24,
+      "scenario_count": 28,
+      "workflow_count": 3
+    },
+    "selection": {
+      "by_product": {
+        "5G Toolbox": 3,
+        "Bluetooth Toolbox": 2,
+        "Communications Toolbox": 3,
+        "LTE Toolbox": 2,
+        "WLAN Toolbox": 3,
+        "Wireless Network Toolbox": 2,
+        "WirelessAgent Helper": 2,
+        "WirelessAgent Workflow": 2
+      },
+      "by_kind": {
+        "ask_clarification": 1,
+        "tool_call": 15,
+        "tool_workflow": 3
+      },
+      "by_origin": {
+        "expert_authored": 19
+      },
+      "tool_count": 19,
+      "scenario_count": 19,
+      "workflow_count": 3
+    },
+    "holdout": {
+      "by_product": {
+        "5G Toolbox": 4,
+        "Bluetooth Toolbox": 3,
+        "Communications Toolbox": 4,
+        "LTE Toolbox": 3,
+        "WLAN Toolbox": 3,
+        "Wireless Network Toolbox": 2,
+        "WirelessAgent Helper": 1,
+        "WirelessAgent Workflow": 4
+      },
+      "by_kind": {
+        "ask_clarification": 3,
+        "tool_call": 17,
+        "tool_workflow": 4
+      },
+      "by_origin": {
+        "expert_authored": 24
+      },
+      "tool_count": 24,
+      "scenario_count": 24,
+      "workflow_count": 4
+    }
+  },
+  "scenario_count": 71,
+  "max_workflow_steps": 3,
+  "holdout_frozen": true,
+  "split_sha256": {
+    "train": "3e9002384aaf990bb7b578a5f8e9f0be464e9785bbe335c71432a527f4d24273",
+    "val": "27b382ce83c24729802380e7782d63ee1b87a92bb28415fc57a7ddbf719ddd53",
+    "test": "8b6180a97176020c3c10a80a6ecdaa1913435345075ab1ccaf3bbf2754286c89"
+  },
+  "note": "Expert-authored draft for non-publishable local experiments; no product or user-data approval."
+}

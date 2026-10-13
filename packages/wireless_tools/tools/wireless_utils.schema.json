@@ -1,0 +1,120 @@
+{
+  "name": "wireless_utils",
+  "description": "无线通信测试工具集。AWGN 加噪、比特错误计数、理论 BER、WLAN BCC 交织、Golay 互补序列。纯数学实现，匹配 MATLAB Communications Toolbox 行为。",
+  "implementation": "纯 Python + numpy/scipy，参照 MATLAB Communications Toolbox",
+  "script": "wireless_utils.py",
+  "inputs": {},
+  "subcommands": {
+    "awgn": {
+      "description": "添加指定 SNR 的 AWGN。",
+      "inputs": {
+        "signal": {
+          "type": "string",
+          "required": true,
+          "description": "逗号分隔的实数或复数输入样本"
+        },
+        "snr": {
+          "type": "number",
+          "required": true,
+          "description": "SNR（dB）"
+        }
+      }
+    },
+    "biterr": {
+      "description": "计算两个比特序列的错误数和 BER。",
+      "inputs": {
+        "x": {
+          "type": "string",
+          "required": true,
+          "description": "参考比特序列"
+        },
+        "y": {
+          "type": "string",
+          "required": true,
+          "description": "接收比特序列"
+        }
+      }
+    },
+    "berawgn": {
+      "description": "计算 AWGN 理论 BER。",
+      "inputs": {
+        "ebn0": {
+          "type": "number",
+          "required": true,
+          "description": "Eb/N0（dB）"
+        },
+        "mod": {
+          "type": "string",
+          "required": true,
+          "description": "调制方式"
+        }
+      }
+    },
+    "bcc-interleave": {
+      "description": "执行 WLAN BCC 交织。",
+      "inputs": {
+        "bits": {
+          "type": "string",
+          "required": true,
+          "description": "逗号分隔的输入比特"
+        },
+        "ncbps": {
+          "type": "integer",
+          "required": true,
+          "description": "每 OFDM 符号编码比特数"
+        },
+        "nbpsc": {
+          "type": "integer",
+          "required": false,
+          "default": 1,
+          "description": "每子载波编码比特数"
+        }
+      }
+    },
+    "golay": {
+      "description": "生成 Golay 互补序列对。",
+      "inputs": {
+        "length": {
+          "type": "integer",
+          "required": false,
+          "default": 32,
+          "description": "2 的幂次序列长度"
+        }
+      }
+    }
+  },
+  "outputs": {
+    "noisy_signal_real": {
+      "description": "awgn: 加噪后信号实部",
+      "optional": true
+    },
+    "noisy_signal_imag": {
+      "description": "awgn: 加噪后信号虚部（实信号时为 null）",
+      "optional": true
+    },
+    "num_errors": {
+      "description": "biterr: 错误比特数",
+      "optional": true
+    },
+    "ber": {
+      "description": "biterr/berawgn: 误码率",
+      "optional": true
+    },
+    "interleaved_bits": {
+      "description": "bcc-interleave: 交织后比特",
+      "optional": true
+    },
+    "Ga": {
+      "description": "golay: 第一条 Golay 序列",
+      "optional": true
+    },
+    "Gb": {
+      "description": "golay: 第二条 Golay 序列",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/wireless_utils.py awgn --signal '[1,0.5,-0.3,0.8]' --snr 10",
+    "result": "{\"signal\":[...],\"snr_db\":10}"
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "name": "signal_timing_estimate",
+  "script": "signal_timing_estimate.py",
+  "description": "通过参考信号归一化互相关估计定时，或由路径增益/滤波器重建冲激响应估计信道时延，对应 timingEstimate/channelDelay。",
+  "implementation": "支持多收发流相关、门限、能量窗口和完美信道路径合成。",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "correlation",
+        "perfect_channel"
+      ],
+      "required": true,
+      "description": "估计方式"
+    },
+    "waveform": {
+      "type": "string",
+      "required": false,
+      "description": "接收复波形"
+    },
+    "reference": {
+      "type": "string",
+      "required": false,
+      "description": "参考复信号"
+    },
+    "threshold": {
+      "type": "number",
+      "required": false,
+      "default": 0.2,
+      "description": "相关检测门限"
+    },
+    "window_length": {
+      "type": "integer",
+      "required": false,
+      "default": 1,
+      "description": "最大能量窗口"
+    },
+    "path_gains": {
+      "type": "string",
+      "required": false,
+      "description": "路径增益复数组"
+    },
+    "path_filters": {
+      "type": "string",
+      "required": false,
+      "description": "路径滤波器数组"
+    }
+  },
+  "outputs": {
+    "offset": "相关定时偏移样本数",
+    "normalized_correlation": "归一化相关幅度",
+    "delay": {
+      "description": "完美信道时延",
+      "optional": true
+    },
+    "magnitude": {
+      "description": "冲激响应幅度",
+      "optional": true
+    },
+    "impulse_response": {
+      "description": "复冲激响应",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/signal_timing_estimate.py --mode correlation --waveform '[0,0,1,2,3]' --reference '[1,2,3]'",
+    "result": "{\"offset\":2,...}"
+  }
+}

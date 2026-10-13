@@ -1,0 +1,26 @@
+{
+  "name": "bluetooth_nodes",
+  "script": "bluetooth_nodes.py",
+  "description": "创建可序列化的 Classic/LE 节点描述及角色、位置、射频和嵌套配置。",
+  "implementation": "纯 Python bluetoothNode/bluetoothLENode 构造器；需调用 bluetooth_session 获得持久化的流量源、移动、事件订阅、统计与确定性网络仿真。完整链路层协议调度仍在实现中。",
+  "inputs": {
+    "input": {
+      "type": "string",
+      "required": true,
+      "description": "JSON：kind=classic|le，role、positions、names、properties、start_id 可选"
+    },
+    "input_file": {
+      "type": "string",
+      "required": false,
+      "description": "与 input 互斥的 JSON 文件"
+    }
+  },
+  "outputs": {
+    "nodes": "节点配置描述数组",
+    "count": "节点数量"
+  },
+  "example": {
+    "cmd": "python tools/bluetooth_nodes.py --input '{\"kind\":\"le\",\"role\":\"central\",\"positions\":[[0,0,0],[1,0,0]]}'",
+    "result": "{"
+  }
+}

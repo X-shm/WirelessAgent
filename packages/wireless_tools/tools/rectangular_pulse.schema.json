@@ -1,0 +1,25 @@
+{
+  "name": "rectangular_pulse",
+  "script": "rectangular_pulse.py",
+  "description": "通过重复样本进行矩形脉冲成形，对应 rectpulse。",
+  "implementation": "NumPy repeat。",
+  "inputs": {
+    "values": {
+      "type": "string",
+      "required": true,
+      "description": "JSON 数组"
+    },
+    "samples_per_symbol": {
+      "type": "integer",
+      "required": true,
+      "description": "重复次数"
+    }
+  },
+  "outputs": {
+    "samples": "成形输出"
+  },
+  "example": {
+    "cmd": "python tools/rectangular_pulse.py --values '[1,2]' --samples_per_symbol 3",
+    "result": "{\"samples\":[1,1,1,2,2,2]}"
+  }
+}

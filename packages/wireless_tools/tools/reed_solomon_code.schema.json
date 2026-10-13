@@ -1,0 +1,80 @@
+{
+  "name": "reed_solomon_code",
+  "script": "reed_solomon_code.py",
+  "description": "GF(2^m) 上的系统窄义 Reed-Solomon 编码、纠错解码和生成多项式，对应 rsenc/rsdec/rsgenpoly 常用形式。",
+  "implementation": "纯 Python 有限域、Berlekamp-Massey、Chien 搜索和有限域线性求解；支持 m=2..8、缩短码及校验前置/后置。",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "encode",
+        "decode",
+        "generator"
+      ],
+      "required": true,
+      "description": "操作"
+    },
+    "symbols": {
+      "type": "string",
+      "required": false,
+      "default": "[]",
+      "description": "JSON 符号数组"
+    },
+    "n": {
+      "type": "integer",
+      "required": true,
+      "description": "码字符号数"
+    },
+    "k": {
+      "type": "integer",
+      "required": true,
+      "description": "消息符号数"
+    },
+    "m": {
+      "type": "integer",
+      "required": true,
+      "description": "每符号位数 2..8"
+    },
+    "primitive": {
+      "type": "string",
+      "required": false,
+      "description": "可选本原多项式整数，如 0x11d"
+    },
+    "parity_position": {
+      "type": "string",
+      "enum": [
+        "end",
+        "beginning"
+      ],
+      "required": false,
+      "default": "end",
+      "description": "校验符号位置"
+    }
+  },
+  "outputs": {
+    "codeword": {
+      "description": "编码码字",
+      "optional": true
+    },
+    "message": {
+      "description": "纠错后的消息",
+      "optional": true
+    },
+    "corrected_codeword": {
+      "description": "纠错码字",
+      "optional": true
+    },
+    "corrected_errors": {
+      "description": "纠错符号数",
+      "optional": true
+    },
+    "generator": {
+      "description": "生成多项式",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/reed_solomon_code.py --mode encode --symbols '[5,2,3]' --n 7 --k 3 --m 3",
+    "result": "{\"codeword\":[5,2,3,5,4,4,2],...}"
+  }
+}

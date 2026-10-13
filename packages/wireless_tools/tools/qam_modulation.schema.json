@@ -1,0 +1,81 @@
+{
+  "name": "qam_modulation",
+  "script": "qam_modulation.py",
+  "description": "方形 M-QAM 调制和硬判决解调，对应 qammod/qamdemod 常用形式。",
+  "implementation": "纯 NumPy；支持 Gray/binary、bit/symbol 输入和单位平均功率。",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "modulate",
+        "demodulate"
+      ],
+      "required": true,
+      "description": "方向"
+    },
+    "order": {
+      "type": "integer",
+      "required": true,
+      "description": "4/16/64/..."
+    },
+    "values": {
+      "type": "string",
+      "required": true,
+      "description": "逗号比特/标签或 real/imag JSON"
+    },
+    "input_type": {
+      "type": "string",
+      "enum": [
+        "bits",
+        "symbols"
+      ],
+      "required": false,
+      "default": "bits",
+      "description": "调制输入类型"
+    },
+    "output_type": {
+      "type": "string",
+      "enum": [
+        "bits",
+        "symbols"
+      ],
+      "required": false,
+      "default": "bits",
+      "description": "解调输出类型"
+    },
+    "symbol_order": {
+      "type": "string",
+      "enum": [
+        "gray",
+        "binary"
+      ],
+      "required": false,
+      "default": "gray",
+      "description": "星座标号"
+    },
+    "unit_average_power": {
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "单位平均功率归一化"
+    }
+  },
+  "outputs": {
+    "symbols_real": {
+      "description": "符号实部",
+      "optional": true
+    },
+    "symbols_imag": {
+      "description": "符号虚部",
+      "optional": true
+    },
+    "values": {
+      "description": "解调值",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/qam_modulation.py --mode modulate --order 16 --values 0,0,0,0",
+    "result": "{\"symbols_real\":[-3],\"symbols_imag\":[3]}"
+  }
+}

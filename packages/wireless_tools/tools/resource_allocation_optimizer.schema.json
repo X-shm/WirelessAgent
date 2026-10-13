@@ -1,0 +1,45 @@
+{
+  "name": "resource_allocation_optimizer",
+  "script": "resource_allocation_optimizer.py",
+  "description": "按用户 SNR、需求和优先级分配 LTE PRB，并给出每用户 MCS/TBS。",
+  "implementation": "逐 PRB 最大化加权边际 TBS/公平性效用，MCS/TBS 来自 link_adaptation_optimizer 和已验证 3GPP 表。",
+  "inputs": {
+    "users": {
+      "type": "string",
+      "required": true,
+      "description": "用户 JSON 数组；字段 id、snr_db、demand_kbps、priority、layers"
+    },
+    "total_prbs": {
+      "type": "integer",
+      "required": true,
+      "description": "可分配 PRB 总数"
+    },
+    "table": {
+      "type": "string",
+      "enum": [
+        "PDSCH",
+        "PDSCHTable2",
+        "PDSCHTable3",
+        "PUSCH"
+      ],
+      "required": false,
+      "default": "PDSCH",
+      "description": "MCS 表"
+    },
+    "margin_db": {
+      "type": "number",
+      "required": false,
+      "default": 2,
+      "description": "链路裕量"
+    }
+  },
+  "outputs": {
+    "allocations": "逐用户 PRB、MCS、TBS 和需求满足情况",
+    "allocated_prbs": "已分配总数",
+    "method": "分配方法"
+  },
+  "example": {
+    "cmd": "python tools/resource_allocation_optimizer.py --users '[{\"id\":\"u1\",\"snr_db\":15,\"demand_kbps\":5000}]' --total_prbs 10",
+    "result": "{\"allocated_prbs\":10,\"allocations\":[...]}"
+  }
+}

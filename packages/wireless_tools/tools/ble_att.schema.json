@@ -1,0 +1,33 @@
+{
+  "name": "ble_att",
+  "script": "ble_att.py",
+  "description": "BLE Attribute Protocol 的配置、25 种 PDU 编码与解码，对应 bleATTPDUConfig、bleATTPDU、bleATTPDUDecode。",
+  "implementation": "纯 Python 字节序和 ATT 字段映射；输入输出采用连续大写十六进制字节。",
+  "inputs": {
+    "input": {
+      "type": "string",
+      "required": true,
+      "description": "JSON：operation=config|encode|decode，configuration 或 pdu"
+    },
+    "input_file": {
+      "type": "string",
+      "required": false,
+      "description": "与 input 互斥的 JSON 文件"
+    }
+  },
+  "outputs": {
+    "configuration": {
+      "description": "规范化 ATT 配置或解码字段",
+      "optional": true
+    },
+    "pdu_hex": "编码后的 ATT PDU",
+    "status": {
+      "description": "解码状态名称和数值",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/ble_att.py --input '{\"operation\":\"encode\",\"configuration\":{\"opcode\":\"Read request\",\"attribute_handle\":\"0001\"}}'",
+    "result": "{\"ok\":true,\"result\":{\"pdu_hex\":\"0A0100\",\"octets\":3},...}"
+  }
+}

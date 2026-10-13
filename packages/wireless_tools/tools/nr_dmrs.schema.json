@@ -1,0 +1,26 @@
+{
+  "name": "nr_dmrs",
+  "description": "简化的单层 5G NR PDSCH DM-RS 序列生成器，符合 3GPP TS 38.211 §7.4.1.1.1 的初始化与 QPSK 映射。",
+  "implementation": "nrPDSCHDMRS 子集：端口 0、从 PRB 0 起的连续分配，支持类型 1/2 和连续 DM-RS 符号；不生成完整资源网格索引。",
+  "script": "nr_dmrs.py",
+  "inputs": {
+    "ncellid": {"type": "integer", "required": true, "description": "物理小区 ID"},
+    "nscid": {"type": "integer", "enum": [0, 1], "required": false, "default": 0, "description": "扰码初始化选择"},
+    "nslot": {"type": "integer", "required": false, "default": 0, "description": "时隙号"},
+    "nsym": {"type": "integer", "required": false, "default": 0, "description": "时隙内零基 OFDM 符号号"},
+    "nprb": {"type": "integer", "required": true, "description": "分配 PRB 数"},
+    "config-type": {"type": "integer", "enum": [1, 2], "required": false, "default": 1, "description": "DM-RS 配置类型"},
+    "nsymbols": {"type": "integer", "required": false, "default": 1, "description": "从 nsym 开始的连续 DM-RS OFDM 符号数量"}
+  },
+  "outputs": {
+    "cinit": "Gold 码初始化值",
+    "ndmrs_re_per_rb": "每 PRB 的 DM-RS RE 数",
+    "subcarrier_locations": "PRB 内零基 DM-RS 子载波位置",
+    "sym_real": "DM-RS QPSK 符号实部",
+    "sym_imag": "DM-RS QPSK 符号虚部"
+  },
+  "example": {
+    "cmd": "python tools/nr_dmrs.py --ncellid 42 --nprb 25 --nslot 1 --nsym 2 --config-type 1",
+    "result": "{\"ncellid\":42,\"nprb\":25,\"cinit\":...,\"sym_real\":[...],\"sym_imag\":[...]}"
+  }
+}

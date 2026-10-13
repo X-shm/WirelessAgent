@@ -1,0 +1,81 @@
+{
+  "name": "fsk_modulation",
+  "script": "fsk_modulation.py",
+  "description": "连续/不连续相位 M-FSK 波形调制与非相干解调。",
+  "implementation": "对应 fskmod/fskdemod 的纯 NumPy 常用形式。",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "modulate",
+        "demodulate"
+      ],
+      "required": true,
+      "description": "方向"
+    },
+    "order": {
+      "type": "integer",
+      "required": true,
+      "description": "2 的幂"
+    },
+    "values": {
+      "type": "string",
+      "required": true,
+      "description": "标签或波形 JSON"
+    },
+    "frequency_separation": {
+      "type": "number",
+      "required": true,
+      "description": "频率间隔 Hz"
+    },
+    "samples_per_symbol": {
+      "type": "integer",
+      "required": true,
+      "description": "每符号样本数"
+    },
+    "sample_rate": {
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "采样率"
+    },
+    "phase_continuity": {
+      "type": "string",
+      "enum": [
+        "continuous",
+        "discontinuous"
+      ],
+      "required": false,
+      "default": "continuous",
+      "description": "相位连续性"
+    },
+    "symbol_order": {
+      "type": "string",
+      "enum": [
+        "binary",
+        "gray"
+      ],
+      "required": false,
+      "default": "binary",
+      "description": "符号顺序"
+    }
+  },
+  "outputs": {
+    "waveform_real": {
+      "description": "波形实部",
+      "optional": true
+    },
+    "waveform_imag": {
+      "description": "波形虚部",
+      "optional": true
+    },
+    "labels": {
+      "description": "解调标签",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/fsk_modulation.py --mode modulate --order 2 --values 0,1 --frequency_separation 100 --samples_per_symbol 8 --sample_rate 1000",
+    "result": "{\"waveform_real\":[...]}"
+  }
+}

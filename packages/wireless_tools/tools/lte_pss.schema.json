@@ -1,0 +1,13 @@
+{
+  "name": "lte_pss",
+  "script": "lte_pss.py",
+  "description": "按小区 ID、子帧和双工方式生成 62 点 LTE 主同步信号。",
+  "implementation": "3GPP TS 36.211 §6.11.1 独立公式实现，对应 ltePSS。",
+  "inputs": {
+    "ncellid": {"type": "integer", "required": true, "description": "物理小区 ID，0..503"},
+    "nsubframe": {"type": "integer", "required": false, "default": 0, "description": "子帧号，0..9"},
+    "duplex_mode": {"type": "string", "enum": ["FDD", "TDD"], "required": false, "default": "FDD", "description": "双工方式"}
+  },
+  "outputs": {"nid2": "N_ID_2", "symbols_real": "PSS 实部", "symbols_imag": "PSS 虚部"},
+  "example": {"cmd": "python tools/lte_pss.py --ncellid 1 --nsubframe 0 --duplex_mode FDD", "result": "{\"nid2\":1,\"symbols_real\":[...],\"symbols_imag\":[...]}"}
+}

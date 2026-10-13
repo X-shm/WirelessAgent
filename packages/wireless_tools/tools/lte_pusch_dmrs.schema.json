@@ -1,0 +1,69 @@
+{
+  "name": "lte_pusch_dmrs",
+  "script": "lte_pusch_dmrs.py",
+  "description": "生成单层 LTE PUSCH DM-RS 及零基 RE 索引，对应 ltePUSCHDRS/ltePUSCHDRSIndices 的显式 PRB 常用形式。",
+  "implementation": "按 TS 36.211 Zadoff-Chu 基序列和显式循环移位实现；支持每时隙不同 PRB，当前要求每时隙至少 3 PRB。",
+  "inputs": {
+    "nulrb": {
+      "type": "integer",
+      "required": true,
+      "description": "上行总资源块数"
+    },
+    "ncellid": {
+      "type": "integer",
+      "required": true,
+      "description": "物理小区 ID"
+    },
+    "prb_set": {
+      "type": "string",
+      "required": true,
+      "description": "JSON PRB 数组，或 [slot0,slot1]"
+    },
+    "nsubframe": {
+      "type": "integer",
+      "required": false,
+      "default": 0,
+      "description": "子帧"
+    },
+    "cyclic_prefix": {
+      "type": "string",
+      "enum": [
+        "Normal",
+        "Extended"
+      ],
+      "required": false,
+      "default": "Normal",
+      "description": "上行 CP"
+    },
+    "seq_group": {
+      "type": "integer",
+      "required": false,
+      "default": 0,
+      "description": "序列组偏移 0..29"
+    },
+    "sequence_index": {
+      "type": "integer",
+      "enum": [
+        0,
+        1
+      ],
+      "required": false,
+      "default": 0,
+      "description": "基序列 v"
+    },
+    "cyclic_shift": {
+      "type": "integer",
+      "required": false,
+      "default": 0,
+      "description": "显式循环移位 0..11"
+    }
+  },
+  "outputs": {
+    "slots": "每时隙索引、复序列及 ZC 参数",
+    "index_base": "索引基数 0"
+  },
+  "example": {
+    "cmd": "python tools/lte_pusch_dmrs.py --nulrb 15 --ncellid 42 --prb_set '[0,1,2]' --cyclic_shift 3",
+    "result": "{\"slots\":[...],\"index_base\":0}"
+  }
+}

@@ -1,0 +1,23 @@
+function gen_samples_bluetooth_test_waveform_validate()
+%GEN_SAMPLES_BLUETOOTH_TEST_WAVEFORM_VALIDATE R2026a CRC test branches.
+spec={{'PER report integrity','LE1M'}, {'C/I','LE2M'}, ...
+    {'Blocking','LE1M'}, {'Intermodulation','LE1M'}, ...
+    {'C/I','LE125K'}, {'C/I','LE500K'}, ...
+    {'PER report integrity','LE125K'}, {'PER report integrity','LE500K'}};
+cases=struct('test',{},'mode',{},'samples_per_symbol',{}, ...
+    'payload_length',{},'crc_error',{});
+for k=1:numel(spec)
+    entry=spec{k}; test=entry{1}; mode=entry{2};
+    c=bluetoothTestWaveformConfig('Mode',mode,'PayloadLength',37, ...
+        'SamplesPerSymbol',8,'PayloadType',1);
+    wave=bluetoothTestWaveform(c);
+    t=bluetoothRFPHYTestConfig('Test',test,'Mode',mode, ...
+        'PayloadLength',37,'SamplesPerSymbol',8);
+    if strcmp(test,'Intermodulation'), t.Interferer1SignalLevel=-40; end
+    result=bluetoothTestWaveformValidate(wave,t);
+    cases(k)=struct('test',test,'mode',mode,'samples_per_symbol',8, ...
+        'payload_length',37,'crc_error',logical(result));
+end
+fid=fopen(wt_sample_path('bluetooth_test_waveform_validate_samples.json'),'w','n','UTF-8');
+fprintf(fid,'%s',jsonencode(cases)); fclose(fid);
+end

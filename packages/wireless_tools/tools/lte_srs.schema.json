@@ -1,0 +1,76 @@
+{
+  "name": "lte_srs",
+  "script": "lte_srs.py",
+  "description": "生成单天线 LTE 上行 SRS 复序列和零基 RE 索引，对应 lteSRS/lteSRSIndices 的显式带宽子集。",
+  "implementation": "使用 TS 36.211 Zadoff-Chu 基序列、2 子载波 transmission comb 和 8 相循环移位；当前要求至少 6 个连续显式 PRB，不处理 ConfigIdx、跳频或多天线。",
+  "inputs": {
+    "nulrb": {
+      "type": "integer",
+      "required": true,
+      "description": "上行总资源块数 6..110"
+    },
+    "prb_set": {
+      "type": "string",
+      "required": true,
+      "description": "至少 6 个连续 PRB 的 JSON 数组"
+    },
+    "nsubframe": {
+      "type": "integer",
+      "required": false,
+      "default": 0,
+      "description": "子帧 0..9"
+    },
+    "cyclic_prefix": {
+      "type": "string",
+      "enum": [
+        "Normal",
+        "Extended"
+      ],
+      "required": false,
+      "default": "Normal",
+      "description": "上行循环前缀"
+    },
+    "tx_comb": {
+      "type": "integer",
+      "enum": [
+        0,
+        1
+      ],
+      "required": false,
+      "default": 0,
+      "description": "传输梳偏移"
+    },
+    "cyclic_shift": {
+      "type": "integer",
+      "required": false,
+      "default": 0,
+      "description": "循环移位 0..7"
+    },
+    "seq_group": {
+      "type": "integer",
+      "required": false,
+      "default": 0,
+      "description": "基序列组 0..29"
+    },
+    "sequence_index": {
+      "type": "integer",
+      "enum": [
+        0,
+        1
+      ],
+      "required": false,
+      "default": 0,
+      "description": "基序列号"
+    }
+  },
+  "outputs": {
+    "symbols_real": "SRS 实部",
+    "symbols_imag": "SRS 虚部",
+    "indices": "[子载波,符号,端口] 零基索引",
+    "info": "序列与频域映射参数"
+  },
+  "example": {
+    "cmd": "python tools/lte_srs.py --nulrb 15 --prb_set '[0,1,2,3,4,5]' --tx_comb 1",
+    "result": "{\"symbols_real\":[...],\"indices\":[[1,13,0],...],\"index_base\":0}"
+  }
+}

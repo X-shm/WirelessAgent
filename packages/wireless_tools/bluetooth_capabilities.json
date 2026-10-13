@@ -1,0 +1,37 @@
+{
+  "matrix_version": 1,
+  "matlab_baseline": "R2026a Update 3 (26.1.0.3276743)",
+  "acceptance": {
+    "deterministic": "exact bits/structures or recorded numerical tolerance against MATLAB",
+    "stochastic": "fixed-seed reproducibility plus statistical and protocol-invariant comparison",
+    "object_workflows": "cross-process session restore, public-method dispatch and ordered event-log verification"
+  },
+  "groups": [
+    {"cli":"bluetooth_packet_duration","source_functions":["bluetoothPacketDuration"],"state":"verified_slice","remaining":["exhaustive parameter-boundary corpus"]},
+    {"cli":"bluetooth_classic_whitening","source_functions":["bluetoothWhiten"],"state":"verified_slice","remaining":["System-object lifecycle parity"]},
+    {"cli":"ble_waveform","source_functions":["bleWaveformGenerator"],"state":"partial","remaining":["all direction-finding packet combinations","full numeric/data-type option surface"]},
+    {"cli":"ble_position_estimate","source_functions":["blePositionEstimate"],"state":"verified_slice","remaining":["degenerate geometry and weighting option corpus"]},
+    {"cli":"ble_channel_selection","source_functions":["bleChannelSelection"],"state":"verified_slice","remaining":["object-session method parity"]},
+    {"cli":"bluetooth_path_loss","source_functions":["bluetoothPathLoss","bluetoothPathLossConfig"],"state":"partial","remaining":["complete configuration-object properties","random-stream parity"]},
+    {"cli":"bluetooth_range","source_functions":["bluetoothRange","bluetoothRangeConfig"],"state":"partial","remaining":["complete configuration-object derived properties and methods"]},
+    {"cli":"ble_cte_iq_sample","source_functions":["bleCTEIQSample"],"state":"partial","remaining":["full impairment/array option surface"]},
+    {"cli":"ble_angle_estimate","source_functions":["bleAngleEstimate","bleAngleEstimateConfig"],"state":"partial","remaining":["URA and custom-array MUSIC estimation"]},
+    {"cli":"bluetooth_classic_config","source_functions":["bluetoothConnectionConfig","bluetoothPhyConfig","bluetoothWaveformConfig","bluetoothRFPHYTestConfig","bluetoothTestWaveformConfig"],"state":"partial","remaining":["all derived properties","connection configuration object methods","full RF-PHY configuration surface"]},
+    {"cli":"ble_l2cap","source_functions":["bleL2CAPFrameConfig","bleL2CAPFrame","bleL2CAPFrameDecode"],"state":"partial","remaining":["object-method and boundary corpus"]},
+    {"cli":"ble_att","source_functions":["bleATTPDUConfig","bleATTPDU","bleATTPDUDecode"],"state":"partial","remaining":["object-method and boundary corpus"]},
+    {"cli":"ble_gap_data","source_functions":["bleGAPDataBlockConfig","bleGAPDataBlock","bleGAPDataBlockDecode"],"state":"partial","remaining":["object-method and boundary corpus"]},
+    {"cli":"ble_ll_advertising","source_functions":["bleLLAdvertisingChannelPDUConfig","bleLLAdvertisingChannelPDU","bleLLAdvertisingChannelPDUDecode"],"state":"partial","remaining":["extended advertising and object-method coverage"]},
+    {"cli":"ble_ll_data","source_functions":["bleLLControlPDUConfig","bleLLDataChannelPDUConfig","bleLLDataChannelPDU","bleLLDataChannelPDUDecode"],"state":"partial","remaining":["remaining control PDUs and object-method coverage"]},
+    {"cli":"ble_packet_decode_status","source_functions":["blePacketDecodeStatus"],"state":"verified_slice","remaining":["MATLAB enum object lifecycle parity"]},
+    {"cli":"ble_network_config","source_functions":["bleCSConfig","bluetoothLEBIGConfig","bluetoothLECISConfig","bluetoothLEConnectionConfig","bluetoothLEGAPConfig","bluetoothLEPeriodicAdvConfig","bluetoothMeshFriendshipConfig","bluetoothMeshProfileConfig"],"state":"partial","remaining":["derived properties","configure methods","node associations"]},
+    {"cli":"ble_ideal_receiver","source_functions":["bleIdealReceiver"],"state":"partial","remaining":["noise, frequency offset and complete receiver impairment behavior"]},
+    {"cli":"ble_pcap_writer","source_functions":["blePCAPWriter"],"state":"partial","remaining":["live-node callback capture"]},
+    {"cli":"bluetooth_test_waveform","source_functions":["bluetoothTestWaveform"],"state":"partial","remaining":["full RF-PHY parameter/test matrix"]},
+    {"cli":"bluetooth_frequency_hop","source_functions":["bluetoothFrequencyHop"],"state":"verified_slice","remaining":["stateful object integration"]},
+    {"cli":"ble_cs_waveform","source_functions":["bleCSWaveform"],"state":"partial","remaining":["MATLAB DRBG distribution parity"]},
+    {"cli":"bluetooth_test_waveform_validate","source_functions":["bluetoothTestWaveformValidate"],"state":"partial","remaining":["MATLAB numerical oracle corpus across every permitted RF-PHY configuration","multi-antenna and impaired-capture regression corpus"]},
+    {"cli":"bluetooth_classic_waveform","source_functions":["bluetoothWaveformGenerator"],"state":"partial","remaining":["full packet/parameter boundary matrix"]},
+    {"cli":"bluetooth_classic_receiver","source_functions":["bluetoothIdealReceiver"],"state":"partial","remaining":["noise and impairment recovery"]},
+    {"cli":"bluetooth_nodes","source_functions":["bluetoothNode","bluetoothLENode"],"state":"partial","remaining":["full link-layer scheduling, traffic types, connections, ISO, mesh and mobility models"]}
+  ]
+}

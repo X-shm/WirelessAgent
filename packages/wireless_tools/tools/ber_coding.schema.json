@@ -1,0 +1,73 @@
+{
+  "name": "ber_coding",
+  "script": "ber_coding.py",
+  "description": "计算卷积码、线性分组码和 Hamming 码在 BPSK AWGN 下的 BER 上界/近似，对应 bercoding 常用子集。",
+  "implementation": "移植公开 bercoding.m 的硬/软判决卷积距离谱、分组码最小距离和 Hamming 近似公式。",
+  "inputs": {
+    "ebno_db": {
+      "type": "string",
+      "required": true,
+      "description": "标量或 JSON Eb/No dB 数组"
+    },
+    "coding": {
+      "type": "string",
+      "enum": [
+        "conv",
+        "block",
+        "hamming"
+      ],
+      "required": true,
+      "description": "编码类型"
+    },
+    "decision": {
+      "type": "string",
+      "enum": [
+        "hard",
+        "soft"
+      ],
+      "required": false,
+      "default": "hard",
+      "description": "判决类型"
+    },
+    "code_rate": {
+      "type": "number",
+      "required": false,
+      "description": "卷积码率"
+    },
+    "d_free": {
+      "type": "integer",
+      "required": false,
+      "description": "卷积码自由距离"
+    },
+    "weights": {
+      "type": "string",
+      "required": false,
+      "description": "距离谱权重 JSON 数组"
+    },
+    "n": {
+      "type": "integer",
+      "required": false,
+      "description": "分组码长度"
+    },
+    "k": {
+      "type": "integer",
+      "required": false,
+      "description": "信息长度"
+    },
+    "d_min": {
+      "type": "integer",
+      "required": false,
+      "description": "最小距离"
+    }
+  },
+  "outputs": {
+    "ber_bound": "BER 上界或近似",
+    "ebno_db": "输入 Eb/No",
+    "coding": "编码类型",
+    "decision": "判决类型"
+  },
+  "example": {
+    "cmd": "python tools/ber_coding.py --ebno_db '[0,5,10]' --coding hamming --decision hard --n 7",
+    "result": "{\"ber_bound\":[...]}"
+  }
+}

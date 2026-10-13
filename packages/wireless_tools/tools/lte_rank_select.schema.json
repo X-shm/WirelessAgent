@@ -1,0 +1,49 @@
+{
+  "name": "lte_rank_select",
+  "script": "lte_rank_select.py",
+  "description": "从 2Tx 信道估计选择 LTE RI 和对应 PMI，对应 lteRISelect 常用双端口子集。",
+  "implementation": "对 rank 1/2 调用已验证 lte_pmi_select，累加 0 dB 以上 LMMSE SINR 并应用公开实现中的 0.1 滞回。",
+  "inputs": {
+    "channel_estimate": {
+      "type": "string",
+      "required": true,
+      "description": "[K,L,NRx,2] 或 [K,L,2] 复信道"
+    },
+    "noise_variance": {
+      "type": "number",
+      "required": true,
+      "description": "正噪声方差"
+    },
+    "ndlrb": {
+      "type": "integer",
+      "required": true,
+      "description": "下行资源块数"
+    },
+    "pmi_mode": {
+      "type": "string",
+      "enum": [
+        "Wideband",
+        "Subband"
+      ],
+      "required": false,
+      "default": "Wideband",
+      "description": "PMI 报告模式"
+    },
+    "hysteresis": {
+      "type": "number",
+      "required": false,
+      "default": 0.1,
+      "description": "秩切换滞回"
+    }
+  },
+  "outputs": {
+    "ri": "所选秩",
+    "pmi_set": "对应 PMI",
+    "rank_metrics": "各候选秩指标",
+    "hysteresis": "滞回值"
+  },
+  "example": {
+    "cmd": "python tools/lte_rank_select.py --channel_estimate '{\"real\":[[[[1,0],[0,1]]]]}' --noise_variance 0.1 --ndlrb 6",
+    "result": "{\"ri\":2,\"pmi_set\":[...]}"
+  }
+}

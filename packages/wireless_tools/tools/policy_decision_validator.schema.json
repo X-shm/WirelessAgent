@@ -1,0 +1,41 @@
+{
+  "name": "policy_decision_validator",
+  "script": "policy_decision_validator.py",
+  "description": "按链路容量和实测 KPI 验证 QoS/分流策略，并输出回滚信号。",
+  "implementation": "检查业务 ID 唯一性、GFBR≤MFBR、GBR 总量、时延预算和包错误率约束。",
+  "inputs": {
+    "qos_data": {
+      "type": "string",
+      "required": true,
+      "description": "QoS 决策 JSON 数组"
+    },
+    "link_capacity_kbps": {
+      "type": "number",
+      "required": true,
+      "description": "链路容量"
+    },
+    "observed": {
+      "type": "string",
+      "required": false,
+      "default": "{}",
+      "description": "按 service_id 索引的实测 KPI"
+    },
+    "reserve_fraction": {
+      "type": "number",
+      "required": false,
+      "default": 0.9,
+      "description": "保留容量比例"
+    }
+  },
+  "outputs": {
+    "accepted": "策略是否通过",
+    "violations": "违规明细",
+    "total_gfbr_kbps": "GBR 总量",
+    "reserved_capacity_kbps": "可承诺容量",
+    "rollback_recommended": "是否回滚"
+  },
+  "example": {
+    "cmd": "python tools/policy_decision_validator.py --qos_data '[{\"service_id\":\"v\",\"gfbr_kbps\":100,\"mfbr_kbps\":200,\"packet_delay_budget_ms\":100,\"packet_error_rate\":0.01}]' --link_capacity_kbps 1000",
+    "result": "{\"accepted\":true,\"violations\":[]}"
+  }
+}

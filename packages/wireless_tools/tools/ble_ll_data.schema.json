@@ -1,0 +1,40 @@
+{
+  "name": "ble_ll_data",
+  "script": "ble_ll_data.py",
+  "description": "BLE LL 数据信道 PDU 和控制 PDU 配置、编码和解码。",
+  "implementation": "纯 Python 实现数据帧、六种控制 opcode、CRC24 与解码状态。",
+  "inputs": {
+    "input": {
+      "type": "string",
+      "required": true,
+      "description": "JSON：operation=control_config|config|encode|decode，configuration、payload 或 pdu"
+    },
+    "input_file": {
+      "type": "string",
+      "required": false,
+      "description": "与 input 互斥的 JSON 文件"
+    }
+  },
+  "outputs": {
+    "configuration": {
+      "description": "规范化 LL 配置",
+      "optional": true
+    },
+    "pdu_hex": {
+      "description": "PDU 十六进制字节",
+      "optional": true
+    },
+    "status": {
+      "description": "解码状态名称和数值",
+      "optional": true
+    },
+    "payload": {
+      "description": "数据帧负载",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/ble_ll_data.py --input '{\"operation\":\"encode\"}'",
+    "result": "{"
+  }
+}

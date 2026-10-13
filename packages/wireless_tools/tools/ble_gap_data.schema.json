@@ -1,0 +1,33 @@
+{
+  "name": "ble_gap_data",
+  "script": "ble_gap_data.py",
+  "description": "BLE GAP 广播数据配置、编码与解码，对应 bleGAPDataBlockConfig、bleGAPDataBlock、bleGAPDataBlockDecode。",
+  "implementation": "纯 Python 六类 AD 字段、长度校验和结构化解码状态。",
+  "inputs": {
+    "input": {
+      "type": "string",
+      "required": true,
+      "description": "JSON：operation=config|encode|decode，configuration 或 data_block"
+    },
+    "input_file": {
+      "type": "string",
+      "required": false,
+      "description": "与 input 互斥的 JSON 文件"
+    }
+  },
+  "outputs": {
+    "configuration": {
+      "description": "规范化广播数据配置或解码字段",
+      "optional": true
+    },
+    "data_block_hex": "编码后的连续十六进制 AD 字节",
+    "status": {
+      "description": "解码状态名称和数值",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/ble_gap_data.py --input '{\"operation\":\"encode\",\"configuration\":{\"advertising_data_types\":[\"Flags\"]}}'",
+    "result": "{\"ok\":true,\"result\":{\"data_block_hex\":\"020106\",\"octets\":3},...}"
+  }
+}

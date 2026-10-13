@@ -1,0 +1,21 @@
+{
+  "name": "nr_sss",
+  "script": "nr_sss.py",
+  "description": "5G NR SSS（辅同步信号）生成器。根据 TS 38.211 Section 7.4.2.3 生成 127 长度的 BPSK 同步序列。",
+  "implementation": "3GPP TS 38.211 §7.4.2.3，双 m-序列 d_SSS0 和 d_SSS1 逐元素相乘，1008 种序列",
+  "inputs": {
+    "ncellid": {"type": "integer", "required": true, "description": "物理小区 ID (0..1007)，决定 SSS 序列（NID1 = ncellid//3, NID2 = ncellid%3）"}
+  },
+  "outputs": {
+    "ncellid": {"description": "物理小区 ID"},
+    "n1": {"description": "SSS 组号 (0..335)"},
+    "n2": {"description": "SSS 序列号 (0..2)"},
+    "m0": {"description": "第一 m 序列循环移位"},
+    "m1": {"description": "第二 m 序列循环移位"},
+    "sym": {"description": "127 个 BPSK 符号 (+1/-1)"}
+  },
+  "example": {
+    "cmd": "python tools/nr_sss.py --ncellid 17",
+    "result": "{\"ncellid\": 17, \"n1\": 5, \"n2\": 2, \"m0\": 10, \"m1\": 5, \"sym\": [-1.0, 1.0, ...]}"
+  }
+}

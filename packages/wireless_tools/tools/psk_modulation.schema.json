@@ -1,0 +1,81 @@
+{
+  "name": "psk_modulation",
+  "script": "psk_modulation.py",
+  "description": "M-PSK 调制和硬判决解调，对应 pskmod/pskdemod 常用形式。",
+  "implementation": "纯 NumPy，支持 Gray/binary 标号和相位偏移。",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "modulate",
+        "demodulate"
+      ],
+      "required": true,
+      "description": "方向"
+    },
+    "order": {
+      "type": "integer",
+      "required": true,
+      "description": "2 的幂调制阶数"
+    },
+    "values": {
+      "type": "string",
+      "required": true,
+      "description": "逗号输入或 real/imag JSON"
+    },
+    "input_type": {
+      "type": "string",
+      "enum": [
+        "bits",
+        "symbols"
+      ],
+      "required": false,
+      "default": "bits",
+      "description": "调制输入类型"
+    },
+    "output_type": {
+      "type": "string",
+      "enum": [
+        "bits",
+        "symbols"
+      ],
+      "required": false,
+      "default": "bits",
+      "description": "解调输出类型"
+    },
+    "symbol_order": {
+      "type": "string",
+      "enum": [
+        "gray",
+        "binary"
+      ],
+      "required": false,
+      "default": "gray",
+      "description": "符号顺序"
+    },
+    "phase_offset": {
+      "type": "number",
+      "required": false,
+      "default": 0,
+      "description": "相位偏移，弧度"
+    }
+  },
+  "outputs": {
+    "symbols_real": {
+      "description": "符号实部",
+      "optional": true
+    },
+    "symbols_imag": {
+      "description": "符号虚部",
+      "optional": true
+    },
+    "values": {
+      "description": "解调值",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/psk_modulation.py --mode modulate --order 4 --values 0,0,0,1",
+    "result": "{\"symbols_real\":[1,0],...}"
+  }
+}

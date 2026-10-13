@@ -1,0 +1,82 @@
+{
+  "name": "nr_timing_estimate",
+  "script": "nr_timing_estimate.py",
+  "description": "5G NR 定时估计。两种模式：(1) 直接模式：提供 waveform + ref_waveform，直接互相关；(2) 完整模式：提供 waveform + ref_ind + ref_sym + nrb + scs + nslot，内部自动 OFDM 调制生成参考波形后互相关。对应 MATLAB nrTimingEstimate。",
+  "implementation": "支持多接收天线、多参考端口；互相关取正延迟段，跨端口跨天线累加幅度后取峰值。完整模式内部调用 nr_ofdm 生成参考波形。",
+  "inputs": {
+    "waveform": {
+      "type": "string",
+      "required": true,
+      "description": "接收复波形 JSON，形状 [T, R]（T 采样点，R 接收天线）或 [T]"
+    },
+    "ref_waveform": {
+      "type": "string",
+      "required": false,
+      "description": "[模式1] 参考复波形 JSON，形状 [T_ref, P] 或 [T_ref]。与 ref_ind/ref_sym 二选一"
+    },
+    "ref_ind": {
+      "type": "string",
+      "required": false,
+      "description": "[模式2] 参考信号线性索引 JSON 数组（0-based），地址为展平资源网格"
+    },
+    "ref_sym": {
+      "type": "string",
+      "required": false,
+      "description": "[模式2] 参考符号 JSON 数组。单端口为 1-D [n_ind]；多端口为 2-D [n_ind, P]"
+    },
+    "nrb": {
+      "type": "integer",
+      "required": false,
+      "description": "[模式2] 资源块数量（1 RB = 12 子载波）"
+    },
+    "scs": {
+      "type": "number",
+      "required": false,
+      "description": "[模式2] 子载波间隔 (kHz)"
+    },
+    "nslot": {
+      "type": "integer",
+      "required": false,
+      "description": "[模式2] 初始时隙号（0-based）"
+    },
+    "nsym": {
+      "type": "integer",
+      "required": false,
+      "default": 14,
+      "description": "[模式2] 每时隙 OFDM 符号数，默认 14"
+    },
+    "threshold": {
+      "type": "number",
+      "required": false,
+      "default": 0.0,
+      "description": "相关幅度门限 (0..1)，峰值低于此值返回 null，默认 0（不启用）"
+    },
+    "max_delay": {
+      "type": "integer",
+      "required": false,
+      "description": "最大延迟搜索范围（样本数），默认搜索全部"
+    }
+  },
+  "outputs": {
+    "offset": {
+      "description": "估计的定时偏移（样本数，0-based）。若低于门限返回 null",
+      "optional": false
+    },
+    "mag": {
+      "description": "跨天线+端口求和后的相关幅度曲线",
+      "optional": false
+    },
+    "peak_magnitude": {
+      "description": "峰值幅度值",
+      "optional": false
+    },
+    "mode": {
+      "description": "使用的模式：direct（直接输入参考波形）或 generated（内部生成）",
+      "optional": false
+    }
+  },
+  "example": {
+    "cmd": "python tools/nr_timing_estimate.py --waveform '{\"real\":[[0],[0],[1],[0.5]],\"imag\":[[0],[0],[0],[0]]}' --ref_waveform '{\"real\":[[1],[0.5]],\"imag\":[[0],[0]]}'",
+    "result": "{\"offset\": 2, \"peak_magnitude\": 1.25, \"mode\": \"direct\"}"
+  }
+}

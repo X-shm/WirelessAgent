@@ -1,0 +1,56 @@
+{
+  "name": "lte_pmi_select",
+  "script": "lte_pmi_select.py",
+  "description": "从双发送端口信道估计中按 LMMSE SINR 指标选择 LTE 宽带或子带 PMI，对应 ltePMISelect 常用 2Tx 子集。",
+  "implementation": "对 TS 36.211 2Tx rank-1/rank-2 码本逐 RE 计算 LMMSE 后处理 SINR，并按 ltePMIInfo 子带宽度汇总。",
+  "inputs": {
+    "channel_estimate": {
+      "type": "string",
+      "required": true,
+      "description": "[K,L,NRx,2] 或 [K,L,2] 复数 JSON"
+    },
+    "noise_variance": {
+      "type": "number",
+      "required": true,
+      "description": "正噪声方差"
+    },
+    "ndlrb": {
+      "type": "integer",
+      "required": true,
+      "description": "下行资源块数 6..110"
+    },
+    "n_layers": {
+      "type": "integer",
+      "enum": [
+        1,
+        2
+      ],
+      "required": false,
+      "default": 1,
+      "description": "传输层数"
+    },
+    "pmi_mode": {
+      "type": "string",
+      "enum": [
+        "Wideband",
+        "Subband"
+      ],
+      "required": false,
+      "default": "Wideband",
+      "description": "报告模式"
+    },
+    "codebook_subset": {
+      "type": "string",
+      "required": false,
+      "description": "允许 PMI 的 JSON 整数数组"
+    }
+  },
+  "outputs": {
+    "pmi_set": "每宽带/子带所选 PMI",
+    "info": "候选 PMI、子带信息和候选 SINR"
+  },
+  "example": {
+    "cmd": "python tools/lte_pmi_select.py --channel_estimate '{\"real\":[[[1,1]]]}' --noise_variance 0.1 --ndlrb 6",
+    "result": "{\"pmi_set\":[0],\"info\":{...}}"
+  }
+}

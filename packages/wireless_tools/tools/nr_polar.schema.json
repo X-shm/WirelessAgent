@@ -1,0 +1,23 @@
+{
+  "name": "nr_polar",
+  "description": "5G NR Polar 编码。支持 DL(nMax=9, iIL=true)和 UL(nMax=10, iIL=false)模式。注意：工具输出为速率匹配后长度 E，golden sample 存储编码后长度 N，存在语义不一致（已知问题）。",
+  "implementation": "3GPP TS 38.212 §5.3.1，参照 MATLAB 5G Toolbox nrPolarEncode",
+  "script": "nr_polar.py",
+  "inputs": {
+    "bits": {"type": "string", "required": true, "description": "逗号分隔的信息比特（含 CRC）"},
+    "E": {"type": "integer", "required": true, "description": "速率匹配后输出长度"},
+    "mode": {"type": "string", "enum": ["DL", "UL"], "required": false, "default": "DL", "description": "DL: nMax=9, iIL=true; UL: nMax=10, iIL=false"}
+  },
+  "outputs": {
+    "output_bits": "Polar 编码+速率匹配后输出比特列表（长度=E）",
+    "mode": "编码模式（DL/UL）",
+    "K": "信息比特数",
+    "E": "输出长度",
+    "N": "Polar 码长度（2^n）"
+  },
+  "example": {
+    "cmd": "python tools/nr_polar.py --bits 0,1,1,0,0,1,0,1 --E 80 --mode DL",
+    "result": "{\"output_bits\":[...],\"mode\":\"DL\",\"K\":8,\"E\":80,\"N\":128}"
+  },
+  "known_issues": "Golden sample 校验 0/7 失败：工具输出 E 长度（速率匹配后），golden sample 存储 N 长度（速率匹配前）。详见 docs/wireless_toolbox_诊断与改进方案.md §9。"
+}

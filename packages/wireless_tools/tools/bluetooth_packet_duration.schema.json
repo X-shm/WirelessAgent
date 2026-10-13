@@ -1,0 +1,26 @@
+{
+  "name": "bluetooth_packet_duration",
+  "script": "bluetooth_packet_duration.py",
+  "description": "Bluetooth BR/EDR 与 LE 数据包时长计算，对应 MATLAB bluetoothPacketDuration。",
+  "implementation": "纯 Python 逐项翻译 R2026a packet-duration 规则。",
+  "inputs": {
+    "input": {
+      "type": "string",
+      "required": true,
+      "description": "JSON：mode、packet_type、payload_length 和可选 cte_length"
+    },
+    "input_file": {
+      "type": "string",
+      "required": false,
+      "description": "与 input 互斥的 JSON 文件"
+    }
+  },
+  "outputs": {
+    "duration_us": "包时长（微秒）",
+    "num_bits": "物理层比特数"
+  },
+  "example": {
+    "cmd": "python tools/bluetooth_packet_duration.py --input '{\"mode\":\"LE1M\",\"packet_type\":\"Disabled\",\"payload_length\":4}'",
+    "result": "{\"ok\":true,...}"
+  }
+}

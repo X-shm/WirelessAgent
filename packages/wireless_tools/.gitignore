@@ -1,0 +1,65 @@
+# Local environments and installed packages
+.venv/
+.venv-*/
+venv/
+node_modules/
+
+# Python and test/build caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+*.egg-info/
+build/
+dist/
+.coverage
+.coverage.*
+htmlcov/
+
+# Local training and presentation build output
+skillopt_runs/
+skillopt_data/reviewed_imports/
+.chart-data-*/
+GitHub Clone Repositorywireless-toolboxscripts_write_e2e.py
+matlab_oracle/diag_out.txt
+
+# Runtime data created by MCP tools and simulations
+mcp-data/
+wireless-toolbox-mcp-data/
+*.sqlite
+*.sqlite3
+*.sqlite-*
+*.sqlite3-*
+*.db
+*.db-*
+*.pcap
+*.pcapng
+*.npz
+*.log
+*.tmp
+
+# Local credentials and configuration
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+service-account*.json
+.aws/
+.ssh/
+
+# Editor, OS, and Office temporary files
+~$*
+*.swp
+*.swo
+*.bak
+*.orig
+*~
+.DS_Store
+Thumbs.db

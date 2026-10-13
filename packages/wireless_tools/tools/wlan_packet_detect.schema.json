@@ -1,0 +1,67 @@
+{
+  "name": "wlan_packet_detect",
+  "script": "wlan_packet_detect.py",
+  "description": "IEEE 802.11 OFDM 包检测工具。基于 L-STF 短训练符号滑动自相关（Schmidl-Cox 法）检测包前导起始位置，返回偏移和判决统计曲线。对应 MATLAB wlanPacketDetect。",
+  "implementation": "自相关 C(n)=Σconj(x(k))x(k+L)，功率 P(n)=Σ(|x(k)|²+|x(k+L)|²)/2，Mn=|C|²/P²，超门限持续 ≥1.5L 采样判定检测",
+  "inputs": {
+    "waveform": {
+      "type": "string",
+      "required": true,
+      "description": "接收波形 JSON：{\"real\":[...],\"imag\":[...]}，形状 [Ns] 或 [Ns,Nr]"
+    },
+    "chanbw": {
+      "type": "string",
+      "enum": [
+        "CBW5",
+        "CBW10",
+        "CBW20",
+        "CBW40",
+        "CBW80",
+        "CBW160",
+        "CBW320"
+      ],
+      "required": false,
+      "default": "CBW20",
+      "description": "信道带宽"
+    },
+    "offset": {
+      "type": "integer",
+      "required": false,
+      "default": 0,
+      "description": "起始处理偏移（采样数）"
+    },
+    "threshold": {
+      "type": "number",
+      "required": false,
+      "default": 0.5,
+      "description": "检测门限 (0,1]"
+    },
+    "max_stats": {
+      "type": "integer",
+      "required": false,
+      "default": 0,
+      "description": "输出判决统计曲线最大长度（0=全部）"
+    }
+  },
+  "outputs": {
+    "start_offset": {
+      "description": "包前导起始偏移（采样数），未检测到为 null"
+    },
+    "detected": {
+      "description": "是否检测到包"
+    },
+    "n_stats": {
+      "description": "判决统计曲线长度"
+    },
+    "decision_stats": {
+      "description": "判决统计量 Mn 曲线"
+    },
+    "symbol_length": {
+      "description": "短训练符号长度（采样数）"
+    }
+  },
+  "example": {
+    "cmd": "python tools/wlan_packet_detect.py --waveform '{\"real\":[0,0,1,1,0,0],\"imag\":[0,0,0,0,0,0]}' --threshold 0.5",
+    "result": "{\"start_offset\": null, \"detected\": false, \"n_stats\": 1}"
+  }
+}

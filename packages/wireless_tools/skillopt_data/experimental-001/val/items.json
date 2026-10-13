@@ -1,0 +1,1310 @@
+[
+  {
+    "id": "D02",
+    "scenario_id": "curated_D02",
+    "split": "selection",
+    "kind": "tool_call",
+    "tool": "link_adaptation_optimizer",
+    "task_type": "WirelessAgent Workflow",
+    "question": "LTE 下行链路 SNR 为 15 dB，可用 25 个 PRB，预留 2 dB 裕量，目标 BLER 为 0.1。按工具内置简化模型给出初步链路自适应建议和估算峰值吞吐。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:references/network_optimization_workflow.md",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "snr_db": 15,
+      "nprb": 25,
+      "margin_db": 2,
+      "bler_target": 0.1
+    },
+    "expected": {
+      "recommended_mcs": 15,
+      "itbs": 14,
+      "modulation": "16QAM",
+      "rv": 0,
+      "tbs_bits_per_subframe": 7224,
+      "estimated_peak_mbps": 7.224,
+      "effective_snr_db": 13.0,
+      "margin_db": 2.0,
+      "bler_target": 0.1,
+      "method": "conservative_threshold_plus_3gpp_tables"
+    },
+    "answer_paths": [
+      "/recommended_mcs",
+      "/modulation",
+      "/tbs_bits_per_subframe",
+      "/estimated_peak_mbps"
+    ]
+  },
+  {
+    "id": "D05",
+    "scenario_id": "curated_D05",
+    "split": "selection",
+    "kind": "tool_call",
+    "tool": "nr_tbs",
+    "task_type": "5G Toolbox",
+    "question": "5G NR 下行使用 QPSK、单层、40 个 PRB、每 PRB 132 个 RE、目标码率 0.48。该资源分配的传输块大小是多少比特？",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/nr_tbs.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "modulation": "QPSK",
+      "nlayers": 1,
+      "nprb": 40,
+      "nre-per-prb": 132,
+      "tcr": 0.48
+    },
+    "expected": {
+      "modulation": "QPSK",
+      "nlayers": 1,
+      "nPRB": 40,
+      "NREPerPRB": 132,
+      "tcr": 0.48,
+      "xOh": 0,
+      "tbScaling": 1.0,
+      "tbs": 4992
+    },
+    "answer_paths": [
+      "/tbs"
+    ]
+  },
+  {
+    "id": "D08",
+    "scenario_id": "curated_D08",
+    "split": "selection",
+    "kind": "ask_clarification",
+    "tool": "bluetooth_range",
+    "task_type": "Bluetooth Toolbox",
+    "question": "我想估算蓝牙链路的覆盖距离。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/bluetooth_range.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "answer_terms": [
+      "环境",
+      "发射功率",
+      "接收灵敏度"
+    ],
+    "arguments": {},
+    "expected": null
+  },
+  {
+    "id": "D15",
+    "scenario_id": "curated_D15",
+    "split": "selection",
+    "kind": "tool_call",
+    "tool": "convert_snr",
+    "task_type": "Communications Toolbox",
+    "question": "16QAM 每符号 4 比特、编码率 0.75，每符号 1 个采样点；测得 SNR 为 8 dB。换算成 Eb/No 是多少 dB？",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/convert_snr.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "x": "8",
+      "input_mode": "snr",
+      "output_mode": "ebno",
+      "bits_per_symbol": 4,
+      "coding_rate": 0.75,
+      "samples_per_symbol": 1
+    },
+    "expected": {
+      "input_mode": "snr",
+      "output_mode": "ebno",
+      "values_db": 3.2287874528033758
+    },
+    "answer_paths": [
+      "/values_db"
+    ]
+  },
+  {
+    "id": "D18",
+    "scenario_id": "curated_D18",
+    "split": "selection",
+    "kind": "tool_call",
+    "tool": "wlan_ofdm_info",
+    "task_type": "WLAN Toolbox",
+    "question": "20 MHz Non-HT WLAN 数据字段在过采样因子 1 时，活跃子载波的频率索引和导频索引分别是什么？",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/wlan_ofdm_info.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "field": "NonHT-Data",
+      "chanbw": "CBW20",
+      "osf": 1
+    },
+    "expected": {
+      "FFTLength": 64,
+      "SampleRate": 20000000.0,
+      "CPLength": 16,
+      "NumTones": 52,
+      "NumSubchannels": 1,
+      "ActiveFrequencyIndices": [
+        -26,
+        -25,
+        -24,
+        -23,
+        -22,
+        -21,
+        -20,
+        -19,
+        -18,
+        -17,
+        -16,
+        -15,
+        -14,
+        -13,
+        -12,
+        -11,
+        -10,
+        -9,
+        -8,
+        -7,
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26
+      ],
+      "ActiveFFTIndices": [
+        7.0,
+        8.0,
+        9.0,
+        10.0,
+        11.0,
+        12.0,
+        13.0,
+        14.0,
+        15.0,
+        16.0,
+        17.0,
+        18.0,
+        19.0,
+        20.0,
+        21.0,
+        22.0,
+        23.0,
+        24.0,
+        25.0,
+        26.0,
+        27.0,
+        28.0,
+        29.0,
+        30.0,
+        31.0,
+        32.0,
+        34.0,
+        35.0,
+        36.0,
+        37.0,
+        38.0,
+        39.0,
+        40.0,
+        41.0,
+        42.0,
+        43.0,
+        44.0,
+        45.0,
+        46.0,
+        47.0,
+        48.0,
+        49.0,
+        50.0,
+        51.0,
+        52.0,
+        53.0,
+        54.0,
+        55.0,
+        56.0,
+        57.0,
+        58.0,
+        59.0
+      ],
+      "DataIndices": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        48,
+        49,
+        50,
+        51,
+        52
+      ],
+      "PilotIndices": [
+        6,
+        20,
+        33,
+        47
+      ],
+      "FieldName": "NonHT-Data",
+      "ChannelBandwidth": "CBW20"
+    },
+    "answer_paths": [
+      "/ActiveFrequencyIndices",
+      "/PilotIndices"
+    ]
+  },
+  {
+    "id": "D21",
+    "scenario_id": "curated_D21",
+    "split": "selection",
+    "kind": "tool_call",
+    "tool": "node_position_grid",
+    "task_type": "Wireless Network Toolbox",
+    "question": "以 (0,0,0) 米为区域中心，在长 120 米、宽 60 米的矩形内按 2 行 3 列划分网格。请给出六个单元的多边形边界顶点，节点高度设为 0 米。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/node_position_grid.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "boundary_dimension": "120,60",
+      "grid_size": "2,3",
+      "placement_type": "center",
+      "center": "0,0,0",
+      "z_coordinate": 0
+    },
+    "expected": {
+      "positions": [
+        [
+          -40.0,
+          15.0,
+          0.0
+        ],
+        [
+          -40.0,
+          -15.0,
+          0.0
+        ],
+        [
+          0.0,
+          15.0,
+          0.0
+        ],
+        [
+          0.0,
+          -15.0,
+          0.0
+        ],
+        [
+          40.0,
+          15.0,
+          0.0
+        ],
+        [
+          40.0,
+          -15.0,
+          0.0
+        ]
+      ],
+      "cell_polygons": [
+        [
+          [
+            -60.0,
+            0.0
+          ],
+          [
+            -20.0,
+            0.0
+          ],
+          [
+            -20.0,
+            30.0
+          ],
+          [
+            -60.0,
+            30.0
+          ]
+        ],
+        [
+          [
+            -60.0,
+            -30.0
+          ],
+          [
+            -20.0,
+            -30.0
+          ],
+          [
+            -20.0,
+            0.0
+          ],
+          [
+            -60.0,
+            0.0
+          ]
+        ],
+        [
+          [
+            -20.0,
+            0.0
+          ],
+          [
+            20.0,
+            0.0
+          ],
+          [
+            20.0,
+            30.0
+          ],
+          [
+            -20.0,
+            30.0
+          ]
+        ],
+        [
+          [
+            -20.0,
+            -30.0
+          ],
+          [
+            20.0,
+            -30.0
+          ],
+          [
+            20.0,
+            0.0
+          ],
+          [
+            -20.0,
+            0.0
+          ]
+        ],
+        [
+          [
+            20.0,
+            0.0
+          ],
+          [
+            60.0,
+            0.0
+          ],
+          [
+            60.0,
+            30.0
+          ],
+          [
+            20.0,
+            30.0
+          ]
+        ],
+        [
+          [
+            20.0,
+            -30.0
+          ],
+          [
+            60.0,
+            -30.0
+          ],
+          [
+            60.0,
+            0.0
+          ],
+          [
+            20.0,
+            0.0
+          ]
+        ]
+      ]
+    },
+    "answer_paths": [
+      "/cell_polygons"
+    ]
+  },
+  {
+    "id": "D24",
+    "scenario_id": "curated_D24",
+    "split": "selection",
+    "kind": "tool_call",
+    "tool": "ber_awgn",
+    "task_type": "Communications Toolbox",
+    "question": "未编码 BPSK 在 AWGN 信道下，Eb/N0 为 6 dB 时的理论 BER 是多少？",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/ber_awgn.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "ebno_db": "6",
+      "modulation": "bpsk"
+    },
+    "expected": {
+      "ber": [
+        0.0023882907809328075
+      ],
+      "ser": [
+        0.0023882907809328075
+      ]
+    },
+    "answer_paths": [
+      "/ber"
+    ]
+  },
+  {
+    "id": "W02",
+    "scenario_id": "workflow_nr_mcs_tbs_selection",
+    "split": "selection",
+    "kind": "tool_workflow",
+    "tool": "nr_mcs_tables",
+    "task_type": "5G Toolbox",
+    "question": "5G NR 采用 QAM256 MCS 表的索引 21、32 个 PRB、每 PRB 132 个 RE、单层传输。请先查调制方式和目标码率，再用查得的值计算传输块大小（比特）。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/nr_mcs_tables.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "steps": [
+      {
+        "tool": "nr_mcs_tables",
+        "arguments": {
+          "table": "QAM256Table",
+          "mcs": 21
+        },
+        "expected": {
+          "mcs_index": 21,
+          "modulation": "256QAM",
+          "qm": 8,
+          "target_code_rate": 0.6943359375,
+          "spectral_efficiency": 5.5547
+        },
+        "bindings": []
+      },
+      {
+        "tool": "nr_tbs",
+        "arguments": {
+          "modulation": "256QAM",
+          "nlayers": 1,
+          "nprb": 32,
+          "nre-per-prb": 132,
+          "tcr": 0.6943359375
+        },
+        "expected": {
+          "modulation": "256QAM",
+          "nlayers": 1,
+          "nPRB": 32,
+          "NREPerPRB": 132,
+          "tcr": 0.6943359375,
+          "xOh": 0,
+          "tbScaling": 1.0,
+          "tbs": 23568
+        },
+        "bindings": [
+          {
+            "argument": "modulation",
+            "from_step": 0,
+            "path": "/modulation"
+          },
+          {
+            "argument": "tcr",
+            "from_step": 0,
+            "path": "/target_code_rate"
+          }
+        ]
+      }
+    ],
+    "answer_fields": {
+      "modulation": {
+        "step": 0,
+        "path": "/modulation"
+      },
+      "target_code_rate": {
+        "step": 0,
+        "path": "/target_code_rate"
+      },
+      "tbs": {
+        "step": 1,
+        "path": "/tbs"
+      }
+    }
+  },
+  {
+    "id": "A03",
+    "scenario_id": "curated_A03",
+    "split": "selection",
+    "kind": "tool_call",
+    "tool": "lte_prbs",
+    "task_type": "LTE Toolbox",
+    "question": "以 c_init=57 生成长度 12 的 LTE Gold 伪随机比特序列，起点为 0；给出序列。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/lte_prbs.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "cinit": 57,
+      "length": 12,
+      "start": 0,
+      "mapping": "binary"
+    },
+    "expected": {
+      "cinit": 57,
+      "start": 0,
+      "length": 12,
+      "mapping": "binary",
+      "sequence": [
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0
+      ]
+    },
+    "answer_paths": [
+      "/sequence"
+    ]
+  },
+  {
+    "id": "A06",
+    "scenario_id": "curated_A06",
+    "split": "selection",
+    "kind": "tool_call",
+    "tool": "nr_pdcch",
+    "task_type": "5G Toolbox",
+    "question": "一段 5G NR PDCCH 编码码字为 1,0,1,1,0,0,1,0，N_ID=23、N_RNTI=321。完成加扰与 QPSK 调制，给出符号实部和虚部。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/nr_pdcch.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "codeword": "1,0,1,1,0,0,1,0",
+      "n-id": 23,
+      "n-rnti": 321
+    },
+    "expected": {
+      "n_id": 23,
+      "n_rnti": 321,
+      "cinit": 21037079,
+      "input_len": 8,
+      "output_len": 4,
+      "sym_real": [
+        0.7071067811865476,
+        -0.7071067811865476,
+        0.7071067811865476,
+        -0.7071067811865476
+      ],
+      "sym_imag": [
+        -0.7071067811865476,
+        -0.7071067811865476,
+        -0.7071067811865476,
+        0.7071067811865476
+      ]
+    },
+    "answer_paths": [
+      "/sym_real",
+      "/sym_imag"
+    ]
+  },
+  {
+    "id": "A09",
+    "scenario_id": "curated_A09",
+    "split": "selection",
+    "kind": "tool_call",
+    "tool": "wlan_packet_detect",
+    "task_type": "WLAN Toolbox",
+    "question": "对实部为 [0,0,1,1,0,0]、虚部全 0 的短接收波形，以 0.5 门限做 WLAN 包前导检测。是否检测到有效前导？给出判决统计量长度。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/wlan_packet_detect.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "waveform": "{\"real\":[0,0,1,1,0,0],\"imag\":[0,0,0,0,0,0]}",
+      "threshold": 0.5
+    },
+    "expected": {
+      "start_offset": null,
+      "detected": false,
+      "n_stats": 0,
+      "decision_stats": [],
+      "symbol_length": 16
+    },
+    "answer_paths": [
+      "/detected",
+      "/n_stats"
+    ]
+  },
+  {
+    "id": "A12",
+    "scenario_id": "curated_A12",
+    "split": "selection",
+    "kind": "tool_call",
+    "tool": "bluetooth_frequency_hop",
+    "task_type": "Bluetooth Toolbox",
+    "question": "Bluetooth BR/EDR 使用 Connection basic 跳频序列、设备地址 2A96EF25，时钟为 2D。计算下一跳信道索引。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/bluetooth_frequency_hop.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "input": "{\"clock\":\"2D\",\"configuration\":{\"sequence_type\":\"Connection basic\",\"device_address\":\"2A96EF25\"}}"
+    },
+    "expected": {
+      "ok": true,
+      "tool": "bluetooth_frequency_hop",
+      "result": {
+        "channel_index": 27,
+        "x": 11
+      },
+      "state": null,
+      "artifacts": [],
+      "warnings": [],
+      "metadata": {
+        "implementation": "pure_python",
+        "state_protocol": 1
+      }
+    },
+    "answer_paths": [
+      "/result/channel_index"
+    ]
+  },
+  {
+    "id": "A15",
+    "scenario_id": "curated_A15",
+    "split": "selection",
+    "kind": "tool_call",
+    "tool": "qam_modulation",
+    "task_type": "Communications Toolbox",
+    "question": "将连续比特组 0000、0101、1010、1111 映射到方形 16QAM 星座，给出符号实部和虚部。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/qam_modulation.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "mode": "modulate",
+      "order": 16,
+      "values": "0,0,0,0,0,1,0,1,1,0,1,0,1,1,1,1"
+    },
+    "expected": {
+      "labels": [
+        0,
+        5,
+        10,
+        15
+      ],
+      "symbols_real": [
+        -3.0,
+        -1.0,
+        3.0,
+        1.0
+      ],
+      "symbols_imag": [
+        3.0,
+        1.0,
+        -3.0,
+        -1.0
+      ]
+    },
+    "answer_paths": [
+      "/symbols_real",
+      "/symbols_imag"
+    ]
+  },
+  {
+    "id": "A18",
+    "scenario_id": "curated_A18",
+    "split": "selection",
+    "kind": "tool_call",
+    "tool": "node_position_random",
+    "task_type": "Wireless Network Toolbox",
+    "question": "在以 (5,5,0) 米为中心的 20×10 米矩形中随机放置 4 个仿真节点，高度 1 米、随机种子 29。给出节点位置。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/node_position_random.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "boundary_shape": "rectangle",
+      "boundary_dimension": "20,10",
+      "center": "5,5,0",
+      "num_nodes": 4,
+      "z_coordinate": 1,
+      "seed": 29
+    },
+    "expected": {
+      "positions": [
+        [
+          -4.0,
+          1.29,
+          1.0
+        ],
+        [
+          5.13,
+          0.21,
+          1.0
+        ],
+        [
+          5.38,
+          3.94,
+          1.0
+        ],
+        [
+          0.3,
+          3.8,
+          1.0
+        ]
+      ],
+      "boundary": [
+        [
+          -5.0,
+          0.0
+        ],
+        [
+          15.0,
+          0.0
+        ],
+        [
+          15.0,
+          10.0
+        ],
+        [
+          -5.0,
+          10.0
+        ]
+      ]
+    },
+    "answer_paths": [
+      "/positions"
+    ]
+  },
+  {
+    "id": "A21",
+    "scenario_id": "curated_A21",
+    "split": "selection",
+    "kind": "tool_call",
+    "tool": "closed_loop_validator",
+    "task_type": "WirelessAgent Workflow",
+    "question": "一次外部调整的同口径测量：吞吐由 5.0 到 5.5 Mbps，BER 由 0.001 到 0.004，时延由 25 到 35 ms；约束为 BER≤0.002、时延≤30 ms。仅按数值规则判断是否通过验证、是否建议回滚，并列出违例。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/closed_loop_validator.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "before": "{\"throughput\":5.0,\"ber\":0.001,\"latency_ms\":25}",
+      "after": "{\"throughput\":5.5,\"ber\":0.004,\"latency_ms\":35}",
+      "constraints": "{\"ber\":{\"max\":0.002},\"latency_ms\":{\"max\":30}}"
+    },
+    "expected": {
+      "accepted": false,
+      "score": -1.0999999999999999,
+      "comparisons": {
+        "ber": {
+          "before": 0.001,
+          "after": 0.004,
+          "direction": "lower",
+          "improvement_fraction": -3.0,
+          "result": "degraded"
+        },
+        "latency_ms": {
+          "before": 25.0,
+          "after": 35.0,
+          "direction": "lower",
+          "improvement_fraction": -0.4,
+          "result": "degraded"
+        },
+        "throughput": {
+          "before": 5.0,
+          "after": 5.5,
+          "direction": "higher",
+          "improvement_fraction": 0.1,
+          "result": "improved"
+        }
+      },
+      "constraint_violations": [
+        {
+          "metric": "ber",
+          "rule": "max",
+          "required": 0.002,
+          "actual": 0.004
+        },
+        {
+          "metric": "latency_ms",
+          "rule": "max",
+          "required": 30.0,
+          "actual": 35.0
+        }
+      ],
+      "rollback_recommended": true
+    },
+    "answer_paths": [
+      "/accepted",
+      "/rollback_recommended",
+      "/constraint_violations"
+    ]
+  },
+  {
+    "id": "A24",
+    "scenario_id": "curated_A24",
+    "split": "selection",
+    "kind": "tool_call",
+    "tool": "wireless_utils",
+    "task_type": "WirelessAgent Helper",
+    "question": "使用无线测试助手的 biterr 子命令，比较参考比特 1,0,1,0,1,1 与接收比特 1,1,1,0,0,1；给出错误位数和 BER。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/wireless_utils.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "command": "biterr",
+      "x": "1,0,1,0,1,1",
+      "y": "1,1,1,0,0,1"
+    },
+    "expected": {
+      "num_errors": 2,
+      "ber": 0.3333333333333333,
+      "total_bits": 6
+    },
+    "answer_paths": [
+      "/num_errors",
+      "/ber"
+    ]
+  },
+  {
+    "id": "A26",
+    "scenario_id": "curated_A26",
+    "split": "selection",
+    "kind": "tool_workflow",
+    "tool": "wlan_bcc",
+    "task_type": "WLAN Toolbox",
+    "question": "先对 WLAN 比特 0,1,0,0,1,1,0,1,1,0,1,0 用码率 1/2 的 BCC 编码，再将得到的硬判决码字送入 Viterbi 解码器。给出编码比特和解码比特。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/wlan_bcc.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "steps": [
+      {
+        "tool": "wlan_bcc",
+        "arguments": {
+          "bits": "0,1,0,0,1,1,0,1,1,0,1,0",
+          "rate": "1/2",
+          "decode": false
+        },
+        "expected": {
+          "rate": "1/2",
+          "input_bits": [
+            0,
+            1,
+            0,
+            0,
+            1,
+            1,
+            0,
+            1,
+            1,
+            0,
+            1,
+            0
+          ],
+          "output_bits": [
+            0,
+            0,
+            1,
+            1,
+            0,
+            1,
+            1,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1
+          ]
+        },
+        "bindings": []
+      },
+      {
+        "tool": "wlan_bcc",
+        "arguments": {
+          "bits": "0,0,1,1,0,1,1,1,0,0,1,0,0,0,0,0,0,1,0,0,1,0,0,1",
+          "rate": "1/2",
+          "decode": true
+        },
+        "expected": {
+          "rate": "1/2",
+          "decoded": [
+            0,
+            1,
+            0,
+            0,
+            1,
+            1,
+            0,
+            1,
+            1,
+            0,
+            1,
+            0
+          ]
+        },
+        "bindings": [
+          {
+            "argument": "bits",
+            "from_step": 0,
+            "path": "/output_bits",
+            "format": "csv"
+          }
+        ]
+      }
+    ],
+    "answer_fields": {
+      "encoded": {
+        "step": 0,
+        "path": "/output_bits"
+      },
+      "decoded": {
+        "step": 1,
+        "path": "/decoded"
+      }
+    }
+  },
+  {
+    "id": "A27",
+    "scenario_id": "curated_A27",
+    "split": "selection",
+    "kind": "tool_call",
+    "tool": "lte_layer_map",
+    "task_type": "LTE Toolbox",
+    "question": "将 LTE 复数码字符号 (1+0j),(0+1j),(-1+0j),(0-1j) 映射到两层，给出各层的复符号。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/lte_layer_map.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "arguments": {
+      "mode": "map",
+      "nlayers": 2,
+      "data": "[{\"real\":[1.0,0.0,-1.0,0.0],\"imag\":[0.0,1.0,0.0,-1.0]}]"
+    },
+    "expected": {
+      "layers": {
+        "real": [
+          [
+            1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0
+          ]
+        ],
+        "imag": [
+          [
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            -1.0
+          ]
+        ]
+      }
+    },
+    "answer_paths": [
+      "/layers"
+    ]
+  },
+  {
+    "id": "A28",
+    "scenario_id": "curated_A28",
+    "split": "selection",
+    "kind": "tool_workflow",
+    "tool": "bluetooth_session",
+    "task_type": "WirelessAgent Helper",
+    "question": "为内部 Bluetooth LE 仿真建立一个新会话，在会话中创建 ID 为 node_a28 的 LE 节点，再列出会话对象。给出新节点的 ID、类型和最终对象列表。",
+    "source": "expert_draft",
+    "origin_type": "expert_authored",
+    "source_ref": "repo:tools/bluetooth_session.schema.json",
+    "reviewer": "PENDING_PRODUCT_REVIEW",
+    "steps": [
+      {
+        "tool": "bluetooth_session",
+        "arguments": {
+          "input": "{\"operation\":\"create_session\",\"session_file\":\"a28_session.sqlite\"}"
+        },
+        "expected": {
+          "ok": true,
+          "tool": "bluetooth_session",
+          "result": {
+            "session_file": "<DATA_ROOT>\\a28_session.sqlite",
+            "session_id": "<SESSION_ID>",
+            "session_version": 1,
+            "simulation_time": 0.0,
+            "object_count": 0,
+            "created": true
+          },
+          "state": null,
+          "artifacts": [],
+          "warnings": [],
+          "metadata": {
+            "implementation": "pure_python",
+            "state_protocol": 1
+          }
+        },
+        "bindings": []
+      },
+      {
+        "tool": "bluetooth_session",
+        "arguments": {
+          "input": "{\"operation\":\"create_object\",\"session_file\":\"a28_session.sqlite\",\"object_type\":\"bluetoothLENode\",\"new_object_id\":\"node_a28\",\"properties\":{}}"
+        },
+        "expected": {
+          "ok": true,
+          "tool": "bluetooth_session",
+          "result": {
+            "object_id": "node_a28",
+            "object_type": "bluetoothLENode",
+            "revision": 1,
+            "value": {
+              "kind": "le",
+              "id": 1,
+              "name": "Node1",
+              "role": "peripheral",
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "properties": {
+                "transmitter_gain": 0.0,
+                "receiver_gain": 0.0,
+                "receiver_sensitivity": -100.0,
+                "noise_figure": 0.0,
+                "interference_modeling": "overlapping-adjacent-channel",
+                "max_interference_offset": 100000000.0,
+                "transmitter_power": 20.0,
+                "advertising_interval": 0.02,
+                "random_advertising": false,
+                "scan_interval": 0.005
+              },
+              "node_address": null,
+              "connection_config": null,
+              "gap_config": {
+                "gap_procedure": "none",
+                "max_connections": 7,
+                "advertising_event_type": "connectable and scannable undirected",
+                "advertising_interval": 0.03,
+                "random_advertising": false,
+                "scan_interval": 0.05,
+                "scan_window": 0.03
+              },
+              "mesh_config": {
+                "element_address": "0001",
+                "relay": false,
+                "friend": false,
+                "low_power": false,
+                "network_transmissions": 1,
+                "network_transmit_interval": 0.01,
+                "ttl": 127,
+                "relay_retransmissions": 1,
+                "relay_retransmit_interval": 0.01
+              },
+              "traffic_source_count": 0,
+              "transmit_buffer_count": 0,
+              "receive_buffer_count": 0,
+              "statistics": {
+                "transmitted_packets": 0,
+                "received_packets": 0,
+                "dropped_packets": 0,
+                "manual_received_packets": 0
+              },
+              "mobility": null,
+              "scheduler": {
+                "policy": "round_robin"
+              },
+              "connections": []
+            }
+          },
+          "state": null,
+          "artifacts": [],
+          "warnings": [],
+          "metadata": {
+            "implementation": "pure_python",
+            "state_protocol": 1
+          }
+        },
+        "bindings": []
+      },
+      {
+        "tool": "bluetooth_session",
+        "arguments": {
+          "input": "{\"operation\":\"list_objects\",\"session_file\":\"a28_session.sqlite\"}"
+        },
+        "expected": {
+          "ok": true,
+          "tool": "bluetooth_session",
+          "result": {
+            "objects": [
+              {
+                "object_id": "node_a28",
+                "object_type": "bluetoothLENode",
+                "revision": 1,
+                "value": {
+                  "kind": "le",
+                  "id": 1,
+                  "name": "Node1",
+                  "role": "peripheral",
+                  "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "properties": {
+                    "transmitter_gain": 0.0,
+                    "receiver_gain": 0.0,
+                    "receiver_sensitivity": -100.0,
+                    "noise_figure": 0.0,
+                    "interference_modeling": "overlapping-adjacent-channel",
+                    "max_interference_offset": 100000000.0,
+                    "transmitter_power": 20.0,
+                    "advertising_interval": 0.02,
+                    "random_advertising": false,
+                    "scan_interval": 0.005
+                  },
+                  "node_address": null,
+                  "connection_config": null,
+                  "gap_config": {
+                    "gap_procedure": "none",
+                    "max_connections": 7,
+                    "advertising_event_type": "connectable and scannable undirected",
+                    "advertising_interval": 0.03,
+                    "random_advertising": false,
+                    "scan_interval": 0.05,
+                    "scan_window": 0.03
+                  },
+                  "mesh_config": {
+                    "element_address": "0001",
+                    "relay": false,
+                    "friend": false,
+                    "low_power": false,
+                    "network_transmissions": 1,
+                    "network_transmit_interval": 0.01,
+                    "ttl": 127,
+                    "relay_retransmissions": 1,
+                    "relay_retransmit_interval": 0.01
+                  },
+                  "traffic_source_count": 0,
+                  "transmit_buffer_count": 0,
+                  "receive_buffer_count": 0,
+                  "statistics": {
+                    "transmitted_packets": 0,
+                    "received_packets": 0,
+                    "dropped_packets": 0,
+                    "manual_received_packets": 0
+                  },
+                  "mobility": null,
+                  "scheduler": {
+                    "policy": "round_robin"
+                  },
+                  "connections": []
+                }
+              }
+            ]
+          },
+          "state": null,
+          "artifacts": [],
+          "warnings": [],
+          "metadata": {
+            "implementation": "pure_python",
+            "state_protocol": 1
+          }
+        },
+        "bindings": []
+      }
+    ],
+    "answer_fields": {
+      "object_id": {
+        "step": 1,
+        "path": "/result/object_id"
+      },
+      "object_type": {
+        "step": 1,
+        "path": "/result/object_type"
+      },
+      "objects": {
+        "step": 2,
+        "path": "/result/objects"
+      }
+    }
+  }
+]

@@ -1,0 +1,61 @@
+{
+  "name": "wlan_ldpc",
+  "description": "IEEE 802.11 Wi-Fi LDPC 编解码。支持码率 1/2、2/3、3/4、5/6，码长 648/1296/1944。归一化最小和 BP 译码。校验矩阵从 MATLAB wlan.internal.ldpcMatrix 导出。经 MATLAB 黄金样本校验，编码 5/5 通过、解码 4/4 一致。",
+  "implementation": "IEEE 802.11 Section 20.3.11 / 22.3.10，参照 MATLAB wlanLDPCEncode / wlanLDPCDecode",
+  "script": "wlan_ldpc.py",
+  "inputs": {
+    "mode": {
+      "type": "enum",
+      "values": ["encode", "decode"],
+      "required": true,
+      "description": "encode=编码，decode=解码"
+    },
+    "rate": {
+      "type": "enum",
+      "values": ["1/2", "2/3", "3/4", "5/6"],
+      "required": true,
+      "description": "编码码率"
+    },
+    "block-length": {
+      "type": "enum",
+      "values": [648, 1296, 1944],
+      "required": true,
+      "description": "LDPC 码长（码字总比特数）"
+    },
+    "bits": {
+      "type": "string",
+      "required": false,
+      "description": "编码模式：逗号分隔的信息比特"
+    },
+    "llr": {
+      "type": "string",
+      "required": false,
+      "description": "解码模式：JSON 数组形式的 LLR 值"
+    },
+    "max-iter": {
+      "type": "integer",
+      "required": false,
+      "default": 20,
+      "description": "BP 最大迭代次数"
+    },
+    "alpha": {
+      "type": "float",
+      "required": false,
+      "default": 0.75,
+      "description": "归一化最小和系数"
+    }
+  },
+  "outputs": {
+    "rate": "码率",
+    "block_length": "码长",
+    "n_info": {"description": "信息比特数（编码模式）", "optional": true},
+    "info_bits": {"description": "输入信息比特列表（编码模式）", "optional": true},
+    "codeword": {"description": "完整码字（编码模式）", "optional": true},
+    "decoded_bits": {"description": "译码输出信息比特（解码模式）", "optional": true},
+    "iterations": {"description": "实际迭代次数（解码模式）", "optional": true},
+    "converged": {"description": "是否收敛（解码模式）", "optional": true}
+  },
+  "example": {
+    "cmd": "python tools/wlan_ldpc.py --mode encode --rate 1/2 --block-length 648 --bits 0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1"
+  }
+}

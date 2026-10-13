@@ -1,0 +1,28 @@
+{
+  "name": "wlan_ofdm_info",
+  "script": "wlan_ofdm_info.py",
+  "description": "IEEE 802.11 Non-HT OFDM 参数信息工具。返回指定字段（L-LTF/L-SIG/NonHT-Data）和信道带宽的 OFDM 参数：FFT 长度、采样率、CP 长度、活动子载波/导频/数据索引。对应 MATLAB wlanNonHTOFDMInfo。",
+  "implementation": "IEEE 802.11-2016 §17/§18，52 个活动子载波（48 数据 + 4 导频 ±21/±7），CP=16/L-LTF CP=32",
+  "inputs": {
+    "field": {"type": "string", "enum": ["NonHT-Data", "L-SIG", "L-LTF"], "required": true, "description": "OFDM 字段名"},
+    "chanbw": {"type": "string", "enum": ["CBW5", "CBW10", "CBW20", "CBW40", "CBW80", "CBW160"], "required": false, "default": "CBW20", "description": "信道带宽"},
+    "osf": {"type": "number", "required": false, "default": 1.0, "description": "过采样因子 (>=1)"}
+  },
+  "outputs": {
+    "FFTLength": {"description": "FFT 长度"},
+    "SampleRate": {"description": "采样率 (Hz)"},
+    "CPLength": {"description": "CP 长度（L-LTF 为 [32,0] 数组）"},
+    "NumTones": {"description": "活动子载波数"},
+    "NumSubchannels": {"description": "20MHz 子信道数"},
+    "ActiveFrequencyIndices": {"description": "活动子载波频率索引（相对 DC）"},
+    "ActiveFFTIndices": {"description": "FFT 内的活动子载波索引（1-based）"},
+    "DataIndices": {"description": "活动子载波内数据索引"},
+    "PilotIndices": {"description": "活动子载波内导频索引"},
+    "FieldName": {"description": "字段名"},
+    "ChannelBandwidth": {"description": "信道带宽"}
+  },
+  "example": {
+    "cmd": "python tools/wlan_ofdm_info.py --field NonHT-Data --chanbw CBW20",
+    "result": "{\"FFTLength\": 64, \"SampleRate\": 20000000.0, \"CPLength\": 16, \"NumTones\": 52, \"PilotIndices\": [8, 20, 32, 44], ...}"
+  }
+}

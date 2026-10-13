@@ -1,0 +1,48 @@
+{
+  "name": "nr_crc",
+  "description": "5G NR CRC 编解码。6种CRC多项式(6/11/16/24A/24B/24C)，可选XOR掩码。经MATLAB nrCRCEncode黄金样本校验。",
+  "script": "nr_crc.py",
+  "inputs": {
+    "poly": {
+      "type": "string",
+      "enum": [
+        "6",
+        "11",
+        "16",
+        "24A",
+        "24B",
+        "24C"
+      ],
+      "required": true
+    },
+    "bits": {
+      "type": "string",
+      "required": true,
+      "description": "逗号分隔的数据比特"
+    },
+    "mask": {
+      "type": "integer",
+      "required": false,
+      "default": 0,
+      "description": "XOR掩码值"
+    },
+    "decode": {
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "true=解码校验模式"
+    }
+  },
+  "outputs": {
+    "output_bits": "编码后的数据+CRC比特列表",
+    "n_crc": "CRC比特数",
+    "crc_error": {
+      "description": "解码模式下的错误标志(true/false)",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/nr_crc.py --poly 16 --bits 1,0,1,1,0,0,1,0,1,1",
+    "result": "{\"poly\":\"16\",\"input_bits\":[...],\"output_bits\":[...],\"n_crc\":16}"
+  }
+}

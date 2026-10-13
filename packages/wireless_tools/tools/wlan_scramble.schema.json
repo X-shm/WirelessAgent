@@ -1,0 +1,21 @@
+{
+  "name": "wlan_scramble",
+  "description": "IEEE 802.11 加扰/解扰。7 位 LFSR，生成多项式 x^7 + x^4 + 1。加扰和解扰为同一操作（自同步特性）。种子范围 1-127。经 MATLAB wlanScramble 黄金样本校验，6/6 通过。",
+  "implementation": "IEEE 802.11 Section 18.3.5.5，参照 MATLAB wlanScramble",
+  "script": "wlan_scramble.py",
+  "inputs": {
+    "bits": {"type": "string", "required": true, "description": "逗号分隔的数据比特"},
+    "seed": {"type": "integer", "required": true, "description": "LFSR 初始状态，整数 1-127"},
+    "descramble": {"type": "boolean", "required": false, "default": false, "description": "true=解扰模式（与加扰操作相同，仅影响输出 mode 字段）"}
+  },
+  "outputs": {
+    "mode": "scramble 或 descramble",
+    "seed": "LFSR 初始状态",
+    "input_bits": "输入比特列表",
+    "output_bits": "加扰/解扰后输出比特列表"
+  },
+  "example": {
+    "cmd": "python tools/wlan_scramble.py --bits 1,0,1,1,0,0,1,0 --seed 93",
+    "result": "{\"mode\":\"scramble\",\"seed\":93,\"input_bits\":[1,0,1,1,0,0,1,0],\"output_bits\":[1,1,0,0,0,1,0,0]}"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "name": "lte_ul_scrambling",
+  "script": "lte_ul_scrambling.py",
+  "description": "LTE PUSCH 传输数据硬比特扰码、软值解扰或扰码序列生成，对应 lteULScramble/lteULDescramble 的无 UCI 占位符形式。",
+  "implementation": "按 RNTI、码字、子帧和小区 ID 生成 TS 36.211 Gold 序列；软解扰通过 LLR 符号翻转。",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "scramble",
+        "descramble_soft",
+        "sequence"
+      ],
+      "required": true,
+      "description": "操作"
+    },
+    "values": {
+      "type": "string",
+      "required": true,
+      "description": "JSON 比特、软值或同长度占位数组"
+    },
+    "nsubframe": {
+      "type": "integer",
+      "required": true,
+      "description": "子帧 0..9"
+    },
+    "ncellid": {
+      "type": "integer",
+      "required": true,
+      "description": "小区 ID"
+    },
+    "rnti": {
+      "type": "integer",
+      "required": true,
+      "description": "16 位 RNTI"
+    },
+    "codeword": {
+      "type": "integer",
+      "enum": [
+        0,
+        1
+      ],
+      "required": false,
+      "default": 0,
+      "description": "码字 q"
+    }
+  },
+  "outputs": {
+    "output": "扰码比特、解扰软值或序列",
+    "cinit": "Gold 序列初态"
+  },
+  "example": {
+    "cmd": "python tools/lte_ul_scrambling.py --mode scramble --values '[1,0,1]' --nsubframe 0 --ncellid 100 --rnti 61",
+    "result": "{\"output\":[...],\"cinit\":...}"
+  }
+}

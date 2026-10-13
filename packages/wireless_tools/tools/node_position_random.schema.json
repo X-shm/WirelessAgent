@@ -1,0 +1,16 @@
+{
+  "name": "node_position_random",
+  "script": "node_position_random.py",
+  "description": "在矩形或圆形边界中均匀生成随机节点位置。",
+  "implementation": "转换 Wireless Network Toolbox nodePositionRandom 的矩形/圆形主要调用形式。",
+  "inputs": {
+    "boundary_shape": {"type": "string", "enum": ["rectangle", "circle"], "required": true, "description": "边界形状"},
+    "boundary_dimension": {"type": "string", "required": true, "description": "矩形 length,width 或圆半径"},
+    "center": {"type": "string", "required": false, "default": "0,0,0", "description": "x,y,z"},
+    "num_nodes": {"type": "integer", "required": false, "default": 1, "description": "节点数"},
+    "z_coordinate": {"type": "number", "required": false, "default": 0, "description": "节点高度"},
+    "seed": {"type": "integer", "required": false, "description": "随机种子"}
+  },
+  "outputs": {"positions": "N×3 节点位置", "boundary": "边界描述"},
+  "example": {"cmd": "python tools/node_position_random.py --boundary_shape circle --boundary_dimension 100 --num_nodes 5 --seed 1", "result": "{\"positions\":[...],\"boundary\":{\"center\":[0,0],\"radius\":100}}"}
+}

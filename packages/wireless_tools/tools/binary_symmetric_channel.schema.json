@@ -1,0 +1,32 @@
+{
+  "name": "binary_symmetric_channel",
+  "script": "binary_symmetric_channel.py",
+  "description": "按给定翻转概率模拟二元对称信道，对应 bsc。",
+  "implementation": "NumPy 随机实现。",
+  "inputs": {
+    "data": {
+      "type": "string",
+      "required": true,
+      "description": "JSON 二进制数组"
+    },
+    "probability": {
+      "type": "number",
+      "required": true,
+      "description": "翻转概率 0..1"
+    },
+    "seed": {
+      "type": "integer",
+      "required": false,
+      "description": "随机种子"
+    }
+  },
+  "outputs": {
+    "output": "信道输出",
+    "errors": "错误掩码",
+    "observed_probability": "观测翻转率"
+  },
+  "example": {
+    "cmd": "python tools/binary_symmetric_channel.py --data '[0,1,0,1]' --probability 0.1 --seed 1",
+    "result": "{\"output\":[...]}"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "name": "ble_channel_selection",
+  "script": "ble_channel_selection.py",
+  "description": "Bluetooth LE CSA #1/#2 信道选择，对应 bleChannelSelection System object。",
+  "implementation": "纯 Python Core Specification CSA 状态机；调用方传回 state 继续连接、周期广播或等时子事件。",
+  "inputs": {
+    "input": {
+      "type": "string",
+      "required": true,
+      "description": "JSON：algorithm、used_channels、count，或等时事件的 subevent_channel_selection/counter/number"
+    },
+    "input_file": {
+      "type": "string",
+      "required": false,
+      "description": "与 input 互斥的 JSON 文件"
+    },
+    "state": {
+      "type": "string",
+      "required": false,
+      "description": "上一次返回的状态"
+    },
+    "state_file": {
+      "type": "string",
+      "required": false,
+      "description": "状态 JSON 文件"
+    }
+  },
+  "outputs": {
+    "channel_indices": "本次选出的 0..36 数据信道索引",
+    "event_counter": "最后一个连接/周期事件计数",
+    "state": "可序列化的下一次调用状态"
+  },
+  "example": {
+    "cmd": "python tools/ble_channel_selection.py --input '{\"algorithm\":2,\"used_channels\":[9,10,21,22,23,33,34,35,36],\"count\":3}'",
+    "result": "{\"ok\":true,...}"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "name": "wlan_bcc",
+  "description": "IEEE 802.11 BCC 卷积编解码。生成多项式 g0=133、g1=171（八进制），约束长度 K=7。支持 1/2、2/3、3/4、5/6 四种码率；以 MATLAB 编码黄金样本及 Viterbi 解码性质测试覆盖。",
+  "implementation": "IEEE 802.11，参照 MATLAB wlanBCCEncode/wlanBCCDecode",
+  "script": "wlan_bcc.py",
+  "inputs": {
+    "bits": {
+      "type": "string",
+      "required": true,
+      "description": "逗号分隔的输入比特；--decode 时为打孔后的硬判决码字"
+    },
+    "rate": {
+      "type": "string",
+      "enum": [
+        "1/2",
+        "2/3",
+        "3/4",
+        "5/6"
+      ],
+      "required": true,
+      "description": "码率"
+    },
+    "decode": {
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "true=Viterbi 解码模式"
+    }
+  },
+  "outputs": {
+    "output_bits": {
+      "description": "编码后输出比特列表（编码方向）",
+      "optional": true
+    },
+    "decoded": {
+      "description": "解码后比特列表（解码方向）",
+      "optional": true
+    },
+    "rate": {
+      "description": "码率",
+      "optional": true
+    },
+    "input_bits": {
+      "description": "输入比特列表",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/wlan_bcc.py --bits 0,1,1,1,0,1,0,0 --rate 1/2",
+    "result": "{\"rate\":\"1/2\",\"input_bits\":[0,1,1,1,0,1,0,0],\"output_bits\":[0,0,1,1,...]}"
+  }
+}

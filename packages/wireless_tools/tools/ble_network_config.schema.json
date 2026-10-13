@@ -1,0 +1,29 @@
+{
+  "name": "ble_network_config",
+  "script": "ble_network_config.py",
+  "description": "BLE CS、LE 网络及 Mesh 八类配置构造器的 JSON 包装。",
+  "implementation": "纯 Python 默认值与公开属性核心校验；节点关联及对象方法不包含。",
+  "inputs": {
+    "input": {
+      "type": "string",
+      "required": true,
+      "description": "JSON：kind 为八个 MATLAB 配置类名之一，properties 使用 snake_case"
+    },
+    "input_file": {
+      "type": "string",
+      "required": false,
+      "description": "与 input 互斥的 JSON 文件"
+    }
+  },
+  "outputs": {
+    "kind": "配置类名",
+    "configuration": {
+      "description": "规范化配置属性",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/ble_network_config.py --input '{\"kind\":\"bluetoothLEGAPConfig\"}'",
+    "result": "{"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "bluetooth_session",
+  "script": "bluetooth_session.py",
+  "description": "面向 agent 的纯 Python Bluetooth 对象会话、方法调用、离散事件运行与事件日志。",
+  "implementation": "SQLite 持久化会话，支持 Bluetooth Classic/LE 节点、52 个入口关联配置对象与 BLE 信道选择对象；事件订阅替代任意代码回调。当前节点仿真覆盖确定性流量、恒定速度移动、接收灵敏度判定和统计，不替代全部链路层协议。",
+  "inputs": {
+    "input": {
+      "type": "string",
+      "required": true,
+      "description": "JSON：operation、session_file 及该操作的对象、属性、方法、仿真或事件字段"
+    },
+    "input_file": {
+      "type": "string",
+      "required": false,
+      "description": "与 input 互斥的 UTF-8 JSON 文件"
+    }
+  },
+  "outputs": {
+    "session_file": {
+      "description": "会话、对象、方法调用、仿真摘要或事件分页结果",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/bluetooth_session.py --input '{\"operation\":\"create_session\",\"session_file\":\"bt_e2e_session.sqlite\"}'",
+    "result": "{\"ok\":true,...}"
+  }
+}

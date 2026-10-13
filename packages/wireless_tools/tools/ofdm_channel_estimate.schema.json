@@ -1,0 +1,38 @@
+{
+  "name": "ofdm_channel_estimate",
+  "script": "ofdm_channel_estimate.py",
+  "description": "利用已知导频执行 LS OFDM 信道估计并在频率/时间二维插值，对应 ofdmChannelEstimate 的常用形式。",
+  "implementation": "显式零基导频索引、可选导频平滑、频域线性插值和时域线性插值。",
+  "inputs": {
+    "received_grid": {
+      "type": "string",
+      "required": true,
+      "description": "Nsc×Nsym 接收复资源网格"
+    },
+    "pilot_symbols": {
+      "type": "string",
+      "required": true,
+      "description": "已知复导频数组"
+    },
+    "pilot_indices": {
+      "type": "string",
+      "required": true,
+      "description": "零基 [[subcarrier,symbol],...] JSON"
+    },
+    "smoothing": {
+      "type": "integer",
+      "required": false,
+      "default": 1,
+      "description": "导频估计平滑窗口"
+    }
+  },
+  "outputs": {
+    "channel_estimate": "完整二维复信道估计",
+    "pilot_estimates": "导频位置 LS 估计",
+    "noise_variance": "导频重构残差功率"
+  },
+  "example": {
+    "cmd": "python tools/ofdm_channel_estimate.py --received_grid '[[2,2],[2,2]]' --pilot_symbols '[1,1]' --pilot_indices '[[0,0],[1,1]]'",
+    "result": "{\"channel_estimate\":{...}}"
+  }
+}

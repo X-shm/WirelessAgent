@@ -1,0 +1,62 @@
+{
+  "name": "nr_polar_rm",
+  "script": "nr_polar_rm.py",
+  "description": "5G NR Polar 码速率匹配和恢复工具。匹配方向：Polar 编码块经子块交织、比特选择（重复/打孔/缩短）后输出指定长度的速率匹配序列；恢复方向：接收 LLR 经比特选择恢复、子块解交织后输出原始长度的软值。",
+  "implementation": "3GPP TS 38.212 §5.4.1，子块交织使用标准置换表，比特选择支持重复/打孔/缩短三种模式，可选三角交织（上行）",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": ["match", "recover"],
+      "required": true,
+      "description": "操作模式：match（速率匹配）或 recover（速率恢复）"
+    },
+    "bits": {
+      "type": "string",
+      "required": true,
+      "description": "输入比特（match: 0/1 逗号分隔；recover: LLR 浮点数逗号分隔）"
+    },
+    "K": {
+      "type": "integer",
+      "required": true,
+      "description": "信息块长度 K"
+    },
+    "E": {
+      "type": "integer",
+      "required": false,
+      "description": "[match] 速率匹配输出长度 E"
+    },
+    "N": {
+      "type": "integer",
+      "required": false,
+      "description": "[recover] Polar 编码块长度 N（2 的幂）"
+    },
+    "ibil": {
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "启用编码比特交织（上行）"
+    }
+  },
+  "outputs": {
+    "output_bits": {
+      "description": "匹配输出：速率匹配后的比特序列（match 模式）",
+      "optional": true
+    },
+    "E": {
+      "description": "匹配输出：速率匹配序列长度",
+      "optional": true
+    },
+    "soft_bits": {
+      "description": "恢复输出：恢复后的软比特 LLR 值（recover 模式）",
+      "optional": true
+    },
+    "N": {
+      "description": "恢复输出：Polar 编码块长度",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/nr_polar_rm.py --mode match --bits 0,1,1,0,1,0,0,1,1,0,0,1,1,0,0,1 --K 8 --E 12",
+    "result": "{\"output_bits\": [0,1,1,0,1,0,0,1,1,0,0,1], \"E\": 12}"
+  }
+}

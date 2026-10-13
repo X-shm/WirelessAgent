@@ -1,0 +1,55 @@
+{
+  "name": "ber_fading",
+  "script": "ber_fading.py",
+  "description": "计算相干 BPSK/QPSK 在 Rayleigh/Rician 衰落和 MRC 分集下的理论 BER，对应 berfading 常用子集。",
+  "implementation": "用瞬时 SNR MGF 的 Craig 积分数值计算，支持任意整数分集阶数和 Rician K 因子。",
+  "inputs": {
+    "ebno_db": {
+      "type": "string",
+      "required": true,
+      "description": "标量或 JSON Eb/No dB 数组"
+    },
+    "modulation": {
+      "type": "string",
+      "enum": [
+        "BPSK",
+        "QPSK"
+      ],
+      "required": false,
+      "default": "BPSK",
+      "description": "相干调制"
+    },
+    "diversity_order": {
+      "type": "integer",
+      "required": false,
+      "default": 1,
+      "description": "MRC 分支数"
+    },
+    "fading": {
+      "type": "string",
+      "enum": [
+        "Rayleigh",
+        "Rician"
+      ],
+      "required": false,
+      "default": "Rayleigh",
+      "description": "衰落类型"
+    },
+    "k_factor": {
+      "type": "number",
+      "required": false,
+      "default": 0,
+      "description": "线性 Rician K 因子"
+    }
+  },
+  "outputs": {
+    "ber": "理论 BER",
+    "ebno_db": "输入 Eb/No",
+    "modulation": "调制",
+    "fading": "衰落"
+  },
+  "example": {
+    "cmd": "python tools/ber_fading.py --ebno_db '[0,5,10]' --fading Rayleigh",
+    "result": "{\"ber\":[0.1464,...]}"
+  }
+}

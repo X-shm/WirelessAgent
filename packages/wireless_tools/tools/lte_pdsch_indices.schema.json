@@ -1,0 +1,87 @@
+{
+  "name": "lte_pdsch_indices",
+  "script": "lte_pdsch_indices.py",
+  "description": "生成 LTE FDD Release 8/9 CRS 方案 PDSCH 数据 RE 零基索引及 G/Gd，对应 ltePDSCHIndices 常用子集。",
+  "implementation": "从显式 PRB 分配中排除控制区、CRS、PSS/SSS 和 PBCH；支持 Port0、TxDiversity、CDD、SpatialMux、MultiUser 占用计算。",
+  "inputs": {
+    "ndlrb": {
+      "type": "integer",
+      "required": true,
+      "description": "下行总资源块数 6..110"
+    },
+    "ncellid": {
+      "type": "integer",
+      "required": true,
+      "description": "物理小区 ID 0..503"
+    },
+    "prb_set": {
+      "type": "string",
+      "required": true,
+      "description": "JSON PRB 数组或 [slot0,slot1]"
+    },
+    "nsubframe": {
+      "type": "integer",
+      "required": false,
+      "default": 0,
+      "description": "子帧 0..9"
+    },
+    "cfi": {
+      "type": "integer",
+      "enum": [
+        1,
+        2,
+        3
+      ],
+      "required": false,
+      "default": 1,
+      "description": "控制格式指示"
+    },
+    "cyclic_prefix": {
+      "type": "string",
+      "enum": [
+        "Normal",
+        "Extended"
+      ],
+      "required": false,
+      "default": "Normal",
+      "description": "下行循环前缀"
+    },
+    "cell_ref_p": {
+      "type": "integer",
+      "enum": [
+        1,
+        2,
+        4
+      ],
+      "required": false,
+      "default": 1,
+      "description": "CRS 端口数"
+    },
+    "tx_scheme": {
+      "type": "string",
+      "required": false,
+      "default": "Port0",
+      "description": "Release 8/9 CRS 传输方案"
+    },
+    "modulation": {
+      "type": "string",
+      "required": false,
+      "default": "QPSK",
+      "description": "一个或两个逗号分隔码字调制格式"
+    },
+    "n_layers": {
+      "type": "integer",
+      "required": false,
+      "default": 1,
+      "description": "层数 1..8"
+    }
+  },
+  "outputs": {
+    "indices": "公共 [子载波,符号,平面] 零基索引",
+    "info": "G、Gd、端口数和每时隙 RE 数"
+  },
+  "example": {
+    "cmd": "python tools/lte_pdsch_indices.py --ndlrb 6 --ncellid 0 --prb_set '[1,2,3,4,5]' --cfi 1 --cell_ref_p 4 --tx_scheme TxDiversity",
+    "result": "{\"indices\":[[12,2,0],...],\"info\":{...}}"
+  }
+}

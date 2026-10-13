@@ -1,0 +1,70 @@
+{
+  "name": "convolutional_codec",
+  "script": "convolutional_codec.py",
+  "description": "可配置码率 1/N 卷积编码和硬判决 Viterbi 解码，对应 convenc/vitdec/poly2trellis 常用形式。",
+  "implementation": "支持八进制生成多项式、初态、终态和编码端 puncture。",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "encode",
+        "decode"
+      ],
+      "required": true,
+      "description": "方向"
+    },
+    "bits": {
+      "type": "string",
+      "required": true,
+      "description": "逗号比特"
+    },
+    "constraint_length": {
+      "type": "integer",
+      "required": true,
+      "description": "约束长度"
+    },
+    "generators": {
+      "type": "string",
+      "required": true,
+      "description": "八进制多项式，如 171,133"
+    },
+    "initial_state": {
+      "type": "integer",
+      "required": false,
+      "default": 0,
+      "description": "编码初态"
+    },
+    "final_state": {
+      "type": "integer",
+      "required": false,
+      "description": "解码终态；省略取最佳"
+    },
+    "puncture": {
+      "type": "string",
+      "required": false,
+      "description": "编码穿孔模式"
+    }
+  },
+  "outputs": {
+    "coded_bits": {
+      "description": "编码输出",
+      "optional": true
+    },
+    "decoded_bits": {
+      "description": "解码输出",
+      "optional": true
+    },
+    "path_metric": {
+      "description": "路径度量",
+      "optional": true
+    },
+    "final_state": {
+      "description": "编码终态",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/convolutional_codec.py --mode encode --bits 1,0,1 --constraint_length 3 --generators 7,5",
+    "result": "{\"coded_bits\":[...]}"
+  }
+}

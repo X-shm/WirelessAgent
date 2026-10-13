@@ -1,0 +1,30 @@
+{
+  "name": "bluetooth_frequency_hop",
+  "script": "bluetooth_frequency_hop.py",
+  "description": "Bluetooth BR/EDR 频跳配置和 nextHop 通道选择。",
+  "implementation": "纯 Python 移植 11 类频跳序列及自适应信道重映射。",
+  "inputs": {
+    "input": {
+      "type": "string",
+      "required": true,
+      "description": "JSON：operation=config|hop，configuration 和 28 位 clock"
+    },
+    "input_file": {
+      "type": "string",
+      "required": false,
+      "description": "与 input 互斥的 JSON 文件"
+    }
+  },
+  "outputs": {
+    "configuration": {
+      "description": "规范化频跳配置",
+      "optional": true
+    },
+    "channel_index": "0..78 经典蓝牙通道",
+    "x": "PHY 白化控制值"
+  },
+  "example": {
+    "cmd": "python tools/bluetooth_frequency_hop.py --input '{\"clock\":\"2C\",\"configuration\":{\"sequence_type\":\"Connection basic\",\"device_address\":\"2A96EF25\"}}'",
+    "result": "{"
+  }
+}

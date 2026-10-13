@@ -1,0 +1,59 @@
+{
+  "name": "lte_frame_offset",
+  "script": "lte_frame_offset.py",
+  "description": "利用显式 LTE 标准参考波形估计下行帧或上行子帧偏移，对应 lteDLFrameOffset/lteULFrameOffset 的相关核心。",
+  "implementation": "归一化多天线相关；通过 reference_offset 将参考峰位置换算为帧/子帧起点。",
+  "inputs": {
+    "link": {
+      "type": "string",
+      "enum": [
+        "downlink",
+        "uplink"
+      ],
+      "required": true,
+      "description": "链路方向"
+    },
+    "waveform": {
+      "type": "string",
+      "required": true,
+      "description": "接收复波形"
+    },
+    "reference": {
+      "type": "string",
+      "required": true,
+      "description": "PSS/SSS/CRS 或 PUSCH DM-RS 标准参考波形"
+    },
+    "period_samples": {
+      "type": "integer",
+      "required": true,
+      "description": "帧或子帧样本数"
+    },
+    "reference_offset": {
+      "type": "integer",
+      "required": false,
+      "default": 0,
+      "description": "参考在周期内的样本位置"
+    },
+    "threshold": {
+      "type": "number",
+      "required": false,
+      "default": 0.2,
+      "description": "相关门限"
+    },
+    "window_length": {
+      "type": "integer",
+      "required": false,
+      "default": 1,
+      "description": "信道能量窗口"
+    }
+  },
+  "outputs": {
+    "offset": "周期起点偏移",
+    "correlation_peak": "相关峰值",
+    "normalized_correlation": "相关序列"
+  },
+  "example": {
+    "cmd": "python tools/lte_frame_offset.py --link uplink --waveform '[0,0,1,2,3]' --reference '[1,2,3]' --period_samples 1000",
+    "result": "{\"offset\":2,...}"
+  }
+}

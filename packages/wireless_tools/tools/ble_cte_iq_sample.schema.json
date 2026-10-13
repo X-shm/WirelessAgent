@@ -1,0 +1,40 @@
+{
+  "name": "ble_cte_iq_sample",
+  "script": "ble_cte_iq_sample.py",
+  "description": "BLE CTE 的参考期/采样槽 IQ 采样，对应 bleCTEIQSample。",
+  "implementation": "纯 Python 高斯匹配滤波、DC 与频偏补偿。",
+  "inputs": {
+    "input": {
+      "type": "string",
+      "required": true,
+      "description": "JSON：cte_samples={real,imag}、可选 mode、samples_per_symbol、slot_duration、sample_offset"
+    },
+    "input_file": {
+      "type": "string",
+      "required": false,
+      "description": "与 input 互斥的 JSON 文件"
+    },
+    "output_file": {
+      "type": "string",
+      "required": false,
+      "description": "大输出的 .npz 文件"
+    },
+    "inline_limit": {
+      "type": "integer",
+      "required": false,
+      "description": "内联复数值上限"
+    },
+    "overwrite": {
+      "type": "boolean",
+      "required": false,
+      "description": "允许覆盖输出文件"
+    }
+  },
+  "outputs": {
+    "iq_samples": "复数 IQ 样本，real/imag 数组或 NPZ artifact"
+  },
+  "example": {
+    "cmd": "python tools/ble_cte_iq_sample.py --input '{\"cte_samples\":{\"real\":[1,0.7,0.2,-0.3,-0.8,-0.9,-0.4,0.2,0.8,0.9,0.5,-0.1,-0.7,-0.9,-0.6,0],\"imag\":[0,0.5,0.9,0.8,0.2,-0.4,-0.8,-0.8,-0.3,0.1,0.6,0.9,0.7,0.2,-0.4,-0.8]},\"samples_per_symbol\":1,\"sample_offset\":1,\"slot_duration\":1}'",
+    "result": "{\"ok\":true,...}"
+  }
+}

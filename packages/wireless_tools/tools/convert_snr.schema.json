@@ -1,0 +1,18 @@
+{
+  "name": "convert_snr",
+  "script": "convert_snr.py",
+  "description": "在 Eb/No、Es/No、SNR 和每子载波 SNR 之间转换。",
+  "implementation": "逐公式转换自 MATLAB Communications Toolbox convertSNR 的公开 M 文件。",
+  "inputs": {
+    "x": {"type": "string", "required": true, "description": "逗号分隔的 dB 值"},
+    "input_mode": {"type": "string", "enum": ["ebno", "esno", "snr", "snrsc"], "required": true, "description": "输入类型"},
+    "output_mode": {"type": "string", "enum": ["ebno", "esno", "snr", "snrsc"], "required": false, "default": "snr", "description": "输出类型"},
+    "bits_per_symbol": {"type": "number", "required": false, "default": 1, "description": "每符号比特数"},
+    "coding_rate": {"type": "number", "required": false, "default": 1, "description": "编码率"},
+    "samples_per_symbol": {"type": "number", "required": false, "default": 1, "description": "每符号采样数"},
+    "fft_length": {"type": "integer", "required": false, "default": 64, "description": "FFT 长度"},
+    "num_active_subcarriers": {"type": "integer", "required": false, "default": 64, "description": "有效子载波数"}
+  },
+  "outputs": {"values_db": "转换后的 dB 值"},
+  "example": {"cmd": "python tools/convert_snr.py --x 6 --input_mode ebno --output_mode snr --bits_per_symbol 2", "result": "{\"values_db\":9.0102999566}"}
+}

@@ -1,0 +1,25 @@
+{
+  "name": "nr_csi_rs",
+  "description": "简化的单端口 5G NR CSI-RS QPSK 序列生成器，基于 3GPP TS 38.211 §7.4.1.5。",
+  "implementation": "nrCSIRS 子集：单端口、从 RB 0 起的连续分配；密度 0.5（仅偶数 RB）、1 或 3 的序列生成，不含资源网格索引。",
+  "script": "nr_csi_rs.py",
+  "inputs": {
+    "nid": {"type": "integer", "required": true, "description": "CSI-RS 扰码标识，0..1023"},
+    "nslot": {"type": "integer", "required": false, "default": 0, "description": "时隙号"},
+    "nsym": {"type": "integer", "required": false, "default": 0, "description": "CSI-RS OFDM 符号号"},
+    "nprb": {"type": "integer", "required": true, "description": "CSI-RS RB 数"},
+    "density": {"type": "integer", "enum": [0, 1, 3], "required": false, "default": 1, "description": "密度编码：0=0.5、1=1、3=3"}
+  },
+  "outputs": {
+    "cinit": "Gold 码初始化值",
+    "sym_real": "CSI-RS QPSK 符号实部",
+    "sym_imag": "CSI-RS QPSK 符号虚部",
+    "density": "CSI-RS 密度编码",
+    "rb_indices": "此简化子集中的零基连续分配 RB；密度 0.5 时为偶数 RB",
+    "n_re": "输出的 CSI-RS RE 数"
+  },
+  "example": {
+    "cmd": "python tools/nr_csi_rs.py --nid 10 --nprb 24 --nslot 2 --nsym 5 --density 1",
+    "result": "{\"nid\":10,\"nprb\":24,\"cinit\":...,\"sym_real\":[...],\"sym_imag\":[...]}"
+  }
+}

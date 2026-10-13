@@ -1,0 +1,61 @@
+{
+  "name": "dpsk_modulation",
+  "script": "dpsk_modulation.py",
+  "description": "差分 M-PSK 调制/硬判决解调，对应 dpskmod/dpskdemod。",
+  "implementation": "公开 M 文件算法的纯 NumPy 实现。",
+  "inputs": {
+    "mode": {
+      "type": "string",
+      "enum": [
+        "modulate",
+        "demodulate"
+      ],
+      "required": true,
+      "description": "方向"
+    },
+    "order": {
+      "type": "integer",
+      "required": true,
+      "description": "调制阶数"
+    },
+    "values": {
+      "type": "string",
+      "required": true,
+      "description": "标签或 real/imag JSON"
+    },
+    "phase_rotation": {
+      "type": "number",
+      "required": false,
+      "default": 0,
+      "description": "每符号相位旋转"
+    },
+    "symbol_order": {
+      "type": "string",
+      "enum": [
+        "binary",
+        "gray"
+      ],
+      "required": false,
+      "default": "binary",
+      "description": "符号顺序"
+    }
+  },
+  "outputs": {
+    "symbols_real": {
+      "description": "符号实部",
+      "optional": true
+    },
+    "symbols_imag": {
+      "description": "符号虚部",
+      "optional": true
+    },
+    "labels": {
+      "description": "解调标签",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/dpsk_modulation.py --mode modulate --order 4 --values 0,1,2,3",
+    "result": "{\"symbols_real\":[...]}"
+  }
+}

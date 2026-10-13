@@ -1,0 +1,67 @@
+{
+  "name": "nr_ofdm",
+  "description": "5G NR OFDM 调制/解调。将资源网格通过 IFFT 变换为时域波形，支持循环前缀。解调往返误差 < 1e-15。",
+  "implementation": "3GPP TS 38.211 §5.3，参照 MATLAB 5G Toolbox nrOFDMModulate/nrOFDMDemodulate",
+  "script": "nr_ofdm.py",
+  "inputs": {
+    "nfft": {
+      "type": "integer",
+      "required": true,
+      "description": "FFT 点数，如 128/256/512/1024"
+    },
+    "nsc": {
+      "type": "integer",
+      "required": false,
+      "description": "活跃子载波数（或用 nrb 指定）"
+    },
+    "nrb": {
+      "type": "integer",
+      "required": false,
+      "description": "资源块数（1 RB = 12 子载波），与 nsc 二选一"
+    },
+    "grid": {
+      "type": "string",
+      "required": false,
+      "description": "JSON 数组格式的复数资源网格（行优先，n_sc x n_symbols）"
+    },
+    "inverse": {
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "true=OFDM 解调（波形→资源网格）"
+    },
+    "wave": {
+      "type": "string",
+      "required": false,
+      "description": "JSON 数组格式的复数时域波形（解调方向）"
+    },
+    "nsym": {
+      "type": "integer",
+      "required": false,
+      "default": 14,
+      "description": "OFDM 符号数（默认 14 = 一个时隙）"
+    },
+    "windowing": {
+      "type": "integer",
+      "required": false,
+      "description": "升余弦窗与符号重叠采样点数；省略时使用 MATLAB 兼容默认值，0=关闭窗口"
+    }
+  },
+  "outputs": {
+    "wave_real": "时域波形实部（调制方向）",
+    "wave_imag": "时域波形虚部（调制方向）",
+    "wave_len": "波形采样点数",
+    "grid_real": {
+      "description": "资源网格实部（解调方向）",
+      "optional": true
+    },
+    "grid_imag": {
+      "description": "资源网格虚部（解调方向）",
+      "optional": true
+    }
+  },
+  "example": {
+    "cmd": "python tools/nr_ofdm.py --nfft 128 --nrb 1 --grid '[1,0,0,0,0,0,0,0,0,0,0,0]'",
+    "result": "{\"wave_real\": [0.0078125, ...], \"wave_imag\": [0.0, ...], \"wave_len\": 138}"
+  }
+}
