@@ -141,3 +141,19 @@ def test_tasks_flow():
             assert (await c.get("/api/tasks/", headers=h)).json() == []
 
     api_test(t())
+
+def test_text_encoding():
+    """GBK 编码的文本文件应正确解码，不出现乱码（Issue #15 文档查看修复）"""
+
+    async def t():
+        async with _client() as c:
+            token = (await c.post("/api/auth/guest", json={})).json()["access_token"]
+            h = {"Authorization": "Bearer " + token}
+            gbk = "信道容量公式 C=B*log2(1+SNR)".encode("gbk")
+            up = await c.post("/api/files/upload", files={"file": ("中文.txt", gbk, "text/plain")}, headers=h)
+            assert up.status_code == 201
+            fid = up.json()["id"]
+            content = await c.get(f"/api/files/{fid}/content", headers=h)
+            assert content.text == "信道容量公式 C=B*log2(1+SNR)"
+
+    api_test(t())
