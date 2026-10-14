@@ -1,0 +1,40 @@
+name: BLE simulation
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  ble-simulation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install simulation dependencies
+        run: python -m pip install -r requirements-simulation.txt
+      - name: Test simulation task API, worker, and MCP calls
+        run: python -m unittest discover -s tests -p 'test_simulation*.py' -v
+      - name: Exercise real HTTP API and worker process
+        env:
+          WIRELESS_SIM_COMMIT_SHA: ${{ github.sha }}
+        run: python scripts/smoke_ble_task_http.py
+      - name: Validate Bluetooth session and path loss
+        run: |
+          python packages/wireless_tools/scripts/validate_bluetooth_session.py
+          python packages/wireless_tools/scripts/validate_bluetooth_path_loss.py
+          python packages/wireless_tools/scripts/verify_ble_simulation_mcp.py
+      - name: Validate MCP tool catalog and calls
+        working-directory: packages/wireless_tools
+        run: python -m unittest scripts.test_mcp_server -v
+      - name: Validate Compose configuration
+        env:
+          WIRELESS_SIM_COMMIT_SHA: ${{ github.sha }}
+        run: docker compose -f infra/compose.simulation.yaml config --quiet
+      - name: Build simulation services
+        env:
+          WIRELESS_SIM_COMMIT_SHA: ${{ github.sha }}
+        run: docker compose -f infra/compose.simulation.yaml build

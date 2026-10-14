@@ -1,0 +1,7 @@
+FROM python:3.11-slim
+ARG WIRELESS_SIM_COMMIT_SHA
+LABEL org.opencontainers.image.revision="${WIRELESS_SIM_COMMIT_SHA}"
+WORKDIR /app
+COPY . /app
+RUN python -m pip install --no-cache-dir -r requirements-simulation.txt
+ENV WIRELESS_SIM_DATA_ROOT=/data PYTHONUNBUFFERED=1
