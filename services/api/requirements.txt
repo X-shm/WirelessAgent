@@ -1,0 +1,6 @@
+fastapi>=0.110
+uvicorn>=0.29
+SQLAlchemy>=2.0
+greenlet>=3.0
+aiosqlite>=0.19
+python-multipart>=0.0.9
