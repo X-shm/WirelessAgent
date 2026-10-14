@@ -79,7 +79,8 @@ class SimulationTaskTests(unittest.TestCase):
         response = self.client.post("/api/v1/simulation-tasks", json={"type": "ble_power_distance_v1"})
         self.assertEqual(response.status_code, 202, response.text)
         task_id = response.json()["id"]
-        self.assertTrue(run_once(self.store))
+        with patch.dict("os.environ", {"WIRELESS_SIM_COMMIT_SHA": "a" * 40}):
+            self.assertTrue(run_once(self.store))
         task = self.store.get(task_id)
         self.assertEqual(task["status"], "succeeded", task["error"])
         points = task["result"]["points"]
@@ -88,11 +89,36 @@ class SimulationTaskTests(unittest.TestCase):
         self.assertTrue(all(point["deliveries"] + point["drops"] == 20 for point in points))
         self.assertEqual([point["deliveries"] for point in points], [20, 20, 20, 20, 20, 0])
         self.assertEqual(task["result"]["sampled_reach_m"], 50)
+        self.assertEqual(task["result"]["code_commit_sha"], "a" * 40)
         self.assertTrue(all(a["received_power_dbm"] > b["received_power_dbm"]
                             for a, b in zip(points, points[1:])))
-        events = self.store.events(task_id, limit=200)
+        self.assertEqual(self.client.get(
+            f"/simulations/ble-coverage?task_id={task_id}").status_code, 200)
+        events = []
+        next_sequence = 0
+        while True:
+            page = self.client.get(f"/api/v1/simulation-tasks/{task_id}/events",
+                                   params={"after_sequence": next_sequence, "limit": 50}).json()
+            events.extend(page["events"])
+            if not page["events"]:
+                break
+            self.assertGreater(page["next_sequence"], next_sequence)
+            next_sequence = page["next_sequence"]
+        self.assertEqual([event["sequence"] for event in events],
+                         sorted({event["sequence"] for event in events}))
         self.assertEqual(sum(event["kind"] == "packet_event" for event in events), 120)
         self.assertTrue(task["result"]["validation"]["passed"])
+
+    def test_invalid_deployment_revision_fails_task(self) -> None:
+        response = self.client.post("/api/v1/simulation-tasks", json={
+            "type": "ble_power_distance_v1", "parameters": {"distances_m": [1, 10]}})
+        self.assertEqual(response.status_code, 202)
+        task_id = response.json()["id"]
+        with patch.dict("os.environ", {"WIRELESS_SIM_COMMIT_SHA": "not-a-commit"}):
+            self.assertTrue(run_once(self.store))
+        task = self.store.get(task_id)
+        self.assertEqual(task["status"], "failed")
+        self.assertEqual(task["error"]["code"], "VALIDATION_FAILED")
 
     def test_worker_restart_requeues_without_overwriting_attempt(self) -> None:
         task = self.store.create("ble_power_distance_v1", {

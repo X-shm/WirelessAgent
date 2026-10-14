@@ -5,6 +5,8 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import os
+import re
 import sys
 from pathlib import Path
 from typing import Any, Callable
@@ -53,6 +55,11 @@ async def run_ble_power_distance(
     tx_power = parameters["tx_power_dbm"]
     sensitivity = parameters["receiver_sensitivity_dbm"]
     packet_count = parameters["packets_per_distance"]
+    code_commit_sha = os.environ.get("WIRELESS_SIM_COMMIT_SHA")
+    if code_commit_sha is not None:
+        code_commit_sha = code_commit_sha.strip().lower()
+        _check(bool(re.fullmatch(r"[0-9a-f]{40}", code_commit_sha)),
+               "WIRELESS_SIM_COMMIT_SHA must be a 40-character Git commit SHA")
     registry_sha256 = hashlib.sha256((TOOLBOX_ROOT / "tool_registry.json").read_bytes()).hexdigest()
     server = StdioServerParameters(
         command=sys.executable,
@@ -148,7 +155,8 @@ async def run_ble_power_distance(
     reachable = [point["distance_m"] for point in points if point["deliveries"] > 0]
     return {
         "task_id": task_id, "scenario": "ble_power_distance_v1", "parameters": parameters,
-        "model": MODEL, "registry_sha256": registry_sha256, "points": points,
+        "model": MODEL, "registry_sha256": registry_sha256,
+        "code_commit_sha": code_commit_sha, "points": points,
         "sampled_reach_m": max(reachable) if reachable else None,
         "validation": {"passed": True, "checks": ["monotonic_path_loss", "packet_accounting",
             "sensitivity_threshold", "received_power_matches_session_events"]},
