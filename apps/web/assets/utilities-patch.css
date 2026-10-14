@@ -52,3 +52,4 @@
 .placeholder\:text-muted-foreground\/50::placeholder{color:hsl(var(--muted-foreground) / .5)}
 .disabled\:opacity-40:disabled{opacity:.4}
 .active\:scale-\[0\.98\]:active{transform:scale(.98)}
+.max-w-full{max-width:100%}

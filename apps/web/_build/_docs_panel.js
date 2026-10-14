@@ -34,18 +34,27 @@ function WkDocsView(){
   }, []);
   D.useEffect(() => { load(); }, [load]);
   const open = async doc => {
-    if (doc.id == null) { setViewing({ name: doc.name, text: "该记录来自本地缓存，后端未返回文档 ID，暂时无法查看内容。", loading: false }); return; }
-    setViewing({ name: doc.name, text: "", loading: true });
+    if (doc.id == null) { setViewing({ name: doc.name, kind: "text", text: "该记录来自本地缓存，后端未返回文档 ID，暂时无法查看内容。", loading: false }); return; }
+    setViewing({ name: doc.name, kind: "text", text: "", loading: true });
     try {
       const res = await WkAuth.API.fileContent(doc.id);
       if (res.ok) {
-        const text = await res.text();
-        setViewing({ name: doc.name, text: text || "（空文档）", loading: false });
+        const ct = (res.headers.get("content-type") || "").toLowerCase();
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        if (ct.startsWith("image/")) setViewing({ name: doc.name, kind: "image", url, loading: false });
+        else if (ct === "application/pdf") setViewing({ name: doc.name, kind: "pdf", url, loading: false });
+        else if (ct.startsWith("text/") || ct === "application/json" || ct === "application/xml" || ct === "text/xml") {
+          const text = await blob.text();
+          setViewing({ name: doc.name, kind: "text", text: text || "（空文档）", loading: false });
+        } else {
+          setViewing({ name: doc.name, kind: "download", url, loading: false });
+        }
       } else {
-        setViewing({ name: doc.name, text: "查看失败（HTTP " + res.status + "），后端 /api/files/{id}/content 可能尚未提供。", loading: false });
+        setViewing({ name: doc.name, kind: "text", text: "查看失败（HTTP " + res.status + "），后端 /api/files/{id}/content 可能尚未提供。", loading: false });
       }
     } catch (e) {
-      setViewing({ name: doc.name, text: "无法连接服务器，暂时无法查看文档内容。", loading: false });
+      setViewing({ name: doc.name, kind: "text", text: "无法连接服务器，暂时无法查看文档内容。", loading: false });
     }
   };
   return T.jsxs("div",{className:"flex-1 flex flex-col min-w-0",children:[
@@ -77,7 +86,7 @@ function WkDocsView(){
         T.jsx("p",{className:"flex-1 min-w-0 text-sm font-medium text-foreground truncate",children:viewing.name}),
         T.jsx("button",{type:"button",onClick:()=>setViewing(null),className:"p-1.5 rounded-lg text-muted-foreground/40 hover:text-red-400 hover:bg-red-50 transition-all",children:T.jsx(WkClose,{className:"w-4 h-4"})})
       ]}),
-      T.jsx("div",{className:"flex-1 overflow-y-auto p-5 text-sm text-muted-foreground whitespace-pre-wrap",children:viewing.loading ? "加载中…" : viewing.text})
+      viewing.kind === "image" ? T.jsx("div",{className:"flex-1 overflow-y-auto p-5",children:T.jsx("img",{src:viewing.url,className:"max-w-full mx-auto",alt:viewing.name})}) : viewing.kind === "pdf" ? T.jsx("iframe",{src:viewing.url,className:"flex-1 w-full",title:viewing.name,style:{border:0,minHeight:420}}) : viewing.kind === "download" ? T.jsxs("div",{className:"flex-1 overflow-y-auto p-5 text-sm text-muted-foreground space-y-3",children:[T.jsx("p",{children:"该文件是二进制/文档格式（如 Word），暂不支持在线预览。"}),T.jsxs("a",{href:viewing.url,download:viewing.name,className:"inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-sunset-500 hover:bg-sunset-600 text-white text-sm transition-all",children:[T.jsx(WkFileText,{className:"w-4 h-4"}),"下载查看"]})]}) : T.jsx("div",{className:"flex-1 overflow-y-auto p-5 text-sm text-muted-foreground whitespace-pre-wrap",children:viewing.loading ? "加载中…" : viewing.text})
     ]})})
   ]});
 }
