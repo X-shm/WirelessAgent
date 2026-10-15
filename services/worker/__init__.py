@@ -1,1 +1,0 @@
-"""Persistent simulation task worker."""

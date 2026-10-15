@@ -1,96 +1,142 @@
-"""Single-consumer persistent queue worker for BLE simulation tasks."""
-
-from __future__ import annotations
-
+"""Single-consumer worker that executes queued tasks from the shared database."""
 import argparse
 import asyncio
-import os
 import sys
-import time
 import traceback
+from datetime import datetime, timezone
 from pathlib import Path
 
-from packages.agent.ble_coverage import SimulationFailure, run_ble_power_distance
-from services.api.store import TaskStore
+ROOT = Path(__file__).resolve().parents[2]
+API_DIR = ROOT / "services" / "api"
+if str(API_DIR) not in sys.path:
+    sys.path.insert(0, str(API_DIR))
+
+from app.config import settings  # noqa: E402
+from app.database import async_session, engine  # noqa: E402
+from app.models.base import Base  # noqa: E402
+from app.models.task import Task  # noqa: E402
+from app.task_status import TaskStatus  # noqa: E402
+from sqlalchemy import select  # noqa: E402
+
+from .handlers import REGISTRY  # noqa: E402
 
 
-TEAM_ROOT = Path(__file__).resolve().parents[2]
+def _now():
+    return datetime.now(timezone.utc)
 
 
-def data_root() -> Path:
-    return Path(os.environ.get("WIRELESS_SIM_DATA_ROOT", str(TEAM_ROOT / ".runtime")))
+async def ensure_schema():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
 
-async def _keep_heartbeat(store: TaskStore, stopped: asyncio.Event) -> None:
-    while not stopped.is_set():
-        store.heartbeat()
-        try:
-            await asyncio.wait_for(stopped.wait(), timeout=5)
-        except TimeoutError:
-            pass
+async def _claim_next():
+    async with async_session() as db:
+        row = (
+            await db.execute(
+                select(Task).where(Task.status == TaskStatus.queued.value).order_by(Task.created_at).limit(1)
+            )
+        ).scalar_one_or_none()
+        if row is None:
+            return None
+        row.status = TaskStatus.running.value
+        row.started_at = _now()
+        row.updated_at = _now()
+        await db.commit()
+        await db.refresh(row)
+        return row
 
 
-async def _execute(store: TaskStore, task: dict) -> None:
-    task_id = task["id"]
-    attempt_dir = store.root / "tasks" / task_id / f"attempt_{task['attempt']:03d}"
-
-    def emit(kind: str, payload: dict) -> None:
-        store.event(task_id, kind, payload)
-        store.heartbeat()
-
-    def progress(percent: int, payload: dict) -> None:
-        store.progress(task_id, percent, payload)
-        store.heartbeat()
-
-    stopped = asyncio.Event()
-    heartbeat_task = asyncio.create_task(_keep_heartbeat(store, stopped))
-    try:
-        if task["type"] != "ble_power_distance_v1":
-            raise SimulationFailure("UNSUPPORTED_TASK", f"unsupported task type: {task['type']}")
-        result = await run_ble_power_distance(task_id, task["parameters"], attempt_dir, emit, progress)
-    except Exception as exc:
-        cause = exc
-        while isinstance(cause, ExceptionGroup) and cause.exceptions:
-            cause = cause.exceptions[0]
-        if isinstance(cause, SimulationFailure):
-            store.finish(task_id, error={"code": cause.code, "message": str(cause)})
-        else:
-            traceback.print_exc()
-            store.finish(task_id, error={"code": "EXECUTION_FAILED", "message": str(cause)})
-    else:
-        store.finish(task_id, result=result)
-    finally:
-        stopped.set()
-        await heartbeat_task
+async def _is_cancelled(task_id: str) -> bool:
+    async with async_session() as db:
+        row = await db.get(Task, task_id)
+        return row is not None and row.status == TaskStatus.cancelled.value
 
 
-def run_once(store: TaskStore) -> bool:
-    store.heartbeat()
-    task = store.claim_next()
-    if task is None:
-        return False
-    asyncio.run(_execute(store, task))
-    return True
+async def _update(task_id: str, *, progress=None, stage=None):
+    async with async_session() as db:
+        row = await db.get(Task, task_id)
+        if row is None:
+            return
+        if progress is not None:
+            row.progress = progress
+        if stage is not None:
+            row.stage = stage
+        row.updated_at = _now()
+        await db.commit()
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="WirelessAgent simulation worker")
-    parser.add_argument("--once", action="store_true", help="run at most one queued task")
-    parser.add_argument("--healthcheck", action="store_true", help="exit nonzero if heartbeat is stale")
-    parser.add_argument("--poll-interval", type=float, default=1.0)
-    args = parser.parse_args()
-    if args.poll_interval <= 0:
-        parser.error("--poll-interval must be positive")
-    store = TaskStore(data_root())
-    if args.healthcheck:
-        sys.exit(0 if store.worker_alive() else 1)
-    store.requeue_interrupted()
-    if args.once:
-        run_once(store)
+async def _execute(task: Task):
+    handler = REGISTRY.get(task.type)
+    if handler is None:
+        async with async_session() as db:
+            row = await db.get(Task, task.id)
+            if row is not None:
+                row.status = TaskStatus.failed.value
+                row.error = f"unsupported task type: {task.type}"
+                row.finished_at = _now()
+                row.updated_at = _now()
+                await db.commit()
         return
-    while True:
-        if not run_once(store):
-            time.sleep(args.poll_interval)
+
+    async def update_progress(percent, stage):
+        await _update(task.id, progress=percent, stage=stage)
+
+    try:
+        result = await handler(task.id, task.parameters or {}, update_progress, _is_cancelled)
+    except asyncio.CancelledError:
+        result, status_value, error = None, TaskStatus.cancelled.value, None
+    except Exception as exc:  # noqa: BLE001
+        traceback.print_exc()
+        result, status_value, error = None, TaskStatus.failed.value, str(exc)
+    else:
+        if await _is_cancelled(task.id):
+            result, status_value, error = None, TaskStatus.cancelled.value, None
+        else:
+            status_value, error = TaskStatus.succeeded.value, None
+
+    async with async_session() as db:
+        row = await db.get(Task, task.id)
+        if row is not None:
+            row.status = status_value
+            if status_value == TaskStatus.succeeded.value:
+                row.progress = 100
+            row.result = result
+            row.error = error
+            row.finished_at = _now()
+            row.updated_at = _now()
+            await db.commit()
+
+
+async def run_once() -> bool:
+    try:
+        task = await _claim_next()
+        if task is None:
+            return False
+        await _execute(task)
+        return True
+    except Exception:  # noqa: BLE001
+        traceback.print_exc()
+        return False
+
+
+def main():
+    parser = argparse.ArgumentParser(description="WirelessAgent task worker")
+    parser.add_argument("--once", action="store_true", help="run at most one queued task")
+    parser.add_argument("--poll-interval", type=float, default=None)
+    args = parser.parse_args()
+    interval = args.poll_interval if args.poll_interval is not None else settings.task_poll_interval
+
+    async def loop():
+        await ensure_schema()
+        if args.once:
+            await run_once()
+            return
+        while True:
+            if not await run_once():
+                await asyncio.sleep(interval)
+
+    asyncio.run(loop())
 
 
 if __name__ == "__main__":
