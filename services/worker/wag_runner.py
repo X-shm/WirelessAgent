@@ -11,14 +11,14 @@ API_DIR = ROOT / "services" / "api"
 if str(API_DIR) not in sys.path:
     sys.path.insert(0, str(API_DIR))
 
-from app.config import settings  # noqa: E402
-from app.database import async_session, engine  # noqa: E402
-from app.models.base import Base  # noqa: E402
-from app.models.task import Task  # noqa: E402
-from app.task_status import TaskStatus  # noqa: E402
+from wag.config import settings  # noqa: E402
+from wag.database import async_session, engine  # noqa: E402
+from wag.models.base import Base  # noqa: E402
+from wag.models.task import Task  # noqa: E402
+from wag.task_status import TaskStatus  # noqa: E402
 from sqlalchemy import select  # noqa: E402
 
-from .handlers import REGISTRY  # noqa: E402
+from .wag_handlers import REGISTRY  # noqa: E402
 
 
 def _now():

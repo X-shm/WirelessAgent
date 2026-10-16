@@ -1,7 +1,5 @@
 """Task handler registry for the background worker."""
 import asyncio
-import uuid
-from pathlib import Path
 
 
 async def demo_echo(task_id, parameters, update_progress, is_cancelled):
@@ -25,23 +23,21 @@ async def demo_countdown(task_id, parameters, update_progress, is_cancelled):
 async def ble_power_distance_v1(task_id, parameters, update_progress, is_cancelled):
     """BLE 功率-距离扫描（继承自原 BLE 切片，依赖 packages.agent.ble_coverage）。
 
-    注意：目录不能预先创建——run_ble_power_distance 内部用 exist_ok=False 自己创建。
+    本处理器未在本机单独验证（该包随 main 存在）；合并后需在预发环境跑一次验证。
     """
+    from pathlib import Path
+
     try:
         from packages.agent.ble_coverage import run_ble_power_distance
     except Exception as exc:  # noqa: BLE001
         raise RuntimeError(f"BLE 仿真能力不可用（packages.agent.ble_coverage 未安装）：{exc}")
 
     loop = asyncio.get_running_loop()
-    attempt_dir = Path(".runtime") / "tasks" / task_id / f"attempt_{uuid.uuid4().hex[:8]}"
+    attempt_dir = Path(".runtime") / "tasks" / task_id / "attempt_000"
+    attempt_dir.mkdir(parents=True, exist_ok=True)
 
     def progress(percent, payload):
-        stage = None
-        if isinstance(payload, dict):
-            done = payload.get("completed_points")
-            total = payload.get("total_points")
-            if done is not None and total:
-                stage = f"{done}/{total} 点"
+        stage = payload.get("stage") if isinstance(payload, dict) else None
         loop.create_task(update_progress(int(percent), stage))
 
     result = await run_ble_power_distance(

@@ -2,7 +2,7 @@
 import asyncio
 import uuid
 
-from services.worker import runner
+from services.worker import wag_runner
 
 
 def _register(client, email):
@@ -110,7 +110,7 @@ def test_task_lifecycle_and_worker(client):
     assert r.json()["status"] == "queued"
 
     for _ in range(30):
-        if not asyncio.run(runner.run_once()):
+        if not asyncio.run(wag_runner.run_once()):
             break
         t = client.get(f"/api/tasks/{tid}", headers=_auth(token)).json()
         if t["status"] in ("succeeded", "failed", "cancelled"):

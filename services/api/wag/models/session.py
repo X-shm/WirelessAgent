@@ -3,10 +3,10 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from app.models.base import Base, utcnow, new_uuid
+from wag.models.base import Base, utcnow, new_uuid
 
 if TYPE_CHECKING:
-    from app.models.message import Message
+    from wag.models.message import Message
 
 
 class Session(Base):

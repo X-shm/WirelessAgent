@@ -4,11 +4,11 @@ from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import get_db
-from app.deps import get_owned
-from app.models.message import Message
-from app.models.project import Project
-from app.models.session import Session
+from wag.database import get_db
+from wag.deps import get_owned
+from wag.models.message import Message
+from wag.models.project import Project
+from wag.models.session import Session
 
 router = APIRouter(prefix="/api/sessions", tags=["sessions"])
 

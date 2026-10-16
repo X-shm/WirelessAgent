@@ -6,12 +6,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
-from app.config import settings
-from app.database import engine
-from app.limiter import limiter
-from app.middleware.auth import auth_middleware
-from app.models.base import Base
-from app.routes import auth, projects, session, tasks
+from wag.config import settings
+from wag.database import engine
+from wag.limiter import limiter
+from wag.middleware.auth import auth_middleware
+from wag.models.base import Base
+from wag.routes import auth, projects, session, tasks
 
 
 @asynccontextmanager

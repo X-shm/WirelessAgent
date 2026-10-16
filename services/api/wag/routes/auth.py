@@ -9,9 +9,9 @@ from pydantic import BaseModel, EmailStr
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config import settings
-from app.database import get_db
-from app.models.user import User
+from wag.config import settings
+from wag.database import get_db
+from wag.models.user import User
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 

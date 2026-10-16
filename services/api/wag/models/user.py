@@ -2,7 +2,7 @@
 from datetime import datetime
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
-from app.models.base import Base, utcnow, new_uuid
+from wag.models.base import Base, utcnow, new_uuid
 
 
 class User(Base):

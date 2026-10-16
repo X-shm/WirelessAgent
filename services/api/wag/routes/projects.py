@@ -4,11 +4,11 @@ from pydantic import BaseModel
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import get_db
-from app.deps import get_owned
-from app.models.project import Project
-from app.models.session import Session
-from app.models.task import Task
+from wag.database import get_db
+from wag.deps import get_owned
+from wag.models.project import Project
+from wag.models.session import Session
+from wag.models.task import Task
 
 router = APIRouter(prefix="/api/projects", tags=["projects"])
 

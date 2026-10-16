@@ -2,7 +2,7 @@
 from fastapi import Request, status
 from fastapi.responses import JSONResponse
 from jose import jwt, JWTError
-from app.config import settings
+from wag.config import settings
 
 PUBLIC_PATHS = {
     "/api/auth/guest",

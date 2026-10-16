@@ -6,11 +6,11 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import get_db
-from app.deps import get_owned
-from app.models.project import Project
-from app.models.task import Task
-from app.task_status import TERMINAL, TaskStatus, ensure_transition
+from wag.database import get_db
+from wag.deps import get_owned
+from wag.models.project import Project
+from wag.models.task import Task
+from wag.task_status import TERMINAL, TaskStatus, ensure_transition
 
 router = APIRouter(prefix="/api/tasks", tags=["tasks"])
 

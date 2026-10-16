@@ -3,7 +3,7 @@ import enum
 from datetime import datetime
 from sqlalchemy import JSON, Enum, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from app.models.base import Base, utcnow, new_uuid
+from wag.models.base import Base, utcnow, new_uuid
 
 
 class MessageRole(str, enum.Enum):

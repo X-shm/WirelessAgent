@@ -17,7 +17,7 @@ os.environ["SECRET_KEY"] = "test-secret-key"
 import pytest
 from fastapi.testclient import TestClient
 
-from app.main import app
+from wag.main import app
 
 
 @pytest.fixture(scope="session")
