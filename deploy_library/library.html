@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>资料库 · WirelessAgent</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f6f2ea;font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;color:#1f2937}
+a{color:#ff7b42}
+.login{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center}
+.login .card{background:#fff;border:1px solid #eee4d6;border-radius:16px;padding:40px;box-shadow:0 6px 24px rgba(0,0,0,.06)}
+header{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;background:#fff;border-bottom:1px solid #eee4d6}
+header h1{font-size:20px;margin:0}
+main{max-width:860px;margin:24px auto;padding:0 20px}
+.up{display:block;border:2px dashed #e5d8c3;border-radius:16px;padding:30px;text-align:center;cursor:pointer;background:#fff;margin-bottom:18px}
+.up:hover{border-color:#ff7b42}
+.list{display:flex;flex-direction:column;gap:10px}
+.item{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #eee4d6;border-radius:12px;padding:12px 16px}
+.item .ic{width:36px;height:36px;border-radius:10px;background:#fef3ec;color:#ff7b42;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.item .meta{flex:1;min-width:0}
+.item .name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .sub{font-size:12px;color:#9ca3af;margin-top:2px}
+button{border:0;background:#fff;border:1px solid #e5e0d8;border-radius:9px;padding:6px 12px;font-size:12px;cursor:pointer;color:#374151}
+button.primary{background:#ff7b42;color:#fff;border-color:#ff7b42}
+button.danger{color:#dc2626;border-color:#fecaca}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:99}
+.overlay .box{background:#fff;border-radius:16px;width:min(920px,92vw);height:min(85vh,90vh);display:flex;flex-direction:column;overflow:hidden}
+.overlay .bar{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid #eee4d6}
+.overlay .body{flex:1;overflow:auto;padding:16px;background:#fff}
+.overlay iframe,.overlay img{width:100%;height:100%;border:0}
+pre{white-space:pre-wrap;word-break:break-all;font-family:ui-monospace,Consolas,monospace;font-size:13px}
+.empty{color:#9ca3af;text-align:center;padding:40px}
+</style>
+</head>
+<body>
+
+<div id="loginView" class="login" style="display:none">
+  <div class="card">
+    <h1>资料库</h1>
+    <p style="color:#6b7280;font-size:14px">请先登录后使用</p>
+    <a href="/login"><button class="primary" style="padding:10px 24px;font-size:14px">去登录</button></a>
+  </div>
+</div>
+
+<div id="appView">
+  <header>
+    <h1>📁 资料库</h1>
+    <button onclick="logout()">退出登录</button>
+  </header>
+  <main>
+    <label class="up" for="fileInput">
+      点击上传文件（支持多选、任意格式）
+      <input id="fileInput" type="file" multiple style="display:none">
+    </label>
+    <div id="list" class="list"></div>
+  </main>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="box">
+    <div class="bar"><b id="pName"></b>
+      <div>
+        <button class="primary" onclick="downloadCurrent()">下载</button>
+        <button onclick="closePreview()">关闭</button>
+      </div>
+    </div>
+    <div class="body" id="pBody"></div>
+  </div>
+</div>
+
+<script>
+var token = localStorage.getItem('token') || '';
+var curFile = null;
+
+function auth(){ return token ? {'Authorization':'Bearer '+token} : {}; }
+function showLogin(){ document.getElementById('loginView').style.display='flex'; document.getElementById('appView').style.display='none'; }
+function showApp(){ document.getElementById('loginView').style.display='none'; document.getElementById('appView').style.display='block'; load(); }
+function logout(){ localStorage.removeItem('token'); localStorage.removeItem('user'); location.reload(); }
+function esc(s){ var d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+function extOf(name){ return (name.split('.').pop()||'').toLowerCase(); }
+function fmtSize(n){ if(n<1024)return n+' B'; if(n<1048576)return (n/1024).toFixed(1)+' KB'; return (n/1048576).toFixed(1)+' MB'; }
+
+async function fetchBlob(path){
+  var r = await fetch(path, {headers:auth()});
+  if(r.status===401){ showLogin(); return null; }
+  if(!r.ok){ return null; }
+  return await r.blob();
+}
+
+async function load(){
+  var r = await fetch('/api/files/', {headers:auth()});
+  if(r.status===401){ showLogin(); return; }
+  var files = await r.json();
+  var el = document.getElementById('list');
+  if(!Array.isArray(files) || files.length===0){ el.innerHTML='<div class="empty">暂无文件，点击上方上传</div>'; return; }
+  el.innerHTML = files.map(function(f){
+    var ext = (f.filename.split('.').pop()||'').toUpperCase();
+    return '<div class="item"><div class="ic">'+esc(ext.slice(0,4))+'</div>'+
+      '<div class="meta"><div class="name">'+esc(f.filename)+'</div><div class="sub">'+fmtSize(f.size)+' · '+esc(f.created_at.replace('T',' ').slice(0,19))+'</div></div>'+
+      '<button class="primary" onclick="preview(\''+f.id+'\',\''+esc(f.filename)+'\')">预览</button>'+
+      '<button onclick="downloadFile(\''+f.id+'\',\''+esc(f.filename)+'\')">下载</button>'+
+      '<button class="danger" onclick="del(\''+f.id+'\')">删除</button></div>';
+  }).join('');
+}
+
+async function preview(id, name){
+  curFile = {id:id, name:name};
+  var ext = extOf(name);
+  var path = '/api/files/'+id+'/content';
+  var body = document.getElementById('pBody');
+  var overlay = document.getElementById('overlay');
+  document.getElementById('pName').textContent = name;
+  body.innerHTML = '加载中…';
+  overlay.style.display = 'flex';
+
+  var TEXT = ['txt','md','csv','json','xml','log','py','js','html','css','yaml','yml'];
+  var IMG = ['png','jpg','jpeg','gif','webp','bmp','svg'];
+  var AUDIO = ['mp3','wav','m4a','ogg','flac'];
+  var VIDEO = ['mp4','webm','mov','mkv'];
+
+  if(TEXT.includes(ext)){
+    var r = await fetch(path, {headers:auth()});
+    if(r.status===401){ showLogin(); return; }
+    var t = await r.text();
+    body.innerHTML = '<pre>'+esc(t)+'</pre>';
+  } else if(IMG.includes(ext) || ext==='pdf' || AUDIO.includes(ext) || VIDEO.includes(ext) || ['doc','docx','xls','xlsx','ppt','pptx','rtf','odt','ods','odp'].includes(ext)){
+    var blob = await fetchBlob(path);
+    if(!blob){ body.innerHTML = '预览失败，请下载查看'; return; }
+    var url = URL.createObjectURL(blob);
+    if(IMG.includes(ext)){ body.innerHTML = '<img src="'+url+'">'; }
+    else if(AUDIO.includes(ext)){ body.innerHTML = '<audio controls style="width:100%"><source src="'+url+'"></audio>'; }
+    else if(VIDEO.includes(ext)){ body.innerHTML = '<video controls style="width:100%"><source src="'+url+'"></video>'; }
+    else { body.innerHTML = '<iframe src="'+url+'"></iframe>'; }
+    curFile.url = url;
+  } else {
+    body.innerHTML = '该格式不支持在线预览，请点击上方“下载”。';
+  }
+}
+
+async function downloadFile(id, name){
+  var blob = await fetchBlob('/api/files/'+id+'/download');
+  if(!blob){ alert('下载失败'); return; }
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 10000);
+}
+
+function downloadCurrent(){
+  if(curFile && curFile.id){ downloadFile(curFile.id, curFile.name); }
+}
+
+function closePreview(){
+  if(curFile && curFile.url){ URL.revokeObjectURL(curFile.url); }
+  document.getElementById('overlay').style.display='none';
+}
+
+async function del(id){
+  if(!confirm('确定删除该文件？')) return;
+  await fetch('/api/files/'+id, {method:'DELETE', headers:auth()});
+  load();
+}
+
+document.getElementById('fileInput').addEventListener('change', async function(e){
+  var files = Array.from(e.target.files || []);
+  if(files.length===0) return;
+  for(var f of files){
+    var fd = new FormData(); fd.append('file', f);
+    try{
+      var r = await fetch('/api/files/upload', {method:'POST', headers:auth(), body:fd});
+      if(r.status===401){ showLogin(); return; }
+      if(!r.ok){ alert('上传失败：'+f.name+'（HTTP '+r.status+'）'); }
+    }catch(err){ alert('上传出错：'+f.name+'（'+err.message+'）'); }
+  }
+  e.target.value = '';
+  load();
+});
+
+if(token){ showApp(); } else { showLogin(); }
+</script>
+</body>
+</html>
