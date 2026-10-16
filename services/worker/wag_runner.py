@@ -22,7 +22,7 @@ from .wag_handlers import REGISTRY  # noqa: E402
 
 
 def _now():
-    return datetime.now(timezone.utc)
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 async def ensure_schema():

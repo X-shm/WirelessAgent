@@ -16,7 +16,7 @@ router = APIRouter(prefix="/api/tasks", tags=["tasks"])
 
 
 def _now():
-    return datetime.now(timezone.utc)
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 class TaskCreate(BaseModel):
