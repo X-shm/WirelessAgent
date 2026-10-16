@@ -97,6 +97,9 @@ def main() -> int:
         if "_bluetooth_common" in source:
             common_source = (TOOLS / "_bluetooth_common.py").read_text(encoding="utf-8")
             flags.update(match[2:] for match in FLAG_RE.findall(common_source))
+        if "from _nr_remaining_common import" in source and "run_cli(" in source:
+            common_source = (TOOLS / "_nr_remaining_common.py").read_text(encoding="utf-8")
+            flags.update(match[2:] for match in FLAG_RE.findall(common_source))
         check_inputs(errors, name, "schema", schema.get("inputs", {}), flags)
 
         subcommands = schema.get("subcommands", {})

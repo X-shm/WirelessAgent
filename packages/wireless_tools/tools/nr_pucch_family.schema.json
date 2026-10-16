@@ -1,0 +1,43 @@
+{
+  "name": "nr_pucch_family",
+  "script": "nr_pucch_family.py",
+  "description": "独立 Python 单 RB PUCCH 0..4 基本调制、资源、DM-RS 与无噪声解调子集；不覆盖完整频跳、码本和 UCI 编码。",
+  "implementation": "Standalone NumPy implementation; explicit limited coverage in tool_registry.json.",
+  "inputs": {
+    "function": {
+      "type": "enum",
+      "enum": [
+        "nrPUCCH",
+        "nrPUCCH0",
+        "nrPUCCH1",
+        "nrPUCCH2",
+        "nrPUCCH3",
+        "nrPUCCH4",
+        "nrPUCCHDecode",
+        "nrPUCCHDMRS",
+        "nrPUCCHDMRSIndices",
+        "nrPUCCHHoppingInfo",
+        "nrPUCCHIndices"
+      ],
+      "required": true,
+      "description": "MATLAB 5G Toolbox 入口名"
+    },
+    "params": {
+      "type": "string",
+      "required": true,
+      "description": "JSON 对象字符串。nrPUCCH: format_number,uci_bits 或 ack,sr,nid,initial_cs,nrb,num_symbols；格式 0: ack,sr,nid,initial_cs,num_symbols；格式 1: uci_bits,nid,initial_cs,num_symbols；格式 2..4: 已编码 uci_bits,nid,nrb,num_symbols；Decode: symbols,format_number,nid,initial_cs,num_symbols,noise_variance；格式 0 解码另可设 ack_bits,allow_sr；Indices/DMRSIndices: nrb,rb,symbol_start,num_symbols,format_number,index_base；DMRS: nid,nrb,num_symbols,format_number,initial_cs；HoppingInfo: nid,slot,initial_cs。"
+    }
+  },
+  "outputs": {
+    "function": {
+      "description": "调用的 MATLAB 入口名"
+    },
+    "result": {
+      "description": "该入口的结构化计算结果"
+    }
+  },
+  "example": {
+    "cmd": "python tools/nr_pucch_family.py --function nrPUCCH0 --params '{\"ack\":[1]}'",
+    "result": "按入口参数返回 JSON 对象；缺失必需参数时返回 error"
+  }
+}

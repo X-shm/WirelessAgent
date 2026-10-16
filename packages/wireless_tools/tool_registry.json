@@ -929,6 +929,141 @@
       "schema": "tools/nr_transform.schema.json"
     },
     {
+      "name": "nr_bch_codec",
+      "source_functions": [
+        "nrBCH",
+        "nrBCHDecode"
+      ],
+      "product": "5G Toolbox",
+      "status": "pending_validation",
+      "coverage": "独立 Python BCH 32 位载荷交织、Gold 扰码、CRC24C、Polar 编码与 SC(L=1) 解码，固定 864 位码字。",
+      "schema": "tools/nr_bch_codec.schema.json"
+    },
+    {
+      "name": "nr_channel_models",
+      "source_functions": [
+        "nrTDLChannel",
+        "nrCDLChannel",
+        "nrHSTChannel",
+        "nrPathLoss",
+        "nrPerfectChannelEstimate",
+        "nrPhaseNoise"
+      ],
+      "product": "5G Toolbox",
+      "status": "pending_validation",
+      "coverage": "独立 Python 显式路径信道子集；不包含 MATLAB 预设 TDL/CDL/HST 配置和相位噪声多极点模型。",
+      "schema": "tools/nr_channel_models.schema.json"
+    },
+    {
+      "name": "nr_control_codec",
+      "source_functions": [
+        "nrDCIDecode",
+        "nrUCIEncode",
+        "nrUCIDecode"
+      ],
+      "product": "5G Toolbox",
+      "status": "pending_validation",
+      "coverage": "独立 Python 控制信息 Polar 编解码。DCI 使用 SC(L=1) 和 CRC24C；UCI 支持 12..1012 位未分段 Polar 分支及上行三角交织。",
+      "schema": "tools/nr_control_codec.schema.json"
+    },
+    {
+      "name": "nr_csi_resources",
+      "source_functions": [
+        "nrCSIMeasurementsSRS",
+        "nrCSIReportCSIRS",
+        "nrCSIRSIndices",
+        "nrCSIRSMeasurements"
+      ],
+      "product": "5G Toolbox",
+      "status": "pending_validation",
+      "coverage": "独立 Python 单端口 CSI 资源及宽带质量估计子集；CQI 为 Shannon 界近似，不等同 MATLAB 的完整码本报告。",
+      "schema": "tools/nr_csi_resources.schema.json"
+    },
+    {
+      "name": "nr_pdcch_resources",
+      "source_functions": [
+        "nrPDCCHResources",
+        "nrPDCCHSpace"
+      ],
+      "product": "5G Toolbox",
+      "status": "pending_validation",
+      "coverage": "独立 Python 单符号、非交织 CORESET 资源映射；每 CCE 为 6 REG，每 REG 为 9 数据 RE 加 3 DM-RS RE。",
+      "schema": "tools/nr_pdcch_resources.schema.json"
+    },
+    {
+      "name": "nr_prach_family",
+      "source_functions": [
+        "nrPRACH",
+        "nrPRACHDetect",
+        "nrPRACHGrid",
+        "nrPRACHIndices",
+        "nrPRACHOFDMInfo",
+        "nrPRACHOFDMModulate"
+      ],
+      "product": "5G Toolbox",
+      "status": "pending_validation",
+      "coverage": "独立 Python 单个 PRACH 时频机会处理；支持 139/839 点 Zadoff-Chu 序列，显式物理根序号及循环移位。",
+      "schema": "tools/nr_prach_family.schema.json"
+    },
+    {
+      "name": "nr_ptrs_family",
+      "source_functions": [
+        "nrPDSCHPTRS",
+        "nrPDSCHPTRSIndices",
+        "nrPUSCHPTRS",
+        "nrPUSCHPTRSIndices"
+      ],
+      "product": "5G Toolbox",
+      "status": "pending_validation",
+      "coverage": "独立 Python 单端口、无变换预编码 PT-RS 子集；需要显式给出 RB、DM-RS 符号与时频密度。",
+      "schema": "tools/nr_ptrs_family.schema.json"
+    },
+    {
+      "name": "nr_pucch_family",
+      "source_functions": [
+        "nrPUCCH",
+        "nrPUCCH0",
+        "nrPUCCH1",
+        "nrPUCCH2",
+        "nrPUCCH3",
+        "nrPUCCH4",
+        "nrPUCCHDecode",
+        "nrPUCCHDMRS",
+        "nrPUCCHDMRSIndices",
+        "nrPUCCHHoppingInfo",
+        "nrPUCCHIndices"
+      ],
+      "product": "5G Toolbox",
+      "status": "pending_validation",
+      "coverage": "独立 Python 单 RB PUCCH 0..4 基本调制、资源、DM-RS 与无噪声解调子集；不覆盖完整频跳、码本和 UCI 编码。",
+      "schema": "tools/nr_pucch_family.schema.json"
+    },
+    {
+      "name": "nr_sch_transport",
+      "source_functions": [
+        "nrDLSCHDecoder",
+        "nrULSCH",
+        "nrULSCHDecoder",
+        "nrULSCHDemultiplex",
+        "nrULSCHMultiplex"
+      ],
+      "product": "5G Toolbox",
+      "status": "pending_validation",
+      "coverage": "独立 Python 单 LDPC 码块共享信道子集；复用现有 CRC/LDPC 并显式处理 filler、速率匹配。UCI 复用仅支持显式插入位置。",
+      "schema": "tools/nr_sch_transport.schema.json"
+    },
+    {
+      "name": "nr_waveform_io",
+      "source_functions": [
+        "nrWaveformAnalyzer",
+        "nrWaveformGenerator"
+      ],
+      "product": "5G Toolbox",
+      "status": "pending_validation",
+      "coverage": "独立 Python 单 numerology 资源网格 OFDM 波形生成和分析子集；分析器返回资源网格、PAPR 与频谱。",
+      "schema": "tools/nr_waveform_io.schema.json"
+    },
+    {
       "name": "wlan_bcc",
       "source_functions": [
         "wlanBCCEncode",

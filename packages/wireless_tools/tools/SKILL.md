@@ -2,7 +2,7 @@
 name: wireless-toolbox
 description: |
   注册表驱动的无线通信工具目录，覆盖 5G NR、LTE、WLAN、通用通信、无线网络和优化工作流。
-  当前登记 166 个工具；调用前按 tool_registry.json 的状态、覆盖范围和 schema 选择。
+  当前登记 176 个工具；调用前按 tool_registry.json 的状态、覆盖范围和 schema 选择。
 user-invocable: true
 ---
 
@@ -24,7 +24,7 @@ user-invocable: true
 | 产品/领域 | 工具数 | 注册状态分布 |
 |---|---:|---|
 | LTE Toolbox | 37 | `validated`: 5，`independent_validated`: 32 |
-| 5G Toolbox | 48 | `validated`: 20，`independent_validated`: 28 |
+| 5G Toolbox | 58 | `validated`: 20，`independent_validated`: 28，`pending_validation`: 10 |
 | WLAN Toolbox | 9 | `validated`: 4，`independent_validated`: 5 |
 | Bluetooth Toolbox | 26 | `validated`: 26 |
 | Communications Toolbox | 30 | `independent_validated`: 30 |
@@ -76,14 +76,18 @@ user-invocable: true
 | `lte_ul_precode` | `lteULPrecode`<br>`lteULDeprecode` | `independent_validated` | PRB/subcarrier normalized block DFT and inverse | `tools/lte_ul_precode.schema.json` |
 | `lte_ul_scrambling` | `lteULScramble`<br>`lteULDescramble` | `independent_validated` | transport data without UCI placeholders | `tools/lte_ul_scrambling.schema.json` |
 
-### 5G Toolbox（48）
+### 5G Toolbox（58）
 
 | 工具 | 注册源函数 | 注册状态 | 覆盖范围 | Schema |
 |---|---|---|---|---|
+| `nr_bch_codec` | `nrBCH`<br>`nrBCHDecode` | `pending_validation` | 独立 Python BCH 32 位载荷交织、Gold 扰码、CRC24C、Polar 编码与 SC(L=1) 解码，固定 864 位码字。 | `tools/nr_bch_codec.schema.json` |
 | `nr_channel_estimate` | `nrChannelEstimate` | `independent_validated` | Single reference port, one normal/extended-CP slot, sparse least-squares estimate with Interpolation=off and CDMLengths=[1,1]; interpolation, CDM despreading and PRG noise estimates are not included | `tools/nr_channel_estimate.schema.json` |
+| `nr_channel_models` | `nrTDLChannel`<br>`nrCDLChannel`<br>`nrHSTChannel`<br>`nrPathLoss`<br>`nrPerfectChannelEstimate`<br>`nrPhaseNoise` | `pending_validation` | 独立 Python 显式路径信道子集；不包含 MATLAB 预设 TDL/CDL/HST 配置和相位噪声多极点模型。 | `tools/nr_channel_models.schema.json` |
 | `nr_channel_prbs` | `nrPBCHPRBS`<br>`nrPDSCHPRBS`<br>`nrPUSCHPRBS`<br>`nrPUCCHPRBS` | `independent_validated` | PBCH phase, PDSCH/PUSCH codeword and PUCCH base scrambling sequences; PUSCH msgA nrapid extension is not included | `tools/nr_channel_prbs.schema.json` |
 | `nr_config` | `nrCarrierConfig`<br>`nrCORESETConfig`<br>`nrCSIReportConfig`<br>`nrCSIRSConfig`<br>`nrDLCarrierConfig`<br>`nrIntraCellGuardBandsConfig`<br>`nrPathLossConfig`<br>`nrPDCCHConfig`<br>`nrPDSCHConfig`<br>`nrPDSCHDMRSConfig`<br>`nrPDSCHPTRSConfig`<br>`nrPDSCHReservedConfig`<br>`nrPRACHConfig`<br>`nrPRSConfig`<br>`nrPUCCH0Config`<br>`nrPUCCH1Config`<br>`nrPUCCH2Config`<br>`nrPUCCH3Config`<br>`nrPUCCH4Config`<br>`nrPUSCHConfig`<br>`nrPUSCHDMRSConfig`<br>`nrPUSCHPTRSConfig`<br>`nrSCSCarrierConfig`<br>`nrSearchSpaceConfig`<br>`nrSRSConfig`<br>`nrULCarrierConfig`<br>`nrWavegenBWPConfig`<br>`nrWavegenCSIRSConfig`<br>`nrWavegenPDCCHConfig`<br>`nrWavegenPDSCHConfig`<br>`nrWavegenPUCCH0Config`<br>`nrWavegenPUCCH1Config`<br>`nrWavegenPUCCH2Config`<br>`nrWavegenPUCCH3Config`<br>`nrWavegenPUCCH4Config`<br>`nrWavegenPUSCHConfig`<br>`nrWavegenSRSConfig`<br>`nrWavegenSSBurstConfig` | `independent_validated` | 38 JSON configuration constructors with R2026a defaults and known-property overrides; MATLAB class validation and dependent property updates are only partially reproduced | `tools/nr_config.schema.json` |
+| `nr_control_codec` | `nrDCIDecode`<br>`nrUCIEncode`<br>`nrUCIDecode` | `pending_validation` | 独立 Python 控制信息 Polar 编解码。DCI 使用 SC(L=1) 和 CRC24C；UCI 支持 12..1012 位未分段 Polar 分支及上行三角交织。 | `tools/nr_control_codec.schema.json` |
 | `nr_crc` | `nrCRCEncode`<br>`nrCRCDecode` | `validated` | — | `tools/nr_crc.schema.json` |
+| `nr_csi_resources` | `nrCSIMeasurementsSRS`<br>`nrCSIReportCSIRS`<br>`nrCSIRSIndices`<br>`nrCSIRSMeasurements` | `pending_validation` | 独立 Python 单端口 CSI 资源及宽带质量估计子集；CQI 为 Shannon 界近似，不等同 MATLAB 的完整码本报告。 | `tools/nr_csi_resources.schema.json` |
 | `nr_csi_rs` | `nrCSIRS` | `validated` | Single-port CSI-RS sequence for contiguous RBs from RB 0 at density 0.5, 1, or 3; no resource-grid indices | `tools/nr_csi_rs.schema.json` |
 | `nr_dci` | `nrDCIEncode`<br>`nrPDCCHPRBS` | `validated` | DCI encode (CRC24C calculated over 24 leading ones plus payload, then payload plus RNTI-masked CRC Polar coding and rate matching) plus PDCCH scrambling; no DCI decode | `tools/nr_dci.schema.json` |
 | `nr_dmrs` | `nrPDSCHDMRS` | `validated` | Single-port PDSCH DM-RS sequence and per-PRB locations for contiguous PRBs, configuration types 1/2; no full grid indices | `tools/nr_dmrs.schema.json` |
@@ -104,6 +108,7 @@ user-invocable: true
 | `nr_pbch_ref` | `nrPBCHDMRS`<br>`nrPBCHDMRSIndices`<br>`nrPBCHIndices` | `independent_validated` | PBCH DM-RS sequence and RE indices for the PBCH resource set | `tools/nr_pbch_ref.schema.json` |
 | `nr_pdcch` | `nrPDCCH` | `validated` | PDCCH scrambling and QPSK modulation of an encoded DCI codeword; no CORESET or resource-grid mapping | `tools/nr_pdcch.schema.json` |
 | `nr_pdcch_decode` | `nrPDCCHDecode` | `independent_validated` | Direct QPSK symbol syntax with noise variance; returns soft DCI codeword bits, without Polar DCI decode | `tools/nr_pdcch_decode.schema.json` |
+| `nr_pdcch_resources` | `nrPDCCHResources`<br>`nrPDCCHSpace` | `pending_validation` | 独立 Python 单符号、非交织 CORESET 资源映射；每 CCE 为 6 REG，每 REG 为 9 数据 RE 加 3 DM-RS RE。 | `tools/nr_pdcch_resources.schema.json` |
 | `nr_pdsch` | `nrPDSCH`<br>`nrDLSCH` | `validated` | end-to-end PDSCH TX/RX cascade: CRC→LDPC→RM→modulation→layer map→OFDM | `tools/nr_pdsch.schema.json` |
 | `nr_pdsch_decode` | `nrPDSCHDecode` | `independent_validated` | Direct symbol syntax for one codeword and 1..4 layers, max-log LLR; two-codeword and carrier/config-object forms are not included | `tools/nr_pdsch_decode.schema.json` |
 | `nr_pdsch_grid_indices` | `nrPDSCHDMRSIndices`<br>`nrPDSCHIndices` | `independent_validated` | One layer/port, explicit DM-RS symbols, carrier PRB allocation, type-1/2 CDM reservation; no PTRS, VRB interleaving, reserved RE or multiport mapping | `tools/nr_pdsch_grid_indices.schema.json` |
@@ -112,15 +117,19 @@ user-invocable: true
 | `nr_polar` | `nrPolarEncode` | `validated` | Polar mother-code encoding for downlink/uplink; decoding is provided by nr_polar_decode | `tools/nr_polar.schema.json` |
 | `nr_polar_decode` | `nrPolarDecode` | `independent_validated` | L=1 successive-cancellation decoding of rate-recovered Polar mother-code LLRs with optional output deinterleaving; CRC-aided list decoding L>1 is not included | `tools/nr_polar_decode.schema.json` |
 | `nr_polar_rm` | `nrRateMatchPolar`<br>`nrRateRecoverPolar` | `independent_validated` | Polar rate match/recover: subblock interleave + bit selection (puncture/repeat/shorten) | `tools/nr_polar_rm.schema.json` |
+| `nr_prach_family` | `nrPRACH`<br>`nrPRACHDetect`<br>`nrPRACHGrid`<br>`nrPRACHIndices`<br>`nrPRACHOFDMInfo`<br>`nrPRACHOFDMModulate` | `pending_validation` | 独立 Python 单个 PRACH 时频机会处理；支持 139/839 点 Zadoff-Chu 序列，显式物理根序号及循环移位。 | `tools/nr_prach_family.schema.json` |
 | `nr_prbs` | `nrPRBS` | `validated` | Gold code PRBS generator, cinit init, binary/signed output | `tools/nr_prbs.schema.json` |
 | `nr_prg_info` | `nrPRGInfo` | `independent_validated` | PRG sizes 2 or 4 and wideband, with NStartGrid/NSizeGrid carrier geometry | `tools/nr_prg_info.schema.json` |
 | `nr_prs` | `nrPRS`<br>`nrPRSIndices` | `independent_validated` | Single active PRS resource in a normal-CP carrier slot; comb sizes 2/4/6/12, resource RB and symbol allocation, sequence ID and slot; resource-set periodicity, repetitions, muting and multiple resources are not included | `tools/nr_prs.schema.json` |
 | `nr_pss` | `nrPSS`<br>`nrPSSIndices` | `validated` | PSS m-sequence generation + RE indices | `tools/nr_pss.schema.json` |
+| `nr_ptrs_family` | `nrPDSCHPTRS`<br>`nrPDSCHPTRSIndices`<br>`nrPUSCHPTRS`<br>`nrPUSCHPTRSIndices` | `pending_validation` | 独立 Python 单端口、无变换预编码 PT-RS 子集；需要显式给出 RB、DM-RS 符号与时频密度。 | `tools/nr_ptrs_family.schema.json` |
+| `nr_pucch_family` | `nrPUCCH`<br>`nrPUCCH0`<br>`nrPUCCH1`<br>`nrPUCCH2`<br>`nrPUCCH3`<br>`nrPUCCH4`<br>`nrPUCCHDecode`<br>`nrPUCCHDMRS`<br>`nrPUCCHDMRSIndices`<br>`nrPUCCHHoppingInfo`<br>`nrPUCCHIndices` | `pending_validation` | 独立 Python 单 RB PUCCH 0..4 基本调制、资源、DM-RS 与无噪声解调子集；不覆盖完整频跳、码本和 UCI 编码。 | `tools/nr_pucch_family.schema.json` |
 | `nr_pusch` | `nrPUSCH`<br>`nrPUSCHDecode` | `independent_validated` | PUSCH scramble + modulation + layer map; optional DFT-s-OFDM transform precoding | `tools/nr_pusch.schema.json` |
 | `nr_pusch_codebook` | `nrPUSCHCodebook` | `independent_validated` | All 4542 valid R2026a layer/port/TPMI/transform/codebook-type combinations for 1, 2, 4 and 8 ports; R2026b three-port addition is not included | `tools/nr_pusch_codebook.schema.json` |
 | `nr_pusch_ref` | `nrPUSCHDMRS`<br>`nrPUSCHDMRSIndices`<br>`nrPUSCHIndices` | `independent_validated` | PUSCH DM-RS sequence and data RE indices for one BWP allocation | `tools/nr_pusch_ref.schema.json` |
 | `nr_pusch_scrambling` | `nrPUSCHScramble`<br>`nrPUSCHDescramble` | `independent_validated` | Single-codeword binary bits or soft LLRs, including q=0/1; no UCI X/Y placeholders or msgA nrapid | `tools/nr_pusch_scrambling.schema.json` |
 | `nr_sch_info` | `nrDLSCHInfo`<br>`nrULSCHInfo` | `independent_validated` | Scalar TBS/TCR coding dimensions; UL-SCH UCI multiplexing and two-codeword forms are not included | `tools/nr_sch_info.schema.json` |
+| `nr_sch_transport` | `nrDLSCHDecoder`<br>`nrULSCH`<br>`nrULSCHDecoder`<br>`nrULSCHDemultiplex`<br>`nrULSCHMultiplex` | `pending_validation` | 独立 Python 单 LDPC 码块共享信道子集；复用现有 CRC/LDPC 并显式处理 filler、速率匹配。UCI 复用仅支持显式插入位置。 | `tools/nr_sch_transport.schema.json` |
 | `nr_srs` | `nrSRS`<br>`nrSRSIndices` | `independent_validated` | Zadoff-Chu SRS sequence and comb-based resource indices | `tools/nr_srs.schema.json` |
 | `nr_ssb_measurements` | `nrSSBMeasurements` | `independent_validated` | 240x4 SSB grid, per-Rx RSRP/RSSI/RSRQ, optional PBCH DM-RS contribution; phase-correction option is not included | `tools/nr_ssb_measurements.schema.json` |
 | `nr_sss` | `nrSSS`<br>`nrSSSIndices` | `validated` | SSS dual m-sequence generation + RE indices | `tools/nr_sss.schema.json` |
@@ -128,6 +137,7 @@ user-invocable: true
 | `nr_tbs` | `nrTBS` | `validated` | Transport block size determination per TS 38.214 | `tools/nr_tbs.schema.json` |
 | `nr_timing_estimate` | `nrTimingEstimate` | `validated` | cross-correlation timing estimate; direct waveform pair or built-in NR reference grid | `tools/nr_timing_estimate.schema.json` |
 | `nr_transform` | `nrTransformPrecode`<br>`nrTransformDeprecode` | `independent_validated` | Unitary 12×MRB DFT/IFFT per column, all integer MRB and row counts divisible by 12×MRB | `tools/nr_transform.schema.json` |
+| `nr_waveform_io` | `nrWaveformAnalyzer`<br>`nrWaveformGenerator` | `pending_validation` | 独立 Python 单 numerology 资源网格 OFDM 波形生成和分析子集；分析器返回资源网格、PAPR 与频谱。 | `tools/nr_waveform_io.schema.json` |
 
 ### WLAN Toolbox（9）
 

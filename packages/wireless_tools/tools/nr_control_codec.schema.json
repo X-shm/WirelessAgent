@@ -1,0 +1,35 @@
+{
+  "name": "nr_control_codec",
+  "script": "nr_control_codec.py",
+  "description": "独立 Python 控制信息 Polar 编解码。DCI 使用 SC(L=1) 和 CRC24C；UCI 支持 12..1012 位未分段 Polar 分支及上行三角交织。",
+  "implementation": "Standalone NumPy implementation; explicit limited coverage in tool_registry.json.",
+  "inputs": {
+    "function": {
+      "type": "enum",
+      "enum": [
+        "nrDCIDecode",
+        "nrUCIEncode",
+        "nrUCIDecode"
+      ],
+      "required": true,
+      "description": "MATLAB 5G Toolbox 入口名"
+    },
+    "params": {
+      "type": "string",
+      "required": true,
+      "description": "JSON 对象字符串。nrDCIDecode: llr,payload_length,rnti; nrUCIEncode: payload,e,modulation; nrUCIDecode: llr,payload_length,modulation。LLR 正值代表比特 0。"
+    }
+  },
+  "outputs": {
+    "function": {
+      "description": "调用的 MATLAB 入口名"
+    },
+    "result": {
+      "description": "该入口的结构化计算结果"
+    }
+  },
+  "example": {
+    "cmd": "python tools/nr_control_codec.py --function nrUCIEncode --params '{\"payload\":[0,1,0,1,0,1,0,1,0,1,0,1],\"e\":108}'",
+    "result": "按入口参数返回 JSON 对象；缺失必需参数时返回 error"
+  }
+}
