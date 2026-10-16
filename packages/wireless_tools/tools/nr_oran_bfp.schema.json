@@ -1,0 +1,14 @@
+{
+  "name": "nr_oran_bfp",
+  "script": "nr_oran_bfp.py",
+  "description": "独立 Python 实现 O-RAN 前传 5G NR 网格的 BFP 块浮点压缩和解压缩。",
+  "implementation": "每 12 个子载波、每符号、每端口共享指数；按 O-RAN BFP 位宽截断 IQ 幅度。仅覆盖 BFP 方法。",
+  "inputs": {
+    "operation": {"type": "enum", "enum": ["compress", "decompress"], "required": true, "description": "压缩或解压缩"},
+    "grid": {"type": "string", "required": true, "description": "整数 IQ 资源网格复数 JSON {real,imag}"},
+    "ciq_width": {"type": "integer", "required": false, "default": 9, "description": "压缩后 IQ 位宽 1..16"},
+    "parameters": {"type": "string", "required": false, "description": "解压缩时的每 PRB/符号/端口指数 JSON 数组"}
+  },
+  "outputs": {"grid": {"description": "压缩或解压缩后的复数网格"}, "parameters": {"description": "BFP 指数", "optional": true}},
+  "example": {"cmd": "python tools/nr_oran_bfp.py --operation compress --grid '[1,2,3,4,5,6,7,8,9,10,11,12]' --ciq_width 4", "result": "{\"grid\": {\"real\": [0,1,1,2,2,3,3,4,4,5,5,6], \"imag\": [...]}, \"parameters\": [1]}"}
+}

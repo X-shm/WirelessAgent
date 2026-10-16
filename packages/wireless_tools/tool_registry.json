@@ -385,6 +385,76 @@
       "schema": "tools/lte_ul_scrambling.schema.json"
     },
     {
+      "name": "nr_config",
+      "source_functions": [
+        "nrCarrierConfig",
+        "nrCORESETConfig",
+        "nrCSIReportConfig",
+        "nrCSIRSConfig",
+        "nrDLCarrierConfig",
+        "nrIntraCellGuardBandsConfig",
+        "nrPathLossConfig",
+        "nrPDCCHConfig",
+        "nrPDSCHConfig",
+        "nrPDSCHDMRSConfig",
+        "nrPDSCHPTRSConfig",
+        "nrPDSCHReservedConfig",
+        "nrPRACHConfig",
+        "nrPRSConfig",
+        "nrPUCCH0Config",
+        "nrPUCCH1Config",
+        "nrPUCCH2Config",
+        "nrPUCCH3Config",
+        "nrPUCCH4Config",
+        "nrPUSCHConfig",
+        "nrPUSCHDMRSConfig",
+        "nrPUSCHPTRSConfig",
+        "nrSCSCarrierConfig",
+        "nrSearchSpaceConfig",
+        "nrSRSConfig",
+        "nrULCarrierConfig",
+        "nrWavegenBWPConfig",
+        "nrWavegenCSIRSConfig",
+        "nrWavegenPDCCHConfig",
+        "nrWavegenPDSCHConfig",
+        "nrWavegenPUCCH0Config",
+        "nrWavegenPUCCH1Config",
+        "nrWavegenPUCCH2Config",
+        "nrWavegenPUCCH3Config",
+        "nrWavegenPUCCH4Config",
+        "nrWavegenPUSCHConfig",
+        "nrWavegenSRSConfig",
+        "nrWavegenSSBurstConfig"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "38 JSON configuration constructors with R2026a defaults and known-property overrides; MATLAB class validation and dependent property updates are only partially reproduced",
+      "schema": "tools/nr_config.schema.json"
+    },
+    {
+      "name": "nr_channel_prbs",
+      "source_functions": [
+        "nrPBCHPRBS",
+        "nrPDSCHPRBS",
+        "nrPUSCHPRBS",
+        "nrPUCCHPRBS"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "PBCH phase, PDSCH/PUSCH codeword and PUCCH base scrambling sequences; PUSCH msgA nrapid extension is not included",
+      "schema": "tools/nr_channel_prbs.schema.json"
+    },
+    {
+      "name": "nr_channel_estimate",
+      "source_functions": [
+        "nrChannelEstimate"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "Single reference port, one normal/extended-CP slot, sparse least-squares estimate with Interpolation=off and CDMLengths=[1,1]; interpolation, CDM despreading and PRG noise estimates are not included",
+      "schema": "tools/nr_channel_estimate.schema.json"
+    },
+    {
       "name": "nr_crc",
       "source_functions": [
         "nrCRCEncode",
@@ -436,6 +506,27 @@
       "schema": "tools/nr_equalize_mmse.schema.json"
     },
     {
+      "name": "nr_evm",
+      "source_functions": [
+        "nrEVM"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "Equalized-grid/reference-grid direct syntax; carrier/channel receiver-processing syntax is not included",
+      "schema": "tools/nr_evm.schema.json"
+    },
+    {
+      "name": "nr_grid_ops",
+      "source_functions": [
+        "nrResourceGrid",
+        "nrExtractResources"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "Zero resource grid for explicit NRB/CP/ports and allplanes RE extraction with linear or subscript indices",
+      "schema": "tools/nr_grid_ops.schema.json"
+    },
+    {
       "name": "nr_layer_map",
       "source_functions": [
         "nrLayerMap",
@@ -478,6 +569,16 @@
       "schema": "tools/nr_ldpc_rm.schema.json"
     },
     {
+      "name": "nr_low_papr",
+      "source_functions": [
+        "nrLowPAPRS"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "Type-1 low-PAPR sequence for scalar/vector u, v and alpha, including m=0, short standard phase tables and Zadoff-Chu lengths >=30; type-2 syntax is not included",
+      "schema": "tools/nr_low_papr.schema.json"
+    },
+    {
       "name": "nr_mcs_tables",
       "source_functions": [
         "nrPDSCHMCSTables"
@@ -508,6 +609,27 @@
       "status": "validated",
       "coverage": "OFDM modulation with CP, demodulation roundtrip",
       "schema": "tools/nr_ofdm.schema.json"
+    },
+    {
+      "name": "nr_ofdm_info",
+      "source_functions": [
+        "nrOFDMInfo"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "NR OFDM geometry with explicit windowing and zero carrier frequency; MATLAB's automatic window choice and arbitrary resampling are not included",
+      "schema": "tools/nr_ofdm_info.schema.json"
+    },
+    {
+      "name": "nr_oran_bfp",
+      "source_functions": [
+        "nrORANBlockCompress",
+        "nrORANBlockDecompress"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "O-RAN block floating point (BFP) compression/decompression of integer IQ grids; block scaling and mu-law methods are not included",
+      "schema": "tools/nr_oran_bfp.schema.json"
     },
     {
       "name": "nr_pbch",
@@ -543,6 +665,16 @@
       "schema": "tools/nr_pdcch.schema.json"
     },
     {
+      "name": "nr_pdcch_decode",
+      "source_functions": [
+        "nrPDCCHDecode"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "Direct QPSK symbol syntax with noise variance; returns soft DCI codeword bits, without Polar DCI decode",
+      "schema": "tools/nr_pdcch_decode.schema.json"
+    },
+    {
       "name": "nr_pdsch",
       "source_functions": [
         "nrPDSCH",
@@ -554,14 +686,65 @@
       "schema": "tools/nr_pdsch.schema.json"
     },
     {
+      "name": "nr_pdsch_decode",
+      "source_functions": [
+        "nrPDSCHDecode"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "Direct symbol syntax for one codeword and 1..4 layers, max-log LLR; two-codeword and carrier/config-object forms are not included",
+      "schema": "tools/nr_pdsch_decode.schema.json"
+    },
+    {
+      "name": "nr_pdsch_grid_indices",
+      "source_functions": [
+        "nrPDSCHDMRSIndices",
+        "nrPDSCHIndices"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "One layer/port, explicit DM-RS symbols, carrier PRB allocation, type-1/2 CDM reservation; no PTRS, VRB interleaving, reserved RE or multiport mapping",
+      "schema": "tools/nr_pdsch_grid_indices.schema.json"
+    },
+    {
+      "name": "nr_pdsch_precode",
+      "source_functions": [
+        "nrPDSCHPrecode"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "Matrix-valued PDSCH symbols with identical RE positions per layer, arbitrary antennas and PRG-specific complex weights; 3-D channel-estimate tensor syntax is not included",
+      "schema": "tools/nr_pdsch_precode.schema.json"
+    },
+    {
+      "name": "nr_perfect_timing",
+      "source_functions": [
+        "nrPerfectTimingEstimate"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "Perfect timing offset and per-receive-antenna impulse-response magnitude from four-dimensional path gains and real path filters",
+      "schema": "tools/nr_perfect_timing.schema.json"
+    },
+    {
       "name": "nr_polar",
       "source_functions": [
-        "nrPolarEncode",
-        "nrPolarDecode"
+        "nrPolarEncode"
       ],
       "product": "5G Toolbox",
       "status": "validated",
+      "coverage": "Polar mother-code encoding for downlink/uplink; decoding is provided by nr_polar_decode",
       "schema": "tools/nr_polar.schema.json"
+    },
+    {
+      "name": "nr_polar_decode",
+      "source_functions": [
+        "nrPolarDecode"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "L=1 successive-cancellation decoding of rate-recovered Polar mother-code LLRs with optional output deinterleaving; CRC-aided list decoding L>1 is not included",
+      "schema": "tools/nr_polar_decode.schema.json"
     },
     {
       "name": "nr_polar_rm",
@@ -583,6 +766,27 @@
       "status": "validated",
       "coverage": "Gold code PRBS generator, cinit init, binary/signed output",
       "schema": "tools/nr_prbs.schema.json"
+    },
+    {
+      "name": "nr_prg_info",
+      "source_functions": [
+        "nrPRGInfo"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "PRG sizes 2 or 4 and wideband, with NStartGrid/NSizeGrid carrier geometry",
+      "schema": "tools/nr_prg_info.schema.json"
+    },
+    {
+      "name": "nr_prs",
+      "source_functions": [
+        "nrPRS",
+        "nrPRSIndices"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "Single active PRS resource in a normal-CP carrier slot; comb sizes 2/4/6/12, resource RB and symbol allocation, sequence ID and slot; resource-set periodicity, repetitions, muting and multiple resources are not included",
+      "schema": "tools/nr_prs.schema.json"
     },
     {
       "name": "nr_pss",
@@ -607,6 +811,16 @@
       "schema": "tools/nr_pusch.schema.json"
     },
     {
+      "name": "nr_pusch_codebook",
+      "source_functions": [
+        "nrPUSCHCodebook"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "All 4542 valid R2026a layer/port/TPMI/transform/codebook-type combinations for 1, 2, 4 and 8 ports; R2026b three-port addition is not included",
+      "schema": "tools/nr_pusch_codebook.schema.json"
+    },
+    {
       "name": "nr_pusch_ref",
       "source_functions": [
         "nrPUSCHDMRS",
@@ -619,6 +833,28 @@
       "schema": "tools/nr_pusch_ref.schema.json"
     },
     {
+      "name": "nr_pusch_scrambling",
+      "source_functions": [
+        "nrPUSCHScramble",
+        "nrPUSCHDescramble"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "Single-codeword binary bits or soft LLRs, including q=0/1; no UCI X/Y placeholders or msgA nrapid",
+      "schema": "tools/nr_pusch_scrambling.schema.json"
+    },
+    {
+      "name": "nr_sch_info",
+      "source_functions": [
+        "nrDLSCHInfo",
+        "nrULSCHInfo"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "Scalar TBS/TCR coding dimensions; UL-SCH UCI multiplexing and two-codeword forms are not included",
+      "schema": "tools/nr_sch_info.schema.json"
+    },
+    {
       "name": "nr_srs",
       "source_functions": [
         "nrSRS",
@@ -628,6 +864,16 @@
       "status": "independent_validated",
       "coverage": "Zadoff-Chu SRS sequence and comb-based resource indices",
       "schema": "tools/nr_srs.schema.json"
+    },
+    {
+      "name": "nr_ssb_measurements",
+      "source_functions": [
+        "nrSSBMeasurements"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "240x4 SSB grid, per-Rx RSRP/RSSI/RSRQ, optional PBCH DM-RS contribution; phase-correction option is not included",
+      "schema": "tools/nr_ssb_measurements.schema.json"
     },
     {
       "name": "nr_sss",
@@ -651,6 +897,17 @@
       "schema": "tools/nr_tbs.schema.json"
     },
     {
+      "name": "nr_tables",
+      "source_functions": [
+        "nrCQITables",
+        "nrPUSCHMCSTables"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "Four CQI tables and five default PUSCH MCS tables from R2026a; PUSCHMCSTables property-dependent variants are not included",
+      "schema": "tools/nr_tables.schema.json"
+    },
+    {
       "name": "nr_timing_estimate",
       "source_functions": [
         "nrTimingEstimate"
@@ -659,6 +916,17 @@
       "status": "validated",
       "coverage": "cross-correlation timing estimate; direct waveform pair or built-in NR reference grid",
       "schema": "tools/nr_timing_estimate.schema.json"
+    },
+    {
+      "name": "nr_transform",
+      "source_functions": [
+        "nrTransformPrecode",
+        "nrTransformDeprecode"
+      ],
+      "product": "5G Toolbox",
+      "status": "independent_validated",
+      "coverage": "Unitary 12×MRB DFT/IFFT per column, all integer MRB and row counts divisible by 12×MRB",
+      "schema": "tools/nr_transform.schema.json"
     },
     {
       "name": "wlan_bcc",

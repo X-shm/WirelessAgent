@@ -1,0 +1,17 @@
+{
+  "name": "nr_channel_prbs",
+  "script": "nr_channel_prbs.py",
+  "description": "独立 Python 生成 NR PBCH/PDSCH/PUSCH/PUCCH 信道加扰 Gold 序列。",
+  "implementation": "3GPP TS 38.211 §§6.3.1.1、6.3.2、7.3.1.1、7.3.3.1；复用已验证 nrPRBS。当前覆盖基础 nid/rnti/q/v 语法。",
+  "inputs": {
+    "channel": {"type": "enum", "enum": ["pbch", "pdsch", "pusch", "pucch"], "required": true, "description": "物理信道"},
+    "nid": {"type": "integer", "required": true, "description": "加扰标识，PBCH 为物理小区 ID"},
+    "n": {"type": "integer", "required": true, "description": "输出序列长度"},
+    "rnti": {"type": "integer", "required": false, "description": "非 PBCH 信道必需的 UE RNTI"},
+    "q": {"type": "integer", "required": false, "default": 0, "description": "PDSCH/PUSCH 码字编号 0 或 1"},
+    "v": {"type": "integer", "required": false, "default": 0, "description": "PBCH 加扰相位 0..7"},
+    "mapping": {"type": "enum", "enum": ["binary", "signed"], "required": false, "default": "binary", "description": "二进制或 ±1 序列"}
+  },
+  "outputs": {"channel": {"description": "信道"}, "cinit": {"description": "Gold 序列初始化值"}, "seq": {"description": "加扰序列"}},
+  "example": {"cmd": "python tools/nr_channel_prbs.py --channel pbch --nid 42 --v 2 --n 16", "result": "{\"channel\": \"pbch\", \"cinit\": 42, \"seq\": [1,0,1,1,0,1,0,1,0,0,0,0,0,1,0,1]}"}
+}

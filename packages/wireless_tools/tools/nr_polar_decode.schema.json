@@ -1,0 +1,16 @@
+{
+  "name": "nr_polar_decode",
+  "script": "nr_polar_decode.py",
+  "description": "独立 Python 对 NR Polar 母码软比特进行 L=1 逐次消除解码。",
+  "implementation": "3GPP TS 38.212 §5.3.1；复用 NR Polar 冻结位构造与输入交织，执行对数域 SC 解码。",
+  "inputs": {
+    "rec": {"type": "string", "required": true, "description": "JSON 格式率恢复后的 Polar 母码 LLR 向量"},
+    "k": {"type": "integer", "required": true, "description": "信息块长度，含 CRC"},
+    "e": {"type": "integer", "required": true, "description": "率匹配输出长度"},
+    "nmax": {"type": "integer", "required": false, "enum": [9, 10], "default": 9, "description": "最大母码长的对数"},
+    "iil": {"type": "boolean", "required": false, "default": true, "description": "是否执行输出去交织"},
+    "list_length": {"type": "integer", "required": false, "enum": [1], "default": 1, "description": "目前仅支持单路径逐次消除"}
+  },
+  "outputs": {"decoded_bits": {"description": "K 个解码后的二进制位"}, "K": {"description": "信息块长度"}, "E": {"description": "率匹配长度"}, "list_length": {"description": "解码列表长度"}},
+  "example": {"cmd": "python tools/nr_polar_decode.py --rec '[20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20]' --k 18 --e 32", "result": "{\"decoded_bits\": [...], \"K\": 18, \"E\": 32, \"list_length\": 1}"}
+}

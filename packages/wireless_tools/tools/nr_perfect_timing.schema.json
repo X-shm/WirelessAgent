@@ -1,0 +1,12 @@
+{
+  "name": "nr_perfect_timing",
+  "script": "nr_perfect_timing.py",
+  "description": "独立 Python 根据多径增益与路径滤波器计算 NR 完美定时偏移和冲激响应幅度。",
+  "implementation": "先重建路径冲激响应，跨快照求复数平均、跨发送天线求和，按接收天线计算幅度与总体峰值。",
+  "inputs": {
+    "path_gains": {"type": "string", "required": true, "description": "复数 JSON NCS×NPaths×NTx×NRx 数组"},
+    "path_filters": {"type": "string", "required": true, "description": "JSON NH×NPaths 实数路径滤波器矩阵"}
+  },
+  "outputs": {"offset": {"description": "从第一个滤波器样本开始的 0-based 定时偏移"}, "magnitude": {"description": "NH×NRx 冲激响应幅度"}},
+  "example": {"cmd": "python tools/nr_perfect_timing.py --path_gains '[[[[1]]]]' --path_filters '[[0],[1],[0]]'", "result": "{\"offset\": 1, \"magnitude\": [[0.0], [1.0], [0.0]]}"}
+}

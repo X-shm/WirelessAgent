@@ -1,0 +1,13 @@
+{
+  "name": "nr_prg_info",
+  "script": "nr_prg_info.py",
+  "description": "独立 Python 计算 NR 预编码资源块组数量和载波内每 RB 的 PRG 编号。",
+  "implementation": "3GPP TS 38.214 §5.1.2.3；PRG 大小 2/4 或宽带。",
+  "inputs": {
+    "n_size_grid": {"type": "integer", "required": true, "description": "载波网格 RB 数"},
+    "n_start_grid": {"type": "integer", "required": false, "default": 0, "description": "载波网格起始 CRB"},
+    "prg_size": {"type": "integer", "required": false, "enum": [2, 4], "description": "预编码分组大小，省略时表示宽带"}
+  },
+  "outputs": {"NPRG": {"description": "覆盖 point A 到载波末端的 PRG 总数"}, "PRGSet": {"description": "载波网格每个 RB 的 1-based PRG 编号"}},
+  "example": {"cmd": "python tools/nr_prg_info.py --n_size_grid 10 --n_start_grid 3 --prg_size 4", "result": "{\"NPRG\": 4, \"PRGSet\": [1,2,2,2,2,3,3,3,3,4]}"}
+}

@@ -1,0 +1,18 @@
+{
+  "name": "nr_pdsch_precode",
+  "script": "nr_pdsch_precode.py",
+  "description": "独立 Python 对 PDSCH 层符号执行按 PRG 的层到天线预编码。",
+  "implementation": "3GPP TS 38.214 §5.1.2.3；根据 RB 所属 PRG 选择矩阵并生成天线平面的线性 RE 索引。",
+  "inputs": {
+    "port_sym": {"type": "string", "required": true, "description": "复数 JSON 的 NRE×NLayers 符号矩阵"},
+    "port_ind": {"type": "string", "required": true, "description": "JSON 的 NRE×NLayers 索引矩阵，各层同一行索引相同"},
+    "weights": {"type": "string", "required": true, "description": "复数 JSON 的 NLayers×NAntennas×NPRG 预编码矩阵"},
+    "nrb": {"type": "integer", "required": true, "description": "载波资源网格 RB 数"},
+    "nstartgrid": {"type": "integer", "required": false, "default": 0, "description": "载波 CRB 起点"},
+    "prg_size": {"type": "integer", "required": false, "enum": [2, 4], "description": "PRG 宽度；省略时宽带预编码"},
+    "index_base": {"type": "enum", "enum": ["0based", "1based"], "required": false, "default": "1based", "description": "输入输出索引基数"},
+    "symbols_per_slot": {"type": "integer", "required": false, "enum": [12, 14], "default": 14, "description": "每时隙 OFDM 符号数"}
+  },
+  "outputs": {"ant_sym": {"description": "预编码后的天线符号，复数 JSON"}, "ant_ind": {"description": "天线平面的线性 RE 索引"}, "n_re": {"description": "RE 数量"}, "n_antennas": {"description": "天线端口数"}},
+  "example": {"cmd": "python tools/nr_pdsch_precode.py --port_sym '[[1,2]]' --port_ind '[[1,1]]' --weights '[[[1],[2]],[[3],[4]]]' --nrb 2", "result": "{\"ant_sym\": {\"real\": [[7.0, 10.0]], \"imag\": [[0.0, 0.0]]}, \"ant_ind\": [[1, 337]], \"n_re\": 1, \"n_antennas\": 2}"}
+}

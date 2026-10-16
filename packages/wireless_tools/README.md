@@ -5,7 +5,7 @@
 
 ## 项目范围
 
-当前注册 `144` 个 Python CLI 工具、`144` 份 schema。状态分布：`validated`: 57，`independent_validated`: 87。
+当前注册 `166` 个 Python CLI 工具、`166` 份 schema。状态分布：`validated`: 57，`independent_validated`: 109。
 工具名称、产品归属、标准源函数、状态、覆盖范围和 schema 路径均以 `tool_registry.json` 为唯一事实来源。
 Bluetooth Toolbox 当前由 `26` 个 CLI 映射 `52` 个顶层 MATLAB 名称。`validated` 仅表示各工具 `coverage` 所述功能切片通过验证，不代表该名称的全部参数、对象方法、网络仿真或 MATLAB 完整行为均已实现；逐项完成状态和剩余缺口见 `bluetooth_capabilities.json`。
 
@@ -14,7 +14,7 @@ Bluetooth Toolbox 当前由 `26` 个 CLI 映射 `52` 个顶层 MATLAB 名称。`
 | 产品/领域 | 工具数 | 注册状态分布 |
 |---|---:|---|
 | LTE Toolbox | 37 | `validated`: 5，`independent_validated`: 32 |
-| 5G Toolbox | 26 | `validated`: 20，`independent_validated`: 6 |
+| 5G Toolbox | 48 | `validated`: 20，`independent_validated`: 28 |
 | WLAN Toolbox | 9 | `validated`: 4，`independent_validated`: 5 |
 | Bluetooth Toolbox | 26 | `validated`: 26 |
 | Communications Toolbox | 30 | `independent_validated`: 30 |
@@ -88,36 +88,58 @@ python scripts/validate_all.py
 | `lte_ul_precode` | `lteULPrecode`<br>`lteULDeprecode` | `independent_validated` | PRB/subcarrier normalized block DFT and inverse | `tools/lte_ul_precode.schema.json` |
 | `lte_ul_scrambling` | `lteULScramble`<br>`lteULDescramble` | `independent_validated` | transport data without UCI placeholders | `tools/lte_ul_scrambling.schema.json` |
 
-### 5G Toolbox（26）
+### 5G Toolbox（48）
 
 | 工具 | 注册源函数 | 注册状态 | 覆盖范围 | Schema |
 |---|---|---|---|---|
+| `nr_channel_estimate` | `nrChannelEstimate` | `independent_validated` | Single reference port, one normal/extended-CP slot, sparse least-squares estimate with Interpolation=off and CDMLengths=[1,1]; interpolation, CDM despreading and PRG noise estimates are not included | `tools/nr_channel_estimate.schema.json` |
+| `nr_channel_prbs` | `nrPBCHPRBS`<br>`nrPDSCHPRBS`<br>`nrPUSCHPRBS`<br>`nrPUCCHPRBS` | `independent_validated` | PBCH phase, PDSCH/PUSCH codeword and PUCCH base scrambling sequences; PUSCH msgA nrapid extension is not included | `tools/nr_channel_prbs.schema.json` |
+| `nr_config` | `nrCarrierConfig`<br>`nrCORESETConfig`<br>`nrCSIReportConfig`<br>`nrCSIRSConfig`<br>`nrDLCarrierConfig`<br>`nrIntraCellGuardBandsConfig`<br>`nrPathLossConfig`<br>`nrPDCCHConfig`<br>`nrPDSCHConfig`<br>`nrPDSCHDMRSConfig`<br>`nrPDSCHPTRSConfig`<br>`nrPDSCHReservedConfig`<br>`nrPRACHConfig`<br>`nrPRSConfig`<br>`nrPUCCH0Config`<br>`nrPUCCH1Config`<br>`nrPUCCH2Config`<br>`nrPUCCH3Config`<br>`nrPUCCH4Config`<br>`nrPUSCHConfig`<br>`nrPUSCHDMRSConfig`<br>`nrPUSCHPTRSConfig`<br>`nrSCSCarrierConfig`<br>`nrSearchSpaceConfig`<br>`nrSRSConfig`<br>`nrULCarrierConfig`<br>`nrWavegenBWPConfig`<br>`nrWavegenCSIRSConfig`<br>`nrWavegenPDCCHConfig`<br>`nrWavegenPDSCHConfig`<br>`nrWavegenPUCCH0Config`<br>`nrWavegenPUCCH1Config`<br>`nrWavegenPUCCH2Config`<br>`nrWavegenPUCCH3Config`<br>`nrWavegenPUCCH4Config`<br>`nrWavegenPUSCHConfig`<br>`nrWavegenSRSConfig`<br>`nrWavegenSSBurstConfig` | `independent_validated` | 38 JSON configuration constructors with R2026a defaults and known-property overrides; MATLAB class validation and dependent property updates are only partially reproduced | `tools/nr_config.schema.json` |
 | `nr_crc` | `nrCRCEncode`<br>`nrCRCDecode` | `validated` | — | `tools/nr_crc.schema.json` |
 | `nr_csi_rs` | `nrCSIRS` | `validated` | Single-port CSI-RS sequence for contiguous RBs from RB 0 at density 0.5, 1, or 3; no resource-grid indices | `tools/nr_csi_rs.schema.json` |
 | `nr_dci` | `nrDCIEncode`<br>`nrPDCCHPRBS` | `validated` | DCI encode (CRC24C calculated over 24 leading ones plus payload, then payload plus RNTI-masked CRC Polar coding and rate matching) plus PDCCH scrambling; no DCI decode | `tools/nr_dci.schema.json` |
 | `nr_dmrs` | `nrPDSCHDMRS` | `validated` | Single-port PDSCH DM-RS sequence and per-PRB locations for contiguous PRBs, configuration types 1/2; no full grid indices | `tools/nr_dmrs.schema.json` |
 | `nr_equalize_mmse` | `nrEqualizeMMSE` | `validated` | MMSE equalization with CSI output; SISO/SIMO/MIMO 2x2 subset | `tools/nr_equalize_mmse.schema.json` |
+| `nr_evm` | `nrEVM` | `independent_validated` | Equalized-grid/reference-grid direct syntax; carrier/channel receiver-processing syntax is not included | `tools/nr_evm.schema.json` |
+| `nr_grid_ops` | `nrResourceGrid`<br>`nrExtractResources` | `independent_validated` | Zero resource grid for explicit NRB/CP/ports and allplanes RE extraction with linear or subscript indices | `tools/nr_grid_ops.schema.json` |
 | `nr_layer_map` | `nrLayerMap`<br>`nrLayerDemap` | `validated` | — | `tools/nr_layer_map.schema.json` |
 | `nr_ldpc` | `nrLDPCEncode`<br>`nrLDPCDecode` | `validated` | — | `tools/nr_ldpc.schema.json` |
 | `nr_ldpc_code_block` | `nrCodeBlockSegmentLDPC`<br>`nrCodeBlockDesegmentLDPC` | `independent_validated` | LDPC code-block segmentation with CRC24B and filler bits; BG1/BG2 | `tools/nr_ldpc_code_block.schema.json` |
 | `nr_ldpc_rm` | `nrRateMatchLDPC`<br>`nrRateRecoverLDPC` | `validated` | rate match + rate recover with de-interleaving | `tools/nr_ldpc_rm.schema.json` |
+| `nr_low_papr` | `nrLowPAPRS` | `independent_validated` | Type-1 low-PAPR sequence for scalar/vector u, v and alpha, including m=0, short standard phase tables and Zadoff-Chu lengths >=30; type-2 syntax is not included | `tools/nr_low_papr.schema.json` |
 | `nr_mcs_tables` | `nrPDSCHMCSTables` | `validated` | PDSCH MCS tables 1-4; CQI tables are not implemented | `tools/nr_mcs_tables.schema.json` |
 | `nr_modulation` | `nrSymbolModulate`<br>`nrSymbolDemodulate` | `validated` | BPSK, pi/2-BPSK, QPSK and square QAM through 1024QAM, includes soft demodulation (LLR) | `tools/nr_modulation.schema.json` |
 | `nr_ofdm` | `nrOFDMModulate`<br>`nrOFDMDemodulate` | `validated` | OFDM modulation with CP, demodulation roundtrip | `tools/nr_ofdm.schema.json` |
+| `nr_ofdm_info` | `nrOFDMInfo` | `independent_validated` | NR OFDM geometry with explicit windowing and zero carrier frequency; MATLAB's automatic window choice and arbitrary resampling are not included | `tools/nr_ofdm_info.schema.json` |
+| `nr_oran_bfp` | `nrORANBlockCompress`<br>`nrORANBlockDecompress` | `independent_validated` | O-RAN block floating point (BFP) compression/decompression of integer IQ grids; block scaling and mu-law methods are not included | `tools/nr_oran_bfp.schema.json` |
 | `nr_pbch` | `nrPBCH`<br>`nrPBCHDecode` | `validated` | PBCH bit scrambling + QPSK mapping; hard/soft decode path | `tools/nr_pbch.schema.json` |
 | `nr_pbch_ref` | `nrPBCHDMRS`<br>`nrPBCHDMRSIndices`<br>`nrPBCHIndices` | `independent_validated` | PBCH DM-RS sequence and RE indices for the PBCH resource set | `tools/nr_pbch_ref.schema.json` |
 | `nr_pdcch` | `nrPDCCH` | `validated` | PDCCH scrambling and QPSK modulation of an encoded DCI codeword; no CORESET or resource-grid mapping | `tools/nr_pdcch.schema.json` |
+| `nr_pdcch_decode` | `nrPDCCHDecode` | `independent_validated` | Direct QPSK symbol syntax with noise variance; returns soft DCI codeword bits, without Polar DCI decode | `tools/nr_pdcch_decode.schema.json` |
 | `nr_pdsch` | `nrPDSCH`<br>`nrDLSCH` | `validated` | end-to-end PDSCH TX/RX cascade: CRC→LDPC→RM→modulation→layer map→OFDM | `tools/nr_pdsch.schema.json` |
-| `nr_polar` | `nrPolarEncode`<br>`nrPolarDecode` | `validated` | — | `tools/nr_polar.schema.json` |
+| `nr_pdsch_decode` | `nrPDSCHDecode` | `independent_validated` | Direct symbol syntax for one codeword and 1..4 layers, max-log LLR; two-codeword and carrier/config-object forms are not included | `tools/nr_pdsch_decode.schema.json` |
+| `nr_pdsch_grid_indices` | `nrPDSCHDMRSIndices`<br>`nrPDSCHIndices` | `independent_validated` | One layer/port, explicit DM-RS symbols, carrier PRB allocation, type-1/2 CDM reservation; no PTRS, VRB interleaving, reserved RE or multiport mapping | `tools/nr_pdsch_grid_indices.schema.json` |
+| `nr_pdsch_precode` | `nrPDSCHPrecode` | `independent_validated` | Matrix-valued PDSCH symbols with identical RE positions per layer, arbitrary antennas and PRG-specific complex weights; 3-D channel-estimate tensor syntax is not included | `tools/nr_pdsch_precode.schema.json` |
+| `nr_perfect_timing` | `nrPerfectTimingEstimate` | `independent_validated` | Perfect timing offset and per-receive-antenna impulse-response magnitude from four-dimensional path gains and real path filters | `tools/nr_perfect_timing.schema.json` |
+| `nr_polar` | `nrPolarEncode` | `validated` | Polar mother-code encoding for downlink/uplink; decoding is provided by nr_polar_decode | `tools/nr_polar.schema.json` |
+| `nr_polar_decode` | `nrPolarDecode` | `independent_validated` | L=1 successive-cancellation decoding of rate-recovered Polar mother-code LLRs with optional output deinterleaving; CRC-aided list decoding L>1 is not included | `tools/nr_polar_decode.schema.json` |
 | `nr_polar_rm` | `nrRateMatchPolar`<br>`nrRateRecoverPolar` | `independent_validated` | Polar rate match/recover: subblock interleave + bit selection (puncture/repeat/shorten) | `tools/nr_polar_rm.schema.json` |
 | `nr_prbs` | `nrPRBS` | `validated` | Gold code PRBS generator, cinit init, binary/signed output | `tools/nr_prbs.schema.json` |
+| `nr_prg_info` | `nrPRGInfo` | `independent_validated` | PRG sizes 2 or 4 and wideband, with NStartGrid/NSizeGrid carrier geometry | `tools/nr_prg_info.schema.json` |
+| `nr_prs` | `nrPRS`<br>`nrPRSIndices` | `independent_validated` | Single active PRS resource in a normal-CP carrier slot; comb sizes 2/4/6/12, resource RB and symbol allocation, sequence ID and slot; resource-set periodicity, repetitions, muting and multiple resources are not included | `tools/nr_prs.schema.json` |
 | `nr_pss` | `nrPSS`<br>`nrPSSIndices` | `validated` | PSS m-sequence generation + RE indices | `tools/nr_pss.schema.json` |
 | `nr_pusch` | `nrPUSCH`<br>`nrPUSCHDecode` | `independent_validated` | PUSCH scramble + modulation + layer map; optional DFT-s-OFDM transform precoding | `tools/nr_pusch.schema.json` |
+| `nr_pusch_codebook` | `nrPUSCHCodebook` | `independent_validated` | All 4542 valid R2026a layer/port/TPMI/transform/codebook-type combinations for 1, 2, 4 and 8 ports; R2026b three-port addition is not included | `tools/nr_pusch_codebook.schema.json` |
 | `nr_pusch_ref` | `nrPUSCHDMRS`<br>`nrPUSCHDMRSIndices`<br>`nrPUSCHIndices` | `independent_validated` | PUSCH DM-RS sequence and data RE indices for one BWP allocation | `tools/nr_pusch_ref.schema.json` |
+| `nr_pusch_scrambling` | `nrPUSCHScramble`<br>`nrPUSCHDescramble` | `independent_validated` | Single-codeword binary bits or soft LLRs, including q=0/1; no UCI X/Y placeholders or msgA nrapid | `tools/nr_pusch_scrambling.schema.json` |
+| `nr_sch_info` | `nrDLSCHInfo`<br>`nrULSCHInfo` | `independent_validated` | Scalar TBS/TCR coding dimensions; UL-SCH UCI multiplexing and two-codeword forms are not included | `tools/nr_sch_info.schema.json` |
 | `nr_srs` | `nrSRS`<br>`nrSRSIndices` | `independent_validated` | Zadoff-Chu SRS sequence and comb-based resource indices | `tools/nr_srs.schema.json` |
+| `nr_ssb_measurements` | `nrSSBMeasurements` | `independent_validated` | 240x4 SSB grid, per-Rx RSRP/RSSI/RSRQ, optional PBCH DM-RS contribution; phase-correction option is not included | `tools/nr_ssb_measurements.schema.json` |
 | `nr_sss` | `nrSSS`<br>`nrSSSIndices` | `validated` | SSS dual m-sequence generation + RE indices | `tools/nr_sss.schema.json` |
+| `nr_tables` | `nrCQITables`<br>`nrPUSCHMCSTables` | `independent_validated` | Four CQI tables and five default PUSCH MCS tables from R2026a; PUSCHMCSTables property-dependent variants are not included | `tools/nr_tables.schema.json` |
 | `nr_tbs` | `nrTBS` | `validated` | Transport block size determination per TS 38.214 | `tools/nr_tbs.schema.json` |
 | `nr_timing_estimate` | `nrTimingEstimate` | `validated` | cross-correlation timing estimate; direct waveform pair or built-in NR reference grid | `tools/nr_timing_estimate.schema.json` |
+| `nr_transform` | `nrTransformPrecode`<br>`nrTransformDeprecode` | `independent_validated` | Unitary 12×MRB DFT/IFFT per column, all integer MRB and row counts divisible by 12×MRB | `tools/nr_transform.schema.json` |
 
 ### WLAN Toolbox（9）
 

@@ -1,0 +1,15 @@
+{
+  "name": "nr_ofdm_info",
+  "script": "nr_ofdm_info.py",
+  "description": "独立 Python 计算 5G NR OFDM FFT、采样率、循环前缀、每时隙符号和每帧时隙信息。",
+  "implementation": "3GPP TS 38.211 §4.3/§5.3，支持显式窗口长度和零载频；默认 Nfft 为占用率不超过 85% 的最小 2 次幂。",
+  "inputs": {
+    "nrb": {"type": "integer", "required": true, "description": "载波资源网格 RB 数"},
+    "scs": {"type": "integer", "required": true, "description": "子载波间隔 kHz"},
+    "nfft": {"type": "integer", "required": false, "description": "显式 FFT 长度；省略时自动选择"},
+    "cyclic_prefix": {"type": "enum", "enum": ["normal", "extended"], "required": false, "default": "normal", "description": "循环前缀类型"},
+    "windowing": {"type": "integer", "required": true, "description": "显式窗口长度；0 表示矩形 OFDM。MATLAB 自动默认窗口尚未移植"}
+  },
+  "outputs": {"Nfft": {"description": "FFT 长度"}, "SampleRate": {"description": "采样率 Hz"}, "CyclicPrefixLengths": {"description": "一个子帧每符号 CP 采样数"}, "SymbolLengths": {"description": "一个子帧每符号总采样数"}, "Windowing": {"description": "窗口长度"}, "SymbolPhases": {"description": "零载频的符号相位"}, "SymbolsPerSlot": {"description": "每时隙符号数"}, "SlotsPerSubframe": {"description": "每子帧时隙数"}, "SlotsPerFrame": {"description": "每帧时隙数"}},
+  "example": {"cmd": "python tools/nr_ofdm_info.py --nrb 1 --scs 15 --windowing 0", "result": "{\"Nfft\":128,\"SampleRate\":1920000,\"CyclicPrefixLengths\":[10,9,...]}"}
+}

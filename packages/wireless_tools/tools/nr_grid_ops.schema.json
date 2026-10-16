@@ -1,0 +1,18 @@
+{
+  "name": "nr_grid_ops",
+  "script": "nr_grid_ops.py",
+  "description": "独立 Python 的 5G NR 资源网格创建及资源元素提取，对应 nrResourceGrid/nrExtractResources。",
+  "implementation": "零填充 K×L×P 资源网格，以及 MATLAB 列主序 RE 索引的 allplanes 提取。",
+  "inputs": {
+    "operation": {"type": "enum", "enum": ["create", "extract"], "required": true, "description": "创建网格或提取 RE"},
+    "nrb": {"type": "integer", "required": false, "description": "create：资源块数"},
+    "ports": {"type": "integer", "required": false, "default": 1, "description": "create：天线端口数"},
+    "cyclic_prefix": {"type": "enum", "enum": ["normal", "extended"], "required": false, "default": "normal", "description": "create：CP 类型"},
+    "grid": {"type": "string", "required": false, "description": "extract：复数资源网格 JSON {real,imag}"},
+    "indices": {"type": "string", "required": false, "description": "extract：线性索引 JSON 向量或 N×3 下标数组"},
+    "index_base": {"type": "enum", "enum": ["0based", "1based"], "required": false, "default": "1based", "description": "extract：索引基数"},
+    "index_style": {"type": "enum", "enum": ["index", "subscript"], "required": false, "default": "index", "description": "extract：索引表示形式"}
+  },
+  "outputs": {"grid": {"description": "create 输出", "optional": true}, "resources": {"description": "extract 输出", "optional": true}, "indices": {"description": "提取索引", "optional": true}, "shape": {"description": "输出形状"}},
+  "example": {"cmd": "python tools/nr_grid_ops.py --operation create --nrb 1", "result": "{\"grid\": {\"real\": [...], \"imag\": [...]}, \"shape\": [12,14,1]}"}
+}
