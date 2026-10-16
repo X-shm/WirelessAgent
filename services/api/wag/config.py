@@ -22,4 +22,6 @@ class Settings(BaseSettings):
     task_poll_interval: float = 1.0
 
 
+    upload_dir: str = "./uploads"
+
 settings = Settings()
