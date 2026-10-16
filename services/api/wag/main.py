@@ -1,8 +1,10 @@
-"""WirelessAgent - FastAPI entry point (projects / sessions / tasks slice)."""
+"""WirelessAgent - FastAPI entry point (projects / sessions / tasks / files slice)."""
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
@@ -11,7 +13,7 @@ from wag.database import engine
 from wag.limiter import limiter
 from wag.middleware.auth import auth_middleware
 from wag.models.base import Base
-from wag.routes import auth, projects, session, tasks
+from wag.routes import auth, files, projects, session, tasks
 
 
 @asynccontextmanager
@@ -37,10 +39,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-for router in (auth.router, session.router, projects.router, tasks.router):
+for router in (auth.router, session.router, projects.router, tasks.router, files.router):
     app.include_router(router)
 
 
 @app.get("/api/health")
 async def health():
     return {"status": "ok", "app": settings.app_name}
+
+@app.get("/library", include_in_schema=False)
+async def library_page():
+    return FileResponse(os.path.join(os.path.dirname(__file__), "library.html"))
