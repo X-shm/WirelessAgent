@@ -11875,21 +11875,37 @@ function Ww({
         }),
       }),
       ...body,
-      T.jsxs("div", {
-        className: "p-3 border-t border-cream-200 space-y-2",
-        children: [
-          T.jsx("a", {
-            href: "/login",
-            className:
-              "block text-center text-xs text-muted-foreground/40 hover:text-sunset-500 transition-colors",
-            children: "Login / Register",
+      localStorage.getItem("token")
+        ? T.jsxs("div", {
+            onClick: () => e("/login"),
+            className: "p-3 border-t border-cream-200 flex items-center gap-2 cursor-pointer",
+            children: [
+              T.jsx("div", {
+                className:
+                  "w-8 h-8 rounded-full bg-sunset-500 text-white flex items-center justify-center text-sm font-bold",
+                children: (() => { try { return (JSON.parse(localStorage.getItem("user")).name || "U").slice(0, 1); } catch (e) { return "U"; } })(),
+              }),
+              T.jsx("span", {
+                className: "text-xs text-muted-foreground truncate",
+                children: (() => { try { return JSON.parse(localStorage.getItem("user")).name || "用户"; } catch (e) { return "用户"; } })(),
+              }),
+            ],
+          })
+        : T.jsxs("div", {
+            onClick: () => e("/login"),
+            className: "p-3 border-t border-cream-200 flex items-center gap-2 cursor-pointer",
+            children: [
+              T.jsx("div", {
+                className:
+                  "w-8 h-8 rounded-full bg-cream-100 text-muted-foreground flex items-center justify-center text-sm font-bold",
+                children: "客",
+              }),
+              T.jsx("span", {
+                className: "text-xs text-muted-foreground truncate",
+                children: "游客",
+              }),
+            ],
           }),
-          T.jsx("p", {
-            className: "text-xs text-muted-foreground/30 text-center",
-            children: "Powered by OpenClaw",
-          }),
-        ],
-      }),
     ],
   });
 }
@@ -33931,16 +33947,7 @@ function kA() {
     } = _A(),
     [c, f] = D.useState(null);
   (D.useEffect(() => {
-    localStorage.getItem("token") ||
-      Yt.guest()
-        .then(async (m) => {
-          if (m.ok) {
-            const b = await m.json();
-            (localStorage.setItem("token", b.access_token),
-              window.location.reload());
-          }
-        })
-        .catch(() => e("/login"));
+    localStorage.getItem("token") || e("/login");
   }, [e]),
     D.useEffect(() => {
       !n && t.length > 0 && !c && f(t[0].id);

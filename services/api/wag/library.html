@@ -13,7 +13,7 @@ a{color:#ff7b42}
 header{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;background:#fff;border-bottom:1px solid #eee4d6}
 header h1{font-size:20px;margin:0}
 main{max-width:860px;margin:24px auto;padding:0 20px}
-.up{border:2px dashed #e5d8c3;border-radius:16px;padding:30px;text-align:center;cursor:pointer;background:#fff;margin-bottom:18px}
+.up{display:block;border:2px dashed #e5d8c3;border-radius:16px;padding:30px;text-align:center;cursor:pointer;background:#fff;margin-bottom:18px}
 .up:hover{border-color:#ff7b42}
 .list{display:flex;flex-direction:column;gap:10px}
 .item{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #eee4d6;border-radius:12px;padding:12px 16px}
@@ -49,10 +49,10 @@ pre{white-space:pre-wrap;word-break:break-all;font-family:ui-monospace,Consolas,
     <button onclick="logout()">退出登录</button>
   </header>
   <main>
-    <div class="up" onclick="document.getElementById('fileInput').click()">
+    <label class="up" for="fileInput">
       点击上传文件（支持多选、任意格式）
       <input id="fileInput" type="file" multiple style="display:none">
-    </div>
+    </label>
     <div id="list" class="list"></div>
   </main>
 </div>
@@ -61,7 +61,7 @@ pre{white-space:pre-wrap;word-break:break-all;font-family:ui-monospace,Consolas,
   <div class="box">
     <div class="bar"><b id="pName"></b>
       <div>
-        <a id="pDownload" href="#" download><button class="primary">下载</button></a>
+        <button class="primary" onclick="downloadCurrent()">下载</button>
         <button onclick="closePreview()">关闭</button>
       </div>
     </div>
@@ -71,15 +71,22 @@ pre{white-space:pre-wrap;word-break:break-all;font-family:ui-monospace,Consolas,
 
 <script>
 var token = localStorage.getItem('token') || '';
+var curFile = null;
 
 function auth(){ return token ? {'Authorization':'Bearer '+token} : {}; }
-
 function showLogin(){ document.getElementById('loginView').style.display='flex'; document.getElementById('appView').style.display='none'; }
 function showApp(){ document.getElementById('loginView').style.display='none'; document.getElementById('appView').style.display='block'; load(); }
-
 function logout(){ localStorage.removeItem('token'); localStorage.removeItem('user'); location.reload(); }
-
+function esc(s){ var d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+function extOf(name){ return (name.split('.').pop()||'').toLowerCase(); }
 function fmtSize(n){ if(n<1024)return n+' B'; if(n<1048576)return (n/1024).toFixed(1)+' KB'; return (n/1048576).toFixed(1)+' MB'; }
+
+async function fetchBlob(path){
+  var r = await fetch(path, {headers:auth()});
+  if(r.status===401){ showLogin(); return null; }
+  if(!r.ok){ return null; }
+  return await r.blob();
+}
 
 async function load(){
   var r = await fetch('/api/files/', {headers:auth()});
@@ -92,45 +99,62 @@ async function load(){
     return '<div class="item"><div class="ic">'+esc(ext.slice(0,4))+'</div>'+
       '<div class="meta"><div class="name">'+esc(f.filename)+'</div><div class="sub">'+fmtSize(f.size)+' · '+esc(f.created_at.replace('T',' ').slice(0,19))+'</div></div>'+
       '<button class="primary" onclick="preview(\''+f.id+'\',\''+esc(f.filename)+'\')">预览</button>'+
-      '<a href="/api/files/'+f.id+'/download" download><button>下载</button></a>'+
+      '<button onclick="downloadFile(\''+f.id+'\',\''+esc(f.filename)+'\')">下载</button>'+
       '<button class="danger" onclick="del(\''+f.id+'\')">删除</button></div>';
   }).join('');
 }
 
-function esc(s){ var d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
-
-function extOf(name){ return (name.split('.').pop()||'').toLowerCase(); }
-
 async function preview(id, name){
+  curFile = {id:id, name:name};
   var ext = extOf(name);
-  var url = '/api/files/'+id+'/content';
+  var path = '/api/files/'+id+'/content';
   var body = document.getElementById('pBody');
   var overlay = document.getElementById('overlay');
   document.getElementById('pName').textContent = name;
-  document.getElementById('pDownload').href = '/api/files/'+id+'/download';
   body.innerHTML = '加载中…';
   overlay.style.display = 'flex';
 
-  if(['png','jpg','jpeg','gif','webp','bmp','svg'].includes(ext)){
-    body.innerHTML = '<img src="'+url+'">';
-  } else if(ext==='pdf' || ['doc','docx','xls','xlsx','ppt','pptx','rtf','odt','ods','odp'].includes(ext)){
-    body.innerHTML = '<iframe src="'+url+'"></iframe>';
-  } else if(['mp3','wav','m4a','ogg','flac'].includes(ext)){
-    body.innerHTML = '<audio controls style="width:100%"><source src="'+url+'"></audio>';
-  } else if(['mp4','webm','mov','mkv'].includes(ext)){
-    body.innerHTML = '<video controls style="width:100%"><source src="'+url+'"></video>';
-  } else if(['txt','md','csv','json','xml','log','py','js','html','css','yaml','yml'].includes(ext)){
-    try{
-      var r = await fetch(url, {headers:auth()});
-      var t = await r.text();
-      body.innerHTML = '<pre>'+esc(t)+'</pre>';
-    }catch(e){ body.innerHTML = '预览失败，请下载查看'; }
+  var TEXT = ['txt','md','csv','json','xml','log','py','js','html','css','yaml','yml'];
+  var IMG = ['png','jpg','jpeg','gif','webp','bmp','svg'];
+  var AUDIO = ['mp3','wav','m4a','ogg','flac'];
+  var VIDEO = ['mp4','webm','mov','mkv'];
+
+  if(TEXT.includes(ext)){
+    var r = await fetch(path, {headers:auth()});
+    if(r.status===401){ showLogin(); return; }
+    var t = await r.text();
+    body.innerHTML = '<pre>'+esc(t)+'</pre>';
+  } else if(IMG.includes(ext) || ext==='pdf' || AUDIO.includes(ext) || VIDEO.includes(ext) || ['doc','docx','xls','xlsx','ppt','pptx','rtf','odt','ods','odp'].includes(ext)){
+    var blob = await fetchBlob(path);
+    if(!blob){ body.innerHTML = '预览失败，请下载查看'; return; }
+    var url = URL.createObjectURL(blob);
+    if(IMG.includes(ext)){ body.innerHTML = '<img src="'+url+'">'; }
+    else if(AUDIO.includes(ext)){ body.innerHTML = '<audio controls style="width:100%"><source src="'+url+'"></audio>'; }
+    else if(VIDEO.includes(ext)){ body.innerHTML = '<video controls style="width:100%"><source src="'+url+'"></video>'; }
+    else { body.innerHTML = '<iframe src="'+url+'"></iframe>'; }
+    curFile.url = url;
   } else {
     body.innerHTML = '该格式不支持在线预览，请点击上方“下载”。';
   }
 }
 
-function closePreview(){ document.getElementById('overlay').style.display='none'; }
+async function downloadFile(id, name){
+  var blob = await fetchBlob('/api/files/'+id+'/download');
+  if(!blob){ alert('下载失败'); return; }
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 10000);
+}
+
+function downloadCurrent(){
+  if(curFile && curFile.id){ downloadFile(curFile.id, curFile.name); }
+}
+
+function closePreview(){
+  if(curFile && curFile.url){ URL.revokeObjectURL(curFile.url); }
+  document.getElementById('overlay').style.display='none';
+}
 
 async function del(id){
   if(!confirm('确定删除该文件？')) return;
@@ -143,8 +167,11 @@ document.getElementById('fileInput').addEventListener('change', async function(e
   if(files.length===0) return;
   for(var f of files){
     var fd = new FormData(); fd.append('file', f);
-    var r = await fetch('/api/files/upload', {method:'POST', headers:auth(), body:fd});
-    if(r.status===401){ showLogin(); return; }
+    try{
+      var r = await fetch('/api/files/upload', {method:'POST', headers:auth(), body:fd});
+      if(r.status===401){ showLogin(); return; }
+      if(!r.ok){ alert('上传失败：'+f.name+'（HTTP '+r.status+'）'); }
+    }catch(err){ alert('上传出错：'+f.name+'（'+err.message+'）'); }
   }
   e.target.value = '';
   load();
