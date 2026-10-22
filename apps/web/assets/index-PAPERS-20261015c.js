@@ -11687,7 +11687,7 @@ function Ww({
   onWorkView,
 }) {
   const e = tc();
-  const toggle = (m) => (m === "chat" ? e("/") : m === "work" ? e("/work") : m === "digest" ? e("/digest") : e("/papers"));
+  const toggle = (m) => (m === "chat" ? e("/") : m === "work" ? e("/work") : e("/papers"));
   const workItems = [
     { key: "rag", label: "标准检索", icon: WkSearch },
     { key: "upload", label: "文件上传", icon: WkUpload },
@@ -11838,7 +11838,7 @@ function Ww({
         children: T.jsxs("div", {
           className:
             "grid gap-1 p-1 rounded-2xl bg-cream-100 border border-cream-200",
-          style: { gridTemplateColumns: "repeat(4, minmax(0, 1fr))" },
+          style: { gridTemplateColumns: "repeat(3, minmax(0, 1fr))" },
           children: [
             T.jsxs("button", {
               onClick: () => toggle("chat"),
@@ -11861,16 +11861,6 @@ function Ww({
               children: [T.jsx(WkBriefcase, { className: "w-4 h-4" }), "工作"],
             }),
             T.jsxs("button", {
-              onClick: () => toggle("digest"),
-              className: Or(
-                "flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-medium transition-all duration-200",
-                mode === "digest"
-                  ? "bg-white shadow-sm text-sunset-600"
-                  : "text-muted-foreground hover:text-foreground",
-              ),
-              children: [T.jsx(WkPaper, { className: "w-4 h-4" }), "速递"],
-            }),
-            T.jsxs("button", {
               onClick: () => toggle("papers"),
               className: Or(
                 "flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-medium transition-all duration-200",
@@ -11878,7 +11868,7 @@ function Ww({
                   ? "bg-white shadow-sm text-sunset-600"
                   : "text-muted-foreground hover:text-foreground",
               ),
-              children: [T.jsx(nw, { className: "w-4 h-4" }), "答疑"],
+              children: [T.jsx(WkPaper, { className: "w-4 h-4" }), "速递"],
             }),
           ],
         }),
@@ -34308,92 +34298,6 @@ function WkHomework() {
     ],
   });
 }
-function WkDigestPage() {
-  const [s, t] = D.useState(null),
-    [r, n] = D.useState(!1),
-    [m, u] = D.useState(""),
-    [k, c] = D.useState(0),
-    load = () =>
-      fetch("/api/digest/status")
-        .then((x) => x.json())
-        .then(t)
-        .catch(() => t({})),
-    run = async () => {
-      (n(!0), u("正在生成最新论文速递…"));
-      try {
-        const x = await fetch("/api/digest/run?days=1&max_papers=20", {
-          method: "POST",
-        });
-        const j = await x.json();
-        u(j.success ? "生成完成" : "失败：" + (j.error || j.detail || "未知错误"));
-        (c((v) => v + 1), load());
-      } catch (e) {
-        u("网络错误：" + (e && e.message ? e.message : e));
-      } finally {
-        n(!1);
-      }
-    };
-  D.useEffect(() => {
-    load();
-  }, []);
-  return T.jsxs("div", {
-    className: "flex h-screen overflow-hidden bg-cream-100",
-    children: [
-      T.jsx(Ww, { mode: "digest" }),
-      T.jsxs("main", {
-        className: "flex-1 flex flex-col min-w-0 bg-cream-50",
-        children: [
-          T.jsxs("div", {
-            className:
-              "flex items-center justify-between gap-4 px-6 py-4 border-b border-cream-200 bg-white",
-            children: [
-              T.jsxs("div", {
-                children: [
-                  T.jsx("h1", {
-                    className: "text-lg font-bold text-foreground",
-                    children: "论文速递",
-                  }),
-                  T.jsx("p", {
-                    className: "text-sm text-muted-foreground",
-                    children: "每日 24 点自动汇总 arXiv 无线通信领域最新论文",
-                  }),
-                ],
-              }),
-              T.jsxs("div", {
-                className: "flex items-center gap-3",
-                children: [
-                  m
-                    ? T.jsx("span", {
-                        className: "text-sm text-muted-foreground",
-                        children: m,
-                      })
-                    : null,
-                  r
-                    ? T.jsx("span", {
-                        className: "text-sm text-sunset-500",
-                        children: "生成中，请稍候…",
-                      })
-                    : T.jsx("button", {
-                        onClick: run,
-                        className:
-                          "px-4 py-2 rounded-lg text-sm font-medium bg-sunset-500 text-white hover:bg-sunset-600 transition-colors",
-                        children: "立即生成",
-                      }),
-                ],
-              }),
-            ],
-          }),
-          T.jsx("iframe", {
-            key: k,
-            src: "/api/digest/latest",
-            className: "flex-1 w-full border-0 bg-white",
-            title: "论文速递报告",
-          }),
-        ],
-      }),
-    ],
-  });
-}
 
 function WkWorkPage() {
   const [v, setV] = D.useState("rag");
@@ -34488,7 +34392,7 @@ function PpList() {
           T.jsxs("div", {
             className: "p-6 pb-4 border-b border-cream-200",
             children: [
-              T.jsx("h2", { className: "font-brand text-2xl text-foreground", children: "论文答疑 · Agent2Paper" }),
+              T.jsx("h2", { className: "font-brand text-2xl text-foreground", children: "论文速递" }),
               T.jsx("p", { className: "text-sm text-muted-foreground mt-1", children: "浏览最新无线通信论文，点击任意一篇与虚拟作者一对一对话" }),
             ],
           }),
@@ -34632,7 +34536,7 @@ function PpChat() {
         className: "flex-1 flex flex-col min-w-0 bg-cream-50",
         children: [
           T.jsxs("div", {
-            className: "px-6 py-3 border-b border-cream-200 bg-white flex items-center gap-3",
+            className: "px-4 py-3 border-b border-cream-200 bg-white flex items-center gap-3",
             children: [
               T.jsx("button", {
                 onClick: () => e("/papers"),
@@ -34646,13 +34550,14 @@ function PpChat() {
             ],
           }),
           T.jsxs("div", {
-            className: "flex-1 flex min-h-0",
+            className: "flex-1 flex",
+            style: { minHeight: 0 },
             children: [
               T.jsx("div", {
                 style: { width: "45%", minWidth: 320, maxWidth: 560 },
                 className: "h-full overflow-y-auto border-r border-cream-200 bg-white",
                 children: T.jsxs("div", {
-                  className: "p-6",
+                  style: { padding: "24px" },
                   children: [
                     paper
                       ? T.jsx("h3", {
@@ -34661,7 +34566,7 @@ function PpChat() {
                         })
                       : T.jsx("p", { className: "text-sm text-muted-foreground/50", children: "加载论文…" }),
                     paper && paper.title_zh && paper.title && T.jsx("p", {
-                      className: "text-sm text-muted-foreground mt-2 leading-relaxed",
+                      className: "text-sm text-muted-foreground mt-4 leading-relaxed",
                       children: paper.title,
                     }),
                     paper && T.jsx("p", {
@@ -34669,11 +34574,11 @@ function PpChat() {
                       children: "作者：" + (Array.isArray(paper.authors) ? paper.authors.join(", ") : ""),
                     }),
                     paper && (paper.primary_category || paper.published) && T.jsx("p", {
-                      className: "text-xs text-muted-foreground mt-1",
+                      className: "text-xs text-muted-foreground mt-4",
                       children: [paper.primary_category, paper.published].filter(Boolean).join(" · "),
                     }),
                     paper && paper.arxiv_id && T.jsx("p", {
-                      className: "text-xs text-muted-foreground/50 mt-1",
+                      className: "text-xs text-muted-foreground/50 mt-4",
                       children: paper.arxiv_id,
                     }),
                     paper && Array.isArray(paper.keywords) && paper.keywords.length > 0 && T.jsxs("div", {
@@ -34687,14 +34592,14 @@ function PpChat() {
                       className: "mt-4",
                       children: [
                         T.jsx("h4", { className: "text-sm font-semibold text-foreground", children: "摘要" }),
-                        T.jsx("p", { className: "text-sm text-muted-foreground mt-2 leading-relaxed", children: paper.abstract_zh }),
+                        T.jsx("p", { className: "text-sm text-muted-foreground mt-4 leading-relaxed", children: paper.abstract_zh }),
                       ],
                     }),
                     paper && paper.abstract && paper.abstract_zh && paper.abstract !== paper.abstract_zh && T.jsxs("div", {
                       className: "mt-4",
                       children: [
                         T.jsx("h4", { className: "text-sm font-semibold text-foreground", children: "Abstract" }),
-                        T.jsx("p", { className: "text-sm text-muted-foreground mt-2 leading-relaxed", children: paper.abstract }),
+                        T.jsx("p", { className: "text-sm text-muted-foreground mt-4 leading-relaxed", children: paper.abstract }),
                       ],
                     }),
                     paper && paper.link && T.jsx("div", {
@@ -34703,7 +34608,7 @@ function PpChat() {
                         href: paper.link,
                         target: "_blank",
                         rel: "noopener noreferrer",
-                        className: "text-sm text-sunset-500 hover:text-sunset-600 font-medium",
+                        className: "text-sm text-sunset-500 font-medium",
                         children: "查看 arXiv 原文 →",
                       }),
                     }),
@@ -34712,6 +34617,7 @@ function PpChat() {
               }),
               T.jsxs("div", {
                 className: "flex-1 flex flex-col min-w-0",
+                style: { minHeight: 0 },
                 children: [
                   T.jsx(EA, { messages: messages, streamingContent: streaming }),
                   T.jsx(wA, { onSend: send, loading: loading }),
@@ -34730,7 +34636,6 @@ function SA() {
       T.jsx(qo, { path: "/login", element: T.jsx(uw, {}) }),
       T.jsx(qo, { path: "/", element: T.jsx(kA, {}) }),
       T.jsx(qo, { path: "/work", element: T.jsx(WkWorkPage, {}) }),
-      T.jsx(qo, { path: "/digest", element: T.jsx(WkDigestPage, {}) }),
       T.jsx(qo, { path: "/papers", element: T.jsx(PpList, {}) }),
       T.jsx(qo, { path: "/papers/:id", element: T.jsx(PpChat, {}) }),
       T.jsx(qo, { path: "*", element: T.jsx(KE, { to: "/", replace: !0 }) }),
