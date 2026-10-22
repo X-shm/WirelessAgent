@@ -3,3 +3,12 @@
 __pycache__/
 *.py[cod]
 .pytest_cache/
+
+# 敏感与运行时文件（绝不入库 / 绝不部署覆盖）
+.env
+*.db
+*.log
+*.tar.gz
+uploads/
+chroma_data/
+_release/

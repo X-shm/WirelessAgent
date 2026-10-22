@@ -1,0 +1,39 @@
+name: Deploy to production
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 打包发布物
+        run: |
+          tar -czf release.tgz \
+            apps/web/assets \
+            apps/web/index.html \
+            services/api/app \
+            services/api/requirements-app.txt \
+            services/api/scripts \
+            infra/deploy.sh
+
+      - name: 上传并部署
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          key_opts="-i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+          ssh $key_opts -p "${SSH_PORT}" "${SSH_USER}@${SSH_HOST}" "mkdir -p /opt/wireless-agent/_release"
+          scp $key_opts -P "${SSH_PORT}" release.tgz "${SSH_USER}@${SSH_HOST}:/opt/wireless-agent/_release/"
+          ssh $key_opts -p "${SSH_PORT}" "${SSH_USER}@${SSH_HOST}" \
+            "cd /opt/wireless-agent/_release && tar -xzf release.tgz && bash infra/deploy.sh"
