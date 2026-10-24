@@ -41,7 +41,7 @@ def verify(output: Path | None) -> None:
         env["WIRELESS_SIM_DATA_ROOT"] = data_root
         base = f"http://127.0.0.1:{free_loopback_port()}"
         api = subprocess.Popen(
-            [sys.executable, "-m", "uvicorn", "services.api.app:app", "--host", "127.0.0.1",
+            [sys.executable, "-m", "uvicorn", "services.api.simulation_app:app", "--host", "127.0.0.1",
              "--port", base.rsplit(":", 1)[1]],
             cwd=ROOT, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
         )

@@ -10,7 +10,7 @@ from unittest.mock import patch
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
-from services.api.app import create_app
+from services.api.simulation_app import create_app
 from services.api.models import BlePowerDistanceParameters
 from services.api.store import TaskStore
 from packages.agent.ble_coverage import SimulationFailure

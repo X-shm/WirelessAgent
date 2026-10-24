@@ -21,7 +21,7 @@
 
 在当前 Windows 沙箱中，测试的临时文件型 SQLite 数据库不可写；测试配置支持用 `TEST_DATABASE_URL=sqlite+aiosqlite:///:memory:` 覆盖。以此运行 `services/api/tests` 得到 **10 passed**；网站 API 使用本地占位配置启动后 `/api/health` 返回 200。`git diff --check` 与网站代码语法检查通过。
 
-仓库顶层 `tests/test_simulation_task.py` 在收集阶段因既有的 `services.api.app` 同名包/模块冲突（测试期望 `services/api/app.py` 的 `create_app`，Python 实际导入 `services/api/app/__init__.py`）失败；本分支未修改这两个目标，不能把顶层测试记作通过。该问题需单独修复或明确测试运行方式。
+仓库原有 BLE 入口 `services/api/app.py` 与网站包目录 `services/api/app/` 同名，导致 Python 导入时选择包目录，BLE 测试无法取得 `create_app`。本分支将 BLE 入口改名为 `services/api/simulation_app.py`，并同步更新测试、uvicorn 启动脚本和 compose 启动命令。该命名冲突修复后，仍需运行 BLE unittest 和网站 API tests。
 
 ## 暂不自动合并的部分
 
