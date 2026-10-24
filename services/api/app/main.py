@@ -12,7 +12,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi import _rate_limit_exceeded_handler
 from app.database import engine
 from app.models.base import Base
-from app.routes import auth, chat, session, file, rag, analytics, papers, projects, tasks
+from app.routes import auth, chat, session, file, library, rag, analytics, papers, projects, tasks
 from app.middleware.auth import auth_middleware
 
 # arXiv paper digest
@@ -59,6 +59,7 @@ app.include_router(auth.router)
 app.include_router(chat.router)
 app.include_router(session.router)
 app.include_router(file.router)
+app.include_router(library.router)
 app.include_router(rag.router)
 app.include_router(analytics.router)
 app.include_router(papers.router)

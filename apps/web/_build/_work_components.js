@@ -135,115 +135,214 @@ function WkRagSearch() {
   });
 }
 function WkFileUpload() {
-  const [files, setFiles] = D.useState([]);
+  const [selected, setSelected] = D.useState([]);
   const [uploading, setUploading] = D.useState(!1);
-  const [results, setResults] = D.useState([]);
-  const [err, setErr] = D.useState("");
-  const pick = (e) => e.target.files && setFiles(Array.from(e.target.files));
-  const run = async () => {
-    if (files.length === 0) return;
-    setUploading(!0);
-    setErr("");
-    setResults([]);
+  const [drag, setDrag] = D.useState(!1);
+  const [libraryFiles, setLibraryFiles] = D.useState([]);
+  const [loadingFiles, setLoadingFiles] = D.useState(!0);
+  const [error, setError] = D.useState("");
+  const [preview, setPreview] = D.useState(null);
+
+  const loadFiles = D.useCallback(async () => {
+    setLoadingFiles(!0);
+    setError("");
     try {
-      const out = [];
-      for (const f of files) {
-        const r = await Yt.upload(f);
-        if (r.ok) {
-          const d = await r.json().catch(() => ({}));
-          out.push({ name: f.name, ok: !0, msg: d.message || d.filename || "上传成功" });
-        } else {
-          out.push({ name: f.name, ok: !1, msg: "上传失败（" + r.status + "）" });
-        }
-      }
-      setResults(out);
-      setFiles([]);
+      const response = await Yt.listFiles();
+      if (!response.ok) throw new Error("无法读取资料库");
+      const data = await response.json();
+      setLibraryFiles(Array.isArray(data) ? data : []);
     } catch {
-      setErr("网络错误，请检查连接后重试");
+      setError("资料库加载失败，请稍后重试");
     } finally {
-      setUploading(!1);
+      setLoadingFiles(!1);
+    }
+  }, []);
+
+  D.useEffect(() => { loadFiles(); }, [loadFiles]);
+
+  const patchSelected = (id, patch) => {
+    setSelected((prev) => prev.map((item) => (item.id === id ? { ...item, ...patch } : item)));
+  };
+
+  const add = (list) => {
+    const incoming = Array.from(list || []);
+    if (incoming.length === 0) return;
+    setSelected((prev) => {
+      const seen = new Set(prev.map((item) => item.file.name + ":" + item.file.size));
+      const next = [];
+      for (const file of incoming) {
+        const key = file.name + ":" + file.size;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        next.push({ id: Date.now().toString(36) + "-" + Math.random().toString(36).slice(2), file, status: "ready", message: "等待上传" });
+      }
+      return [...prev, ...next];
+    });
+  };
+
+  const upload = async () => {
+    const pending = selected.filter((item) => item.status === "ready" || item.status === "error");
+    if (pending.length === 0 || uploading) return;
+    setUploading(!0);
+    setError("");
+    for (const item of pending) {
+      patchSelected(item.id, { status: "uploading", message: "上传中…" });
+      try {
+        const response = await Yt.upload(item.file);
+        if (response.ok) {
+          patchSelected(item.id, { status: "success", message: "已上传" });
+          await loadFiles();
+        } else {
+          patchSelected(item.id, { status: "error", message: "上传失败（" + response.status + "）" });
+        }
+      } catch {
+        patchSelected(item.id, { status: "error", message: "网络错误，请重试" });
+      }
+    }
+    setUploading(!1);
+  };
+
+  const removeLibraryFile = async (file) => {
+    if (!window.confirm("确定删除“" + file.filename + "”吗？")) return;
+    try {
+      const response = await Yt.deleteFile(file.id);
+      if (response.ok) setLibraryFiles((prev) => prev.filter((item) => item.id !== file.id));
+      else setError("删除失败，请稍后重试");
+    } catch {
+      setError("删除失败，请稍后重试");
     }
   };
+
+  const formatSize = (size) => {
+    if (!size) return "0 B";
+    if (size < 1024) return size + " B";
+    if (size < 1024 * 1024) return (size / 1024).toFixed(1) + " KB";
+    return (size / (1024 * 1024)).toFixed(1) + " MB";
+  };
+  const pendingCount = selected.filter((item) => item.status === "ready" || item.status === "error").length;
+  const successCount = selected.filter((item) => item.status === "success").length;
+
   return T.jsxs("div", {
-    className: "flex-1 flex flex-col min-w-0",
+    className: "flex-1 flex flex-col min-w-0 h-full",
     children: [
       T.jsxs("div", {
         className: "p-6 pb-4 border-b border-cream-200",
         children: [
-          T.jsx("h2", {
-            className: "font-brand text-2xl text-foreground",
-            children: "文件上传",
-          }),
-          T.jsx("p", {
-            className: "text-sm text-muted-foreground mt-1",
-            children: "上传课件 / 标准文档，供 AI 在对话中参考",
-          }),
+          T.jsx("h2", { className: "font-brand text-2xl text-foreground", children: "资料库" }),
+          T.jsx("p", { className: "text-sm text-muted-foreground mt-1", children: "聊天中的附件和从本地上传的资料都会显示在这里" }),
         ],
       }),
       T.jsx("div", {
-        className: "flex-1 overflow-y-auto px-6 py-6",
-        children: [
-          T.jsxs("label", {
-            className:
-              "flex flex-col items-center justify-center gap-3 border-2 border-dashed border-cream-300 rounded-3xl p-10 cursor-pointer hover:border-sunset-400 transition-colors",
-            children: [
-              T.jsx(WkUpload, { className: "w-10 h-10 text-sunset-400" }),
-              T.jsx("p", {
-                className: "text-sm text-muted-foreground",
-                children: "点击选择文件（支持多选）",
-              }),
-              T.jsx("input", {
-                type: "file",
-                multiple: !0,
-                className: "hidden",
-                onChange: pick,
-              }),
-            ],
-          }),
-          files.length > 0 &&
+        className: "flex-1 overflow-y-auto px-4 pb-6 pt-4",
+        children: T.jsxs("div", {
+          className: "max-w-4xl mx-auto w-full flex flex-col gap-5",
+          children: [
             T.jsxs("div", {
-              className: "mt-4 space-y-2",
+              className: "rounded-3xl border border-cream-300 bg-white p-4 shadow-sm",
               children: [
-                files.map((f, idx) =>
-                  T.jsx("p", {
-                    key: idx,
-                    className: "text-sm text-muted-foreground",
-                    children: f.name,
-                  }),
-                ),
-                T.jsxs("button", {
-                  onClick: run,
-                  disabled: uploading,
-                  className:
-                    "px-5 py-2.5 rounded-2xl bg-sunset-500 hover:bg-sunset-600 disabled:opacity-40 text-white text-sm font-medium transition-all duration-200",
-                  children: [uploading ? "上传中…" : "开始上传"],
+                T.jsx("p", { className: "text-sm font-medium text-foreground mb-3", children: "从本地上传资料" }),
+                T.jsxs("div", {
+                  className: Or("rounded-2xl bg-cream-50 px-4 py-4 text-center transition-colors", drag ? "bg-accent" : "bg-cream-50"),
+                  onDragOver: (event) => { event.preventDefault(); setDrag(!0); },
+                  onDragLeave: () => setDrag(!1),
+                  onDrop: (event) => { event.preventDefault(); setDrag(!1); add(event.dataTransfer.files); },
+                  children: [
+                    T.jsxs("label", {
+                      className: "inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white border border-cream-300 text-sm font-medium text-foreground cursor-pointer hover:bg-accent transition-colors",
+                      children: [
+                        T.jsx(WkUpload, { className: "w-4 h-4 text-sunset-500" }),
+                        "选择文件",
+                        T.jsx("input", {
+                          type: "file",
+                          multiple: !0,
+                          className: "hidden",
+                          onChange: (event) => { add(event.target.files); event.target.value = ""; },
+                        }),
+                      ],
+                    }),
+                    T.jsx("p", { className: "text-xs text-muted-foreground mt-2", children: "支持拖拽、多选；上传完成后会立即出现在下方资料列表" }),
+                  ],
                 }),
+                selected.length > 0 &&
+                  T.jsxs("div", {
+                    className: "space-y-2 mt-3",
+                    children: [
+                      selected.map((item) =>
+                        T.jsxs("div", {
+                          className: "flex items-center gap-2 rounded-2xl border border-cream-200 px-3 py-2",
+                          children: [
+                            T.jsx("p", { className: "text-xs text-foreground truncate flex-1", children: item.file.name }),
+                            T.jsx("span", { className: Or("text-xs", item.status === "error" ? "text-red-400" : item.status === "success" ? "text-sunset-500" : "text-muted-foreground"), children: item.message }),
+                            item.status !== "uploading" && T.jsx("button", { type: "button", onClick: () => setSelected((prev) => prev.filter((current) => current.id !== item.id)), className: "text-muted-foreground hover:text-foreground", children: "×" }),
+                          ],
+                        }, item.id),
+                      ),
+                      T.jsx("button", {
+                        type: "button",
+                        onClick: upload,
+                        disabled: uploading || pendingCount === 0,
+                        className: "px-4 py-2.5 rounded-2xl bg-sunset-500 hover:bg-sunset-600 disabled:opacity-40 text-white text-sm font-medium",
+                        children: uploading ? "上传中…" : pendingCount > 0 ? "上传 " + pendingCount + " 个文件" : successCount > 0 ? "已上传" : "上传文件",
+                      }),
+                    ],
+                  }),
+                error && T.jsx("p", { className: "text-sm text-red-400 mt-3", children: error }),
               ],
             }),
-          err &&
-            T.jsx("p", { className: "text-sm text-red-400 mt-4", children: err }),
-          results.length > 0 &&
             T.jsxs("div", {
-              className: "mt-6 space-y-2",
-              children: results.map((r, idx) =>
-                T.jsx("p", {
-                  key: idx,
-                  className: Or("text-sm", r.ok ? "text-sunset-500" : "text-red-400"),
-                  children: r.name + " — " + r.msg,
+              className: "rounded-3xl border border-cream-300 bg-white p-4 shadow-sm",
+              children: [
+                T.jsxs("div", {
+                  className: "flex items-center justify-between gap-3 mb-3",
+                  children: [
+                    T.jsx("p", { className: "text-sm font-medium text-foreground", children: "全部资料" }),
+                    T.jsxs("button", { type: "button", onClick: loadFiles, className: "text-xs text-sunset-600 hover:underline", children: ["刷新", loadingFiles ? "中…" : ""] }),
+                  ],
                 }),
-              ),
+                loadingFiles
+                  ? T.jsx("p", { className: "text-sm text-muted-foreground text-center py-8", children: "正在加载…" })
+                  : libraryFiles.length === 0
+                    ? T.jsx("p", { className: "text-sm text-muted-foreground text-center py-8", children: "暂无资料，先上传一个文件吧" })
+                    : T.jsx("div", {
+                        className: "space-y-2",
+                        children: libraryFiles.map((file) =>
+                          T.jsxs("div", {
+                            className: "flex items-center gap-3 rounded-2xl border border-cream-200 px-3 py-3",
+                            children: [
+                              T.jsxs("div", {
+                                className: "min-w-0 flex-1",
+                                children: [
+                                  T.jsx("p", { className: "text-sm font-medium text-foreground truncate", children: file.filename }),
+                                  T.jsx("p", { className: "text-xs text-muted-foreground mt-0.5", children: formatSize(file.size) + " · " + new Date(file.created_at).toLocaleString("zh-CN") }),
+                                ],
+                              }),
+                              T.jsx("button", { type: "button", onClick: () => setPreview({ id: file.id, name: file.filename, content_type: file.content_type }), className: "px-3 py-1.5 rounded-xl bg-accent text-accent-foreground text-xs font-medium hover:bg-orange-200", children: "预览" }),
+                              T.jsx("button", { type: "button", onClick: () => removeLibraryFile(file), className: "px-3 py-1.5 rounded-xl text-red-400 text-xs hover:bg-red-50", children: "删除" }),
+                            ],
+                          }, file.id),
+                        ),
+                      }),
+              ],
             }),
-        ],
+          ],
+        }),
       }),
+      preview && T.jsx(WkPreviewModal, { file: preview, onClose: () => setPreview(null) }),
     ],
   });
 }
-function WkHomework() {
-  const e = tc();
+
+function WkHomework({ onUse } = {}) {
+  const navigate = tc();
   const [text, setText] = D.useState("");
-  const go = () => {
-    wkPrefill = "请帮我解答这道题：\n" + (text.trim() ? text.trim() : "");
-    e("/");
+  const submit = () => {
+    const prompt = "请帮我解答这道题：\n" + (text.trim() ? text.trim() : "");
+    if (onUse) {
+      onUse(prompt);
+      return;
+    }
+    Cu = prompt;
+    navigate("/");
   };
   return T.jsxs("div", {
     className: "flex-1 flex flex-col min-w-0",
@@ -251,14 +350,8 @@ function WkHomework() {
       T.jsxs("div", {
         className: "p-6 pb-4 border-b border-cream-200",
         children: [
-          T.jsx("h2", {
-            className: "font-brand text-2xl text-foreground",
-            children: "习题解答",
-          }),
-          T.jsx("p", {
-            className: "text-sm text-muted-foreground mt-1",
-            children: "粘贴题目，跳转到对话并自动带入，由 AI 分步解答",
-          }),
+          T.jsx("h2", { className: "font-brand text-2xl text-foreground", children: "习题解答" }),
+          T.jsx("p", { className: "text-sm text-muted-foreground mt-1", children: "粘贴题目后发送到工作对话，由 AI 分步解答" }),
         ],
       }),
       T.jsxs("div", {
@@ -266,23 +359,18 @@ function WkHomework() {
         children: [
           T.jsx("textarea", {
             value: text,
-            onChange: (e) => setText(e.target.value),
-            placeholder:
-              "在此粘贴要解答的习题，例如：\n某信道带宽 10MHz，SNR=20dB，求信道容量……",
+            onChange: (event) => setText(event.target.value),
+            placeholder: "在此粘贴要解答的习题，例如：\n某信道带宽 10MHz，SNR=20dB，求信道容量……",
             rows: 8,
-            className:
-              "w-full max-w-2xl rounded-2xl border border-cream-300 bg-white px-4 py-3 text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-sunset-400 resize-none",
+            className: "w-full max-w-2xl rounded-2xl border border-cream-300 bg-white px-4 py-3 text-sm placeholder:text-muted-foreground/50 focus:outline-none resize-none",
           }),
           T.jsx("div", {
             className: "mt-4",
-            children: T.jsxs("button", {
-              onClick: go,
-              className:
-                "px-5 py-2.5 rounded-2xl bg-sunset-500 hover:bg-sunset-600 text-white text-sm font-medium transition-all duration-200",
-              children: [
-                T.jsx(nw, { className: "w-4 h-4 inline mr-1.5" }),
-                "去对话解答",
-              ],
+            children: T.jsx("button", {
+              type: "button",
+              onClick: submit,
+              className: "px-5 py-2.5 rounded-2xl bg-sunset-500 hover:bg-sunset-600 text-white text-sm font-medium transition-all duration-200",
+              children: "带入工作对话",
             }),
           }),
         ],
@@ -290,21 +378,15 @@ function WkHomework() {
     ],
   });
 }
+
 function WkWorkPage() {
-  const [v, setV] = D.useState("rag");
   return T.jsxs("div", {
     className: "flex h-screen overflow-hidden bg-cream-100",
     children: [
-      T.jsx(Ww, { mode: "work", workView: v, onWorkView: setV }),
-      T.jsxs("main", {
+      T.jsx(Ww, { mode: "library" }),
+      T.jsx("main", {
         className: "flex-1 flex flex-col min-w-0 bg-cream-50",
-        children: [
-          v === "rag"
-            ? T.jsx(WkRagSearch, {})
-            : v === "upload"
-              ? T.jsx(WkFileUpload, {})
-              : T.jsx(WkHomework, {}),
-        ],
+        children: T.jsx(WkFileUpload, {}),
       }),
     ],
   });
