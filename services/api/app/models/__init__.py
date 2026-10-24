@@ -9,6 +9,5 @@ from app.models.paper_message import PaperMessage
 from app.models.project import Project
 from app.models.task import Task
 from app.models.file import File
-from app.models.library_file import LibraryFile
 
-__all__ = ["User", "Session", "Message", "Feedback", "Analytics", "Paper", "PaperMessage", "Project", "Task", "File", "LibraryFile"]
+__all__ = ["User", "Session", "Message", "Feedback", "Analytics", "Paper", "PaperMessage", "Project", "Task", "File"]

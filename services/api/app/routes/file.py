@@ -35,26 +35,13 @@ async def upload_file(request: Request, file: UploadFile, db: AsyncSession = Dep
     file_id = str(uuid.uuid4())
     safe_name = f"{file_id}_{file.filename or 'unnamed'}"
     path = upload_dir / safe_name
-    total = 0
-    limit = settings.max_upload_size_mb * 1024 * 1024
-    try:
-        with path.open("wb") as output:
-            while True:
-                chunk = await file.read(1024 * 1024)
-                if not chunk:
-                    break
-                total += len(chunk)
-                if total > limit:
-                    raise HTTPException(status_code=413, detail=f"文件不能超过 {settings.max_upload_size_mb} MB")
-                output.write(chunk)
-    except Exception:
-        path.unlink(missing_ok=True)
-        raise
+    content = await file.read()
+    path.write_bytes(content)
 
     rec = File(
         user_id=request.state.user_id,
         filename=file.filename or "unnamed",
-        size=total,
+        size=len(content),
         content_type=file.content_type,
         storage_path=str(path),
     )
