@@ -26,7 +26,6 @@ class RegisterRequest(BaseModel):
     email: EmailStr
     password: str
     display_name: str
-    is_guest: bool = False
 
 
 class LoginRequest(BaseModel):
@@ -64,7 +63,7 @@ async def register(req: RegisterRequest, db: AsyncSession = Depends(get_db)):
     await db.refresh(user)
 
     token = create_token(user)
-    return TokenResponse(access_token=token, user_id=user.id, display_name=user.display_name, is_guest=False)
+    return TokenResponse(access_token=token, user_id=user.id, display_name=user.display_name)
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -75,7 +74,7 @@ async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
     token = create_token(user)
-    return TokenResponse(access_token=token, user_id=user.id, display_name=user.display_name, is_guest=False)
+    return TokenResponse(access_token=token, user_id=user.id, display_name=user.display_name)
 
 
 class GuestRequest(BaseModel):
@@ -96,4 +95,4 @@ async def guest(db: AsyncSession = Depends(get_db)):
     await db.commit()
     await db.refresh(user)
     token = create_token(user)
-    return TokenResponse(access_token=token, user_id=user.id, display_name=user.display_name, is_guest=True)
+    return TokenResponse(access_token=token, user_id=user.id, display_name=user.display_name)
