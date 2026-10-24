@@ -11,8 +11,9 @@ for p in (str(API_DIR), str(ROOT)):
         sys.path.insert(0, p)
 
 _tmp = tempfile.mkdtemp(prefix="wag_test_")
-os.environ["DATABASE_URL"] = f"sqlite+aiosqlite:///{pathlib.Path(_tmp) / 'test.db'}"
+os.environ["DATABASE_URL"] = os.environ.get("TEST_DATABASE_URL") or f"sqlite+aiosqlite:///{pathlib.Path(_tmp) / 'test.db'}"
 os.environ["SECRET_KEY"] = "test-secret-key"
+os.environ["OPENCLAW_API_KEY"] = "test-only-gateway-token"
 
 import pytest
 from fastapi.testclient import TestClient

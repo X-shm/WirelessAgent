@@ -1,6 +1,7 @@
 """Paper routes — Agent2Paper: list/search papers + virtual-author Q&A."""
 import json
 import time
+from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
 from sqlalchemy import select
@@ -10,6 +11,7 @@ from app.models.paper import Paper
 from app.models.paper_message import PaperMessage
 from app.services.paper_service import refresh_papers, build_author_prompt
 from app.services.openclaw_client import openclaw
+from app.config import settings
 from app.limiter import limiter
 from pydantic import BaseModel
 
@@ -46,6 +48,8 @@ async def refresh(
     db: AsyncSession = Depends(get_db),
 ):
     global _last_refresh
+    if not (Path(settings.arxiv_digest_dir) / "scripts" / "arxiv_fetcher.py").is_file():
+        raise HTTPException(status_code=503, detail="Paper refresh requires the external arXiv digest project")
     now = time.time()
     if now - _last_refresh < _MIN_REFRESH_INTERVAL:
         raise HTTPException(

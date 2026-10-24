@@ -9,16 +9,16 @@ class Settings(BaseSettings):
     # App
     app_name: str = "WirelessAgent"
     debug: bool = False
-    secret_key: str = "change-me-in-production"
+    secret_key: str
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 1440  # 24 hours
 
     # Database
-    database_url: str = "sqlite+aiosqlite:///./wirelessagent.db"
+    database_url: str
 
     # OpenClaw Agent
     openclaw_base_url: str = "http://127.0.0.1:18789/v1"
-    openclaw_api_key: str = "change-me-in-production"
+    openclaw_api_key: str
     openclaw_model: str = "openclaw/default"
 
     # WirelessAgent system prompt

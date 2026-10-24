@@ -15,12 +15,15 @@ from app.models.base import Base
 from app.routes import auth, chat, session, file, library, rag, analytics, papers, projects, tasks
 from app.middleware.auth import auth_middleware
 
-# arXiv paper digest
-os.environ.setdefault("ARXIV_DIGEST_DIR", settings.arxiv_digest_dir)
+# The digest service is deployed separately; it is absent from a fresh checkout.
 _DIGEST_SCRIPTS = os.path.join(settings.arxiv_digest_dir, "scripts")
-if _DIGEST_SCRIPTS not in sys.path:
-    sys.path.insert(0, _DIGEST_SCRIPTS)
-from digest_routes import router as digest_router
+if os.path.isfile(os.path.join(_DIGEST_SCRIPTS, "digest_routes.py")):
+    os.environ.setdefault("ARXIV_DIGEST_DIR", settings.arxiv_digest_dir)
+    if _DIGEST_SCRIPTS not in sys.path:
+        sys.path.insert(0, _DIGEST_SCRIPTS)
+    from digest_routes import router as digest_router
+else:
+    digest_router = None
 
 
 @asynccontextmanager
@@ -65,7 +68,8 @@ app.include_router(analytics.router)
 app.include_router(papers.router)
 app.include_router(projects.router)
 app.include_router(tasks.router)
-app.include_router(digest_router, prefix="/api/digest")
+if digest_router is not None:
+    app.include_router(digest_router, prefix="/api/digest")
 
 
 @app.get("/api/health")
