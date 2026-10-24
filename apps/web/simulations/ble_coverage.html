@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BLE 发射功率与距离扫描 | WirelessAgent</title>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; background: #f5f7fb; color: #15243b; }
+    body { max-width: 820px; margin: 0 auto; padding: 32px 18px 64px; }
+    h1 { margin-bottom: 8px; font-size: 1.8rem; }
+    p { line-height: 1.6; }
+    .card { margin-top: 22px; padding: 24px; border: 1px solid #d8e0eb; border-radius: 12px; background: white; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    label { display: block; font-weight: 600; }
+    input { box-sizing: border-box; display: block; width: 100%; margin-top: 6px; padding: 10px; border: 1px solid #9caec6; border-radius: 6px; font: inherit; }
+    button { margin-top: 20px; padding: 11px 20px; border: 0; border-radius: 6px; background: #1764b1; color: white; font: inherit; cursor: pointer; }
+    button:disabled { opacity: .6; cursor: wait; }
+    .muted { color: #51627a; }
+    .error { color: #a31919; white-space: pre-wrap; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin-top: 14px; text-align: right; }
+    th, td { padding: 9px 10px; border-bottom: 1px solid #d8e0eb; }
+    th:first-child, td:first-child { text-align: left; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>BLE 发射功率与距离扫描</h1>
+    <p class="muted">提交仿真参数，由任务 worker 调用无线工具计算各距离点的接收功率和包传输结果。</p>
+
+    <section class="card" aria-labelledby="input-title">
+      <h2 id="input-title">仿真输入</h2>
+      <form id="task-form">
+        <div class="grid">
+          <label>发射功率 (dBm)
+            <input id="tx-power" type="number" min="-20" max="20" step="any" value="0" required>
+          </label>
+          <label>接收灵敏度 (dBm)
+            <input id="sensitivity" type="number" min="-110" max="-70" step="any" value="-75" required>
+          </label>
+          <label>距离 (米，用逗号分隔)
+            <input id="distances" type="text" value="1,5,10,25,50,100" required>
+          </label>
+          <label>每个距离的发包数
+            <input id="packets" type="number" min="1" max="100" step="1" value="20" required>
+          </label>
+        </div>
+        <button id="submit" type="submit">开始仿真</button>
+      </form>
+    </section>
+
+    <section class="card" aria-labelledby="result-title">
+      <h2 id="result-title">任务状态与结果</h2>
+      <p id="status" role="status" aria-live="polite">尚未提交任务。</p>
+      <p id="task-id" class="muted"></p>
+      <p id="error" class="error" role="alert"></p>
+      <div id="result" hidden>
+        <p id="summary"></p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>距离 (m)</th><th>接收功率 (dBm)</th><th>发包</th><th>成功</th><th>丢包</th></tr></thead>
+            <tbody id="points"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const form = document.getElementById('task-form');
+    const status = document.getElementById('status');
+    const taskId = document.getElementById('task-id');
+    const error = document.getElementById('error');
+    const result = document.getElementById('result');
+    const summary = document.getElementById('summary');
+    const points = document.getElementById('points');
+    const submit = document.getElementById('submit');
+    let pollTimer;
+
+    async function readJson(response) {
+      const body = await response.json();
+      if (!response.ok) {
+        const detail = body.detail || `HTTP ${response.status}`;
+        throw new Error(typeof detail === 'string' ? detail : JSON.stringify(detail));
+      }
+      return body;
+    }
+
+    function showResult(task) {
+      const data = task.result;
+      result.hidden = false;
+      summary.textContent = `可达距离：${data.sampled_reach_m} m；验证：${data.validation?.passed ? '通过' : '未通过'}`;
+      points.replaceChildren();
+      for (const point of data.points || []) {
+        const row = document.createElement('tr');
+        for (const value of [point.distance_m, point.received_power_dbm, point.transmissions, point.deliveries, point.drops]) {
+          const cell = document.createElement('td');
+          cell.textContent = value ?? '—';
+          row.appendChild(cell);
+        }
+        points.appendChild(row);
+      }
+    }
+
+    async function refreshTask(id) {
+      clearTimeout(pollTimer);
+      try {
+        const task = await readJson(await fetch(`/api/v1/simulation-tasks/${encodeURIComponent(id)}`));
+        taskId.textContent = `任务 ID：${id}`;
+        status.textContent = `状态：${task.status}；进度：${task.progress}%`;
+        error.textContent = task.error ? `${task.error.code}: ${task.error.message}` : '';
+        if (task.status === 'succeeded') showResult(task);
+        else result.hidden = true;
+        if (task.status === 'queued' || task.status === 'running') {
+          pollTimer = setTimeout(() => refreshTask(id), 1500);
+        }
+      } catch (cause) {
+        status.textContent = '无法读取任务。';
+        error.textContent = cause.message;
+      }
+    }
+
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      clearTimeout(pollTimer);
+      error.textContent = '';
+      result.hidden = true;
+      submit.disabled = true;
+      status.textContent = '正在提交任务…';
+      try {
+        const distances = document.getElementById('distances').value.split(/[,，\s]+/).filter(Boolean).map(Number);
+        if (distances.length < 2 || distances.some(value => !Number.isFinite(value))) {
+          throw new Error('请输入至少两个有效距离，使用逗号分隔。');
+        }
+        const payload = {
+          type: 'ble_power_distance_v1',
+          parameters: {
+            tx_power_dbm: Number(document.getElementById('tx-power').value),
+            receiver_sensitivity_dbm: Number(document.getElementById('sensitivity').value),
+            distances_m: distances,
+            packets_per_distance: Number(document.getElementById('packets').value)
+          }
+        };
+        const created = await readJson(await fetch('/api/v1/simulation-tasks', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+        }));
+        const url = new URL(window.location.href);
+        url.searchParams.set('task_id', created.id);
+        history.replaceState(null, '', url);
+        await refreshTask(created.id);
+      } catch (cause) {
+        status.textContent = '任务提交失败。';
+        error.textContent = cause.message;
+      } finally {
+        submit.disabled = false;
+      }
+    });
+
+    const savedTaskId = new URLSearchParams(window.location.search).get('task_id');
+    if (savedTaskId) refreshTask(savedTaskId);
+  </script>
+</body>
+</html>
