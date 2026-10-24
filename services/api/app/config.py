@@ -38,7 +38,7 @@ class Settings(BaseSettings):
 
     # File upload
     upload_dir: str = "./uploads"
-    max_upload_size_mb: int = 50
+    max_upload_size_mb: int = 100
 
     # CORS
     cors_origins: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
