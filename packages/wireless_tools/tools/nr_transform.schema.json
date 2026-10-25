@@ -1,0 +1,13 @@
+{
+  "name": "nr_transform",
+  "script": "nr_transform.py",
+  "description": "独立 Python 实现 5G NR 上行 DFT 变换预编码和逆变换；对应 nrTransformPrecode/nrTransformDeprecode。",
+  "implementation": "3GPP TS 38.211 §6.3.1.4，逐层、逐 12×mrb 符号块执行单位化 FFT/IFFT。",
+  "inputs": {
+    "operation": {"type": "enum", "enum": ["precode", "deprecode"], "required": true, "description": "变换方向"},
+    "mrb": {"type": "integer", "required": true, "description": "资源块数，决定变换块长 12×mrb"},
+    "symbols": {"type": "string", "required": true, "description": "复数向量或矩阵 JSON，格式 {real,imag}"}
+  },
+  "outputs": {"symbols": {"description": "变换后的复数符号 {real,imag}"}, "shape": {"description": "输出形状"}},
+  "example": {"cmd": "python tools/nr_transform.py --operation precode --mrb 1 --symbols '[1,0,0,0,0,0,0,0,0,0,0,0]'", "result": "{\"symbols\": {\"real\": [...], \"imag\": [...]}, \"shape\": [12]}"}
+}

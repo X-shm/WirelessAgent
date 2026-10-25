@@ -1,0 +1,85 @@
+{
+  "name": "lte_uplink_family",
+  "script": "lte_uplink_family.py",
+  "description": "LTE uplink control, shared channel, reference and estimation operations",
+  "implementation": "独立 Python 上行 PUCCH2/3 PRBS、PUCCH1/2/3 数据/DRS 索引及 DRS 序列、ACK/RI/CQI 短块编解码、UCI/UCI3 全合法长度编码和 1..11 位软解码、SRS 小区子帧调度、无 UCI 的 UL-SCH 交织及 61 个 PUSCH MIMO 码本已与 MATLAB 样本对照；完整 PUSCH 传输处理和多层复用仍为部分实现。",
+  "inputs": {
+    "function": {
+      "type": "enum",
+      "enum": [
+        "lteACKDecode",
+        "lteACKEncode",
+        "lteCQIDecode",
+        "lteCQIEncode",
+        "ltePUCCH1",
+        "ltePUCCH1Decode",
+        "ltePUCCH1DRS",
+        "ltePUCCH1DRSIndices",
+        "ltePUCCH1Indices",
+        "ltePUCCH2",
+        "ltePUCCH2Decode",
+        "ltePUCCH2DRS",
+        "ltePUCCH2DRSDecode",
+        "ltePUCCH2DRSIndices",
+        "ltePUCCH2Indices",
+        "ltePUCCH2PRBS",
+        "ltePUCCH3",
+        "ltePUCCH3Decode",
+        "ltePUCCH3DRS",
+        "ltePUCCH3DRSIndices",
+        "ltePUCCH3Indices",
+        "ltePUCCH3PRBS",
+        "ltePUSCH",
+        "ltePUSCHDecode",
+        "ltePUSCHDeprecode",
+        "ltePUSCHPrecode",
+        "lteRIDecode",
+        "lteRIEncode",
+        "lteSRSInfo",
+        "lteUCI3Decode",
+        "lteUCI3Encode",
+        "lteUCIDecode",
+        "lteUCIEncode",
+        "lteULChannelEstimateNPUSCH",
+        "lteULChannelEstimatePUCCH1",
+        "lteULChannelEstimatePUCCH2",
+        "lteULChannelEstimatePUCCH3",
+        "lteULFrameOffsetNPUSCH",
+        "lteULFrameOffsetPUCCH1",
+        "lteULFrameOffsetPUCCH2",
+        "lteULFrameOffsetPUCCH3",
+        "lteULPerfectChannelEstimate",
+        "lteULPMIInfo",
+        "lteULPMISelect",
+        "lteULResourceGrid",
+        "lteULResourceGridSize",
+        "lteULSCH",
+        "lteULSCHDecode",
+        "lteULSCHDeinterleave",
+        "lteULSCHInfo",
+        "lteULSCHInterleave"
+      ],
+      "required": true,
+      "description": "MATLAB LTE public entry"
+    },
+    "params": {
+      "type": "string",
+      "required": true,
+      "max_length": 250000,
+      "mcp_stdin": true,
+      "description": "Selected entry's JSON keyword arguments"
+    }
+  },
+  "outputs": {
+    "function": {
+      "description": "Public entry"
+    },
+    "result": {
+      "description": "Computed result and explicit model scope"
+    }
+  },
+  "example": {
+    "cmd": "python tools/lte_uplink_family.py --function lteULResourceGridSize --params '{}'",
+    "result": "lteULResourceGridSize standalone Python result"
+  }
+}

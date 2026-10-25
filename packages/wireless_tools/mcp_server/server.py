@@ -78,7 +78,17 @@ def _cli_args(spec: ToolSpec, arguments: dict[str, Any]) -> list[str]:
 
 
 def _run_cli(spec: ToolSpec, arguments: dict[str, Any], timeout: float) -> types.CallToolResult:
-    args = [sys.executable, str(spec.script), *_cli_args(spec, arguments)]
+    stdin_fields = [name for name, field in spec.inputs.items()
+                    if field.get("mcp_stdin") and name in arguments]
+    if len(stdin_fields) > 1:
+        return _error("EXECUTION_FAILED", f"{spec.name} has multiple stdin inputs")
+    cli_arguments = dict(arguments)
+    stdin_payload = None
+    if stdin_fields:
+        field_name = stdin_fields[0]
+        stdin_payload = arguments[field_name]
+        cli_arguments[field_name] = "-"
+    args = [sys.executable, str(spec.script), *_cli_args(spec, cli_arguments)]
     env = os.environ.copy()
     env["PYTHONIOENCODING"] = "utf-8"
     try:
@@ -88,6 +98,7 @@ def _run_cli(spec: ToolSpec, arguments: dict[str, Any], timeout: float) -> types
             env=env,
             shell=False,
             capture_output=True,
+            input=stdin_payload,
             text=True,
             encoding="utf-8",
             errors="replace",

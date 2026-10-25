@@ -1,0 +1,11 @@
+{
+  "name": "wnet_traffic_models", "script": "wnet_traffic_models.py",
+  "description": "独立 Python FTP、OnOff、视频会议和 VoIP 无线业务流量时间表生成。",
+  "implementation": "从已安装 MATLAB R2026a 的公开默认值构造可复现的包时间、大小、状态和可选载荷；生成一次性时间表供 Agent 仿真调用。",
+  "inputs": {
+    "function": {"type": "enum", "enum": ["networkTrafficFTP", "networkTrafficOnOff", "networkTrafficVideoConference", "networkTrafficVoIP"], "required": true, "description": "公开业务流量类名"},
+    "params": {"type": "string", "required": true, "max_length": 250000, "mcp_stdin": true, "description": "JSON 配置对象；packet_count、seed 和模型属性。"}
+  },
+  "outputs": {"function": {"description": "调用的类名"}, "result": {"description": "可复现包生成时间表"}},
+  "example": {"cmd": "python tools/wnet_traffic_models.py --function networkTrafficVoIP --params '{\"packet_count\":2,\"has_jitter\":false}'", "result": "两个 VoIP 包的时间、大小和状态"}
+}

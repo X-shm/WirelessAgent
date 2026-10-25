@@ -1,6 +1,7 @@
 """Static checks for the wireless tool interface contract."""
 from __future__ import annotations
 
+import ast
 import json
 import re
 import subprocess
@@ -43,6 +44,7 @@ def main() -> int:
     schemas = sorted(TOOLS.glob("*.schema.json"))
     registry = json.loads((ROOT / "tool_registry.json").read_text(encoding="utf-8"))
     registered = {item["name"] for item in registry["tools"]}
+    registry_by_name = {item["name"]: item for item in registry["tools"]}
     schema_names: set[str] = set()
     bluetooth_tools = [item for item in registry["tools"] if item["product"] == "Bluetooth Toolbox"]
     bluetooth_sources = [source for item in bluetooth_tools for source in item["source_functions"]]
@@ -90,12 +92,26 @@ def main() -> int:
             continue
 
         source = script_path.read_text(encoding="utf-8")
+        if name.startswith(("comm_", "wnet_")) and "run_cli(" in source:
+            dispatch = [node.args[1] for node in ast.walk(ast.parse(source))
+                        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                        and node.func.id == "run_cli" and len(node.args) >= 2]
+            cli_names = ({key.value for key in dispatch[0].keys
+                          if isinstance(key, ast.Constant) and isinstance(key.value, str)}
+                         if len(dispatch) == 1 and isinstance(dispatch[0], ast.Dict) else set())
+            source_names = set(registry_by_name[name]["source_functions"])
+            schema_names_for_group = set(schema.get("inputs", {}).get("function", {}).get("enum", []))
+            if not cli_names or cli_names != source_names or cli_names != schema_names_for_group:
+                fail(errors, f"{name}: CLI dispatch, source_functions and schema enum differ")
         flags = {match[2:] for match in FLAG_RE.findall(source)}
         # Bluetooth tools share a deliberately uniform CLI adapter.  Its
         # common flags are real public flags even though argparse declares
         # them in the shared module rather than in every thin entrypoint.
         if "_bluetooth_common" in source:
             common_source = (TOOLS / "_bluetooth_common.py").read_text(encoding="utf-8")
+            flags.update(match[2:] for match in FLAG_RE.findall(common_source))
+        if "from _nr_remaining_common import" in source and "run_cli(" in source:
+            common_source = (TOOLS / "_nr_remaining_common.py").read_text(encoding="utf-8")
             flags.update(match[2:] for match in FLAG_RE.findall(common_source))
         check_inputs(errors, name, "schema", schema.get("inputs", {}), flags)
 

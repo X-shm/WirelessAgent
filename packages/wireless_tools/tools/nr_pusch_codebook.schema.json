@@ -1,0 +1,15 @@
+{
+  "name": "nr_pusch_codebook",
+  "script": "nr_pusch_codebook.py",
+  "description": "独立 Python 查询 NR PUSCH 标准预编码码本矩阵。",
+  "implementation": "开发期枚举 MATLAB R2026a 的 4542 组有效参数并保存标准化复数矩阵；运行时仅加载本地 JSON 数据。",
+  "inputs": {
+    "n_layers": {"type": "integer", "required": true, "description": "传输层数 1..8"},
+    "n_ports": {"type": "integer", "required": true, "enum": [1, 2, 4, 8], "description": "天线端口数"},
+    "tpmi": {"type": "integer", "required": true, "description": "TPMI 编号 0..304，须为该码本的有效组合"},
+    "transform_precode": {"type": "boolean", "required": false, "default": false, "description": "是否使用变换预编码分支"},
+    "codebook_type": {"type": "enum", "enum": ["codebook1_ng1n4n1", "codebook1_ng1n2n2", "codebook2", "codebook3", "codebook4"], "required": false, "default": "codebook1_ng1n4n1", "description": "八端口码本类型"}
+  },
+  "outputs": {"real": {"description": "NLayers×NPorts 码本矩阵实部"}, "imag": {"description": "NLayers×NPorts 码本矩阵虚部"}, "shape": {"description": "矩阵形状"}},
+  "example": {"cmd": "python tools/nr_pusch_codebook.py --n_layers 2 --n_ports 4 --tpmi 7", "result": "{\"real\": [[0.5,0,0.5,0],[0,0.5,0,0]], \"imag\": [[0,0,0,0],[0,0,0,0.5]], \"shape\": [2,4]}"}
+}

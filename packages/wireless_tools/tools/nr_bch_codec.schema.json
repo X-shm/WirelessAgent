@@ -1,0 +1,36 @@
+{
+  "name": "nr_bch_codec",
+  "script": "nr_bch_codec.py",
+  "description": "独立 Python BCH 32 位载荷交织、Gold 扰码、CRC24C、Polar 编码与 SC(L=1) 解码，固定 864 位码字。",
+  "implementation": "Standalone NumPy implementation; explicit limited coverage in tool_registry.json.",
+  "inputs": {
+    "function": {
+      "type": "enum",
+      "enum": [
+        "nrBCH",
+        "nrBCHDecode"
+      ],
+      "required": true,
+      "description": "MATLAB 5G Toolbox 入口名"
+    },
+    "params": {
+      "type": "string",
+      "required": true,
+      "max_length": 250000,
+      "mcp_stdin": true,
+      "description": "JSON 对象字符串。nrBCH: payload(24 bits),sfn,hrf,lssb(4/8/64),idxoffset,ncellid；nrBCHDecode: llr(864),lssb,ncellid,list_length=1。"
+    }
+  },
+  "outputs": {
+    "function": {
+      "description": "调用的 MATLAB 入口名"
+    },
+    "result": {
+      "description": "该入口的结构化计算结果"
+    }
+  },
+  "example": {
+    "cmd": "python tools/nr_bch_codec.py --function nrBCH --params '{\"payload\":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],\"sfn\":0,\"hrf\":0,\"lssb\":4,\"idxoffset\":0,\"ncellid\":1}'",
+    "result": "按入口参数返回 JSON 对象；缺失必需参数时返回 error"
+  }
+}

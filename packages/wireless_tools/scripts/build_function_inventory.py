@@ -12,8 +12,8 @@ PRODUCTS = {
     "Bluetooth Toolbox": ("bluetooth/bluetooth", "bluetooth/ble"),
     "Communications Toolbox": ("comm/comm",),
     "LTE Toolbox": ("lte/lte",),
-    "WLAN Toolbox": ("wlan/wlan",),
-    "Wireless Network Toolbox": ("wnet/wnet",),
+    "WLAN Toolbox": ("wlan/wlan", "wlan/wlan/+wlan/+type"),
+    "Wireless Network Toolbox": ("wnet/wnet", "wnet/wnet/traffic", "wnet/wnet/+wnet"),
 }
 
 
@@ -32,7 +32,10 @@ def main():
     converted = {}
     for tool in registry["tools"]:
         for function in tool["source_functions"]:
-            converted[function.lower()] = {"tool": tool["name"], "status": tool["status"]}
+            converted[function.lower()] = {
+                "tool": tool["name"],
+                "status": tool.get("source_status", {}).get(function, tool["status"]),
+            }
 
     matlab_root = Path(args.matlab_root).resolve()
     toolbox_root = matlab_root / "toolbox"
@@ -47,7 +50,10 @@ def main():
         names = (
             sorted(
                 {
-                    path.stem
+                    (f"wnet.{path.stem}" if product == "Wireless Network Toolbox"
+                     and folder.name == "+wnet" else
+                     f"wlan.type.{path.stem}" if product == "WLAN Toolbox"
+                     and folder.name == "+type" else path.stem)
                     for folder in folders
                     for path in folder.iterdir()
                     if path.is_file() and path.suffix.lower() in (".m", ".p", ".mlx") and path.stem != "Contents"
@@ -70,6 +76,16 @@ def main():
         }
         if len(folders) > 1:
             product_inventory["additional_toolbox_paths"] = [str(folder) for folder in folders[1:]]
+        if product == "Wireless Network Toolbox":
+            product_inventory["entry_scope"] = (
+                "public root, traffic, and +wnet namespace files; excludes +internal implementation files"
+            )
+            product_inventory["total_public_entries"] = len(functions)
+        if product == "WLAN Toolbox":
+            product_inventory["entry_scope"] = (
+                "public root and +wlan/+type enum classes; excludes +wlan/+internal implementation files"
+            )
+            product_inventory["total_public_entries"] = len(functions)
         result["products"][product] = product_inventory
 
     output = Path(args.output) if args.output else root / "references" / "function_inventory.json"

@@ -1,0 +1,18 @@
+{
+  "name": "nr_low_papr",
+  "script": "nr_low_papr.py",
+  "description": "独立 Python 生成 NR type 1 低峰均比序列，支持短序列标准相位表与长度不小于 30 的 Zadoff-Chu 构造。",
+  "implementation": "3GPP TS 38.211 §5.2.2，短长度相位表开发期从 MATLAB R2026a 导出；运行时不依赖 MATLAB。",
+  "inputs": {
+    "u": {"type": "string", "required": true, "description": "JSON 格式序列组号标量或数组，取值 0..29"},
+    "v": {"type": "string", "required": true, "description": "JSON 格式基序列号标量或数组，取值 0 或 1"},
+    "alpha": {"type": "string", "required": true, "description": "JSON 格式非负循环移位标量或数组（弧度）"},
+    "m": {"type": "integer", "required": true, "description": "序列长度，0、6/12/18/24 或不小于 30"}
+  },
+  "outputs": {
+    "seq_real": {"description": "实部，维度 M×NumAlpha×NumU×NumV"},
+    "seq_imag": {"description": "虚部，维度 M×NumAlpha×NumU×NumV"},
+    "shape": {"description": "输出数组维度"}
+  },
+  "example": {"cmd": "python tools/nr_low_papr.py --u 9 --v 0 --alpha 0 --m 6", "result": "{\"shape\":[6,1,1,1],\"seq_real\":[...] ,\"seq_imag\":[...]}"}
+}

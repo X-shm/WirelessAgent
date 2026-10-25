@@ -44,7 +44,10 @@ def _property(name: str, field: dict[str, Any]) -> dict[str, Any]:
     if "default" in field:
         prop["default"] = field["default"]
     if kind == "string":
-        prop["maxLength"] = 16_000
+        max_length = field.get("max_length", 16_000)
+        if type(max_length) is not int or not 1 <= max_length <= 1_000_000:
+            raise ValueError(f"invalid max_length for {name}: {max_length!r}")
+        prop["maxLength"] = max_length
     return prop
 
 
@@ -131,6 +134,11 @@ def load_catalog(only: set[str] | None = None) -> dict[str, ToolSpec]:
         subcommands = schema.get("subcommands", {})
         if not isinstance(inputs, dict) or not isinstance(subcommands, dict):
             raise ValueError(f"invalid inputs or subcommands for {name}")
+        stdin_fields = [field_name for field_name, field in inputs.items()
+                        if field.get("mcp_stdin")]
+        if len(stdin_fields) > 1 or any(inputs[field_name].get("type") != "string"
+                                        for field_name in stdin_fields):
+            raise ValueError(f"{name}: mcp_stdin requires one string input")
         catalog[name] = ToolSpec(
             name=name,
             description=schema["description"],

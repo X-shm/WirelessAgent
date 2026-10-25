@@ -11,8 +11,8 @@ def rate_match_indices(input_length,output_length):
     n=int(input_length)
     if n%3:raise ValueError("input_length must contain three equal streams")
     d=n//3;streams=[]
-    for i in range(3):streams.append(_interleave(np.arange(i*d,(i+1)*d),i==2))
-    k=len(streams[0]);w=np.empty(3*k,dtype=int);w[:k]=streams[0];w[k::2]=streams[1];w[k+1::2]=streams[2]
+    for i in range(3):streams.append(_interleave(np.arange(i*d,(i+1)*d)))
+    w=np.concatenate(streams)
     valid=w[w>=0]
     if len(valid)==0:return np.zeros(0,dtype=int)
     return np.resize(valid,int(output_length))

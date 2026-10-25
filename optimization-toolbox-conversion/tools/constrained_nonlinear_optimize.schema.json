@@ -1,0 +1,11 @@
+{
+  "name": "constrained_nonlinear_optimize",
+  "script": "constrained_nonlinear_optimize.py",
+  "description": "求解带线性约束和变量边界的二次目标最小化问题；对应 MATLAB Optimization Toolbox fmincon 的受限子集。",
+  "inputs": {
+    "problem": {"type": "string", "required": true, "description": "JSON 对象：H、可选 f、x0、可选 A_ub/b_ub、A_eq/b_eq、bounds。目标为 0.5*x' H x + f' x。"},
+    "options": {"type": "string", "required": false, "description": "可选 JSON 对象：max_iterations、tolerance、display。"}
+  },
+  "outputs": {"x": "优化变量", "objective": "目标函数值", "success": "求解是否成功", "status": "求解器状态码", "message": "求解信息", "iterations": "迭代次数", "method": "实际算法及支持范围"},
+  "example": {"cmd": "python tools/constrained_nonlinear_optimize.py --problem '{\"H\":[[2]],\"f\":[-4],\"x0\":[0],\"bounds\":[[0,3]]}'", "result": "{\"x\":[2.0],\"objective\":-4.0,\"success\":true}"}
+}

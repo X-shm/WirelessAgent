@@ -1,0 +1,11 @@
+{
+  "name": "wlan_config_family", "script": "wlan_config_family.py",
+  "description": "WLAN PHY/MAC 配置类与 wlan.type 枚举类的独立 Python JSON 接口。",
+  "implementation": "验证通用带宽、MCS、RU、天线和码型属性，返回可传给后续工具的结构化配置及基础派生参数；枚举类返回成员和值。",
+  "inputs": {
+    "function": {"type": "enum", "enum": ["wlanDMGConfig", "wlanEHTMUConfig", "wlanEHTRecoveryConfig", "wlanEHTRU", "wlanEHTTBConfig", "wlanEHTUser", "wlanHEMUConfig", "wlanHEMURU", "wlanHEMUUser", "wlanHERecoveryConfig", "wlanHESUConfig", "wlanHETBConfig", "wlanHTConfig", "wlanMACFrameConfig", "wlanMACManagementConfig", "wlanMACTriggerConfig", "wlanMACTriggerUserConfig", "wlanNonHTConfig", "wlanS1GConfig", "wlanURAConfig", "wlanVHTConfig", "wlanWURConfig", "wlanWURSubchannel", "wlan.type.ChannelCoding", "wlan.type.EHTPPDUType", "wlan.type.PostFECPaddingSource", "wlan.type.RecoveredChannelCoding", "wlan.type.SpatialMapping", "wlan.type.uhrChannelCoding"], "required": true, "description": "公开 MATLAB 配置或枚举类名"},
+    "params": {"type": "string", "required": true, "max_length": 250000, "mcp_stdin": true, "description": "配置类传 properties JSON 对象；枚举类传 name 或 code。"}
+  },
+  "outputs": {"function": {"description": "调用的类名"}, "result": {"description": "结构化配置、派生参数或枚举成员"}},
+  "example": {"cmd": "python tools/wlan_config_family.py --function wlanNonHTConfig --params '{\"properties\":{\"ChannelBandwidth\":\"CBW20\",\"MCS\":1}}'", "result": "可复用的 Non-HT 配置及带宽和调制阶数"}
+}

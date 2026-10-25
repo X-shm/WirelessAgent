@@ -1,0 +1,12 @@
+{
+  "name": "comm_signal_config",
+  "script": "comm_signal_config.py",
+  "description": "独立 Python 阵列、OFDM 导频与预编码、I/Q 失衡、采样率和 DPD 特征工具。",
+  "implementation": "零基导频网格、矩阵预编码、MATLAB I/Q 公式、DPD 时延特征及帧率因子；srmdelay 只返回可确定的帧缓冲延迟。",
+  "inputs": {
+    "function": {"type": "enum", "enum": ["arrayConfig", "ofdmPilotConfig", "ofdmPilotGrid", "ofdmPrecode", "iqimbal", "iqimbal2coef", "iqcoef2imbal", "srmdelay", "dpdPreprocessor"], "required": true, "description": "Communications Toolbox 顶层入口名"},
+    "params": {"type": "string", "required": true, "max_length": 250000, "mcp_stdin": true, "description": "函数关键字参数的 JSON 对象；复数数据采用 real/imag 对象。"}
+  },
+  "outputs": {"function": {"description": "调用的入口名"}, "result": {"description": "阵列位置、信号网格、变换结果或参数"}},
+  "example": {"cmd": "python tools/comm_signal_config.py --function arrayConfig --params '{\"size\":[2,2],\"element_spacing\":0.5}'", "result": "二维阵列配置和位置"}
+}

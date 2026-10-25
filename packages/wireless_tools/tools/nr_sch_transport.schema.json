@@ -1,0 +1,39 @@
+{
+  "name": "nr_sch_transport",
+  "script": "nr_sch_transport.py",
+  "description": "独立 Python 单 LDPC 码块共享信道子集；复用现有 CRC/LDPC 并显式处理 filler、速率匹配。UCI 复用仅支持显式插入位置。",
+  "implementation": "Standalone NumPy implementation; explicit limited coverage in tool_registry.json.",
+  "inputs": {
+    "function": {
+      "type": "enum",
+      "enum": [
+        "nrDLSCHDecoder",
+        "nrULSCH",
+        "nrULSCHDecoder",
+        "nrULSCHDemultiplex",
+        "nrULSCHMultiplex"
+      ],
+      "required": true,
+      "description": "MATLAB 5G Toolbox 入口名"
+    },
+    "params": {
+      "type": "string",
+      "required": true,
+      "max_length": 250000,
+      "mcp_stdin": true,
+      "description": "JSON 对象字符串。nrULSCH: payload,target_code_rate,e,modulation,rv；DLSCHDecoder/ULSCHDecoder: llr,tbs,target_code_rate,modulation,rv,max_iter；Multiplex: data_bits,uci_bits,uci_positions,total_length；Demultiplex: codeword,uci_positions。"
+    }
+  },
+  "outputs": {
+    "function": {
+      "description": "调用的 MATLAB 入口名"
+    },
+    "result": {
+      "description": "该入口的结构化计算结果"
+    }
+  },
+  "example": {
+    "cmd": "python tools/nr_sch_transport.py --function nrULSCHMultiplex --params '{\"data_bits\":[1,0,1],\"uci_bits\":[0,1],\"uci_positions\":[1,3],\"total_length\":5}'",
+    "result": "按入口参数返回 JSON 对象；缺失必需参数时返回 error"
+  }
+}

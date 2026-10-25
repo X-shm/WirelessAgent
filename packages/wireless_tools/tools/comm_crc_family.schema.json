@@ -1,0 +1,18 @@
+{
+  "name": "comm_crc_family",
+  "script": "comm_crc_family.py",
+  "description": "独立 Python 可配置 CRC 多项式生成和检测。",
+  "implementation": "支持多项式、初始寄存器、输入字节反射、校验和反射、最终 XOR 和一帧多个校验和；不支持 MATLAB direct_method 分支。",
+  "inputs": {
+    "function": {"type": "enum", "enum": ["crcConfig", "crcGenerate", "crcDetect"], "required": true, "description": "Communications Toolbox 顶层入口名"},
+    "params": {"type": "string", "required": true, "max_length": 250000, "mcp_stdin": true, "description": "JSON 参数对象；crcConfig 使用 polynomial 等配置，crcGenerate 使用 message/config，crcDetect 使用 codeword/config。"}
+  },
+  "outputs": {
+    "function": {"description": "调用的入口名"},
+    "result": {"description": "CRC 配置、码字或检测结果"}
+  },
+  "example": {
+    "cmd": "python tools/comm_crc_family.py --function crcGenerate --params '{\"message\":[1,0,1,1],\"config\":{\"polynomial\":[1,0,1,1]}}'",
+    "result": "码字和 checksum_width"
+  }
+}

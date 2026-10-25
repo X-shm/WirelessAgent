@@ -1,0 +1,15 @@
+{
+  "name": "nr_pdsch_decode",
+  "script": "nr_pdsch_decode.py",
+  "description": "独立 Python 对单码字 NR PDSCH 符号进行层解映射、软解调和去扰。",
+  "implementation": "3GPP TS 38.211 §7.3.1；复用现有 layer demap、QAM max-log LLR 和 Gold PRBS。",
+  "inputs": {
+    "symbols": {"type": "string", "required": true, "description": "复数 N×L 接收符号 JSON {real,imag}，L=1..4"},
+    "modulation": {"type": "string", "required": true, "description": "QPSK/16QAM/64QAM/256QAM/1024QAM"},
+    "nid": {"type": "integer", "required": true, "description": "PDSCH 加扰 ID"},
+    "rnti": {"type": "integer", "required": true, "description": "UE RNTI"},
+    "nvar": {"type": "number", "required": false, "default": 1e-10, "description": "复数噪声方差；0 按 1e-10 处理"}
+  },
+  "outputs": {"soft_bits": {"description": "去扰后的单码字近似 LLR"}, "constellation": {"description": "层解映射后的复数符号"}, "n_bits": {"description": "软比特数"}},
+  "example": {"cmd": "python tools/nr_pdsch_decode.py --symbols '{\"real\":[[0.7071067811865476]],\"imag\":[[0.7071067811865476]]}' --modulation QPSK --nid 0 --rnti 0 --nvar 1", "result": "{\"soft_bits\": [...], \"constellation\": {\"real\": [...], \"imag\": [...]}, \"n_bits\": 2}"}
+}

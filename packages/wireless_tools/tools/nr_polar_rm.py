@@ -132,28 +132,10 @@ def triangular_deinterleave(bits: np.ndarray) -> np.ndarray:
     Returns:
         Deinterleaved bits
     """
-    E = len(bits)
-    T = _get_triangle_size(E)
-
-    # Reconstruct the triangle buffer by reading column-wise
-    buffer = np.full((T, T), -1, dtype=bits.dtype)
-
-    k = 0
-    for j in range(T):
-        for i in range(T - j):
-            if k < E and buffer[i, j] != -1:
-                buffer[i, j] = bits[k]
-                k += 1
-
-    # Write row-wise to get original
-    result = np.zeros(E, dtype=bits.dtype)
-    k = 0
-    for i in range(T):
-        for j in range(T - i):
-            if k < E and buffer[i, j] != -1:
-                result[k] = buffer[i, j]
-                k += 1
-
+    bits = np.asarray(bits)
+    permutation = triangular_interleave(np.arange(len(bits)))
+    result = np.empty_like(bits)
+    result[permutation] = bits
     return result
 
 

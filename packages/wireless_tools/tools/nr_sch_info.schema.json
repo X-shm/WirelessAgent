@@ -1,0 +1,13 @@
+{
+  "name": "nr_sch_info",
+  "script": "nr_sch_info.py",
+  "description": "独立 Python 计算 NR DL-SCH/UL-SCH 的 CRC、基图、码块、提升系数和编码长度。",
+  "implementation": "3GPP TS 38.212 §5.2/§5.3；复用仓库中已有的有效 LDPC lifting size 集合。",
+  "inputs": {
+    "direction": {"type": "enum", "enum": ["dl", "ul"], "required": true, "description": "DL-SCH 或 UL-SCH"},
+    "tbs": {"type": "integer", "required": true, "description": "传输块长度，单位 bit"},
+    "tcr": {"type": "number", "required": true, "description": "目标码率，开区间 (0,1)"}
+  },
+  "outputs": {"CRC": {"description": "TB CRC 多项式"}, "L": {"description": "TB CRC 位数"}, "BGN": {"description": "LDPC 基图号"}, "C": {"description": "码块数"}, "Lcb": {"description": "每码块 CRC 位数"}, "F": {"description": "每码块填充位数"}, "Zc": {"description": "提升系数"}, "K": {"description": "分段后每码块位数"}, "N": {"description": "LDPC 编码后每码块位数"}},
+  "example": {"cmd": "python tools/nr_sch_info.py --direction dl --tbs 8456 --tcr 0.5048828125", "result": "{\"CRC\":\"24A\",\"L\":24,\"BGN\":1,\"C\":2,\"Lcb\":24,\"F\":312,\"Zc\":208,\"K\":4576,\"N\":13728}"}
+}

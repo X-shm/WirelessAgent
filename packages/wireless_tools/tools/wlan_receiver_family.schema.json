@@ -1,0 +1,11 @@
+{
+  "name": "wlan_receiver_family", "script": "wlan_receiver_family.py",
+  "description": "WLAN LTF 信道与噪声估计、单流均衡和导频相位跟踪。",
+  "implementation": "显式参考符号上的最小二乘信道估计、重复训练符号噪声估计、SISO MMSE/ZF 和公共相位误差校正。",
+  "inputs": {
+    "function": {"type": "enum", "enum": ["wlanEHTLTFChannelEstimate", "wlanHELTFChannelEstimate", "wlanHTLTFChannelEstimate", "wlanLLTFChannelEstimate", "wlanPreEHTChannelEstimate", "wlanPreHEChannelEstimate", "wlanVHTLTFChannelEstimate", "wlanEHTDataNoiseEstimate", "wlanHEDataNoiseEstimate", "wlanLLTFNoiseEstimate", "wlanEHTEqualize", "wlanHEEqualize", "wlanVHTEqualize", "wlanEHTTrackPilotError", "wlanHETrackPilotError", "wlanVHTTrackPilotError"], "required": true, "description": "MATLAB 公开入口名"},
+    "params": {"type": "string", "required": true, "max_length": 250000, "mcp_stdin": true, "description": "以 {real,imag} 数组给出 rx_symbols、reference_symbols 或 channel_estimate_symbols 等。"}
+  },
+  "outputs": {"function": {"description": "入口名"}, "result": {"description": "信道、噪声、均衡符号或导频相位"}},
+  "example": {"cmd": "python tools/wlan_receiver_family.py --function wlanLLTFChannelEstimate --params '{\"rx_symbols\":{\"real\":[[2,2],[1,1]],\"imag\":[[0,0],[0,0]]},\"reference_symbols\":{\"real\":[[1,1],[1,1]],\"imag\":[[0,0],[0,0]]}}'", "result": "两个子载波的信道估计"}
+}

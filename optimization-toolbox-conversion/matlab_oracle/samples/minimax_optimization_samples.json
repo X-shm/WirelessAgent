@@ -1,0 +1,1 @@
+[{"problem":{"objective_matrix":[[1],[-1]],"objective_offset":[-1,1],"bounds":[[0,2]]},"expected":{"x":[1],"objective":0}}]

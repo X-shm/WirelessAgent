@@ -1,0 +1,26 @@
+{
+  "name": "comm_galois_family",
+  "script": "comm_galois_family.py",
+  "description": "独立 Python GF(2^m)、素域线性方程及二元多项式工具。",
+  "implementation": "GF(2^m) 限 m=2..8；素域矩阵限小素数；按 JSON 数组返回字段元素、陪集、原始多项式、根和最小距离。",
+  "inputs": {
+    "function": {
+      "type": "enum",
+      "enum": ["gf", "gfdiv", "gfsub", "gflineq", "gfrank", "gfrepcov", "gfpretty", "cosets", "gfcosets", "gfprimck", "isprimitive", "gfprimdf", "gfprimfd", "primpoly", "gftable", "gftuple", "gfroots", "gfweight", "gfminpol"],
+      "required": true,
+      "description": "Communications Toolbox 顶层入口名"
+    },
+    "params": {
+      "type": "string", "required": true, "max_length": 250000, "mcp_stdin": true,
+      "description": "JSON 对象；GF(2^m) 函数使用 m 和 primitive，素域函数使用 p；各入口参数详见 tools/comm_galois_family.py。"
+    }
+  },
+  "outputs": {
+    "function": {"description": "调用的入口名"},
+    "result": {"description": "有限域或多项式计算结果"}
+  },
+  "example": {
+    "cmd": "python tools/comm_galois_family.py --function gfdiv --params '{\"numerator\":[1,2,3],\"denominator\":[1,2,3],\"m\":2}'",
+    "result": "{\"function\":\"gfdiv\",\"result\":{\"values\":[1,1,1]}}"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "nr_evm",
+  "script": "nr_evm.py",
+  "description": "独立 Python 测量 NR 等化网格相对参考网格的 RMS/峰值 EVM。",
+  "implementation": "对应 nrEVM(eqGrid,refGrid)：仅用非零参考 RE 计算 RMS 归一化幅度及误差矢量。",
+  "inputs": {
+    "eq_grid": {"type": "string", "required": true, "description": "等化复数网格 JSON {real,imag}"},
+    "ref_grid": {"type": "string", "required": true, "description": "参考复数网格 JSON {real,imag}"}
+  },
+  "outputs": {"rms_evm": {"description": "线性 RMS EVM"}, "peak_evm": {"description": "线性峰值 EVM"}, "error_vector_grid": {"description": "归一化误差矢量复数网格"}},
+  "example": {"cmd": "python tools/nr_evm.py --eq_grid '[1,1.1]' --ref_grid '[1,1]'", "result": "{\"rms_evm\": 0.07071067811865482, \"peak_evm\": 0.10000000000000009, \"error_vector_grid\": {\"real\": [0,0.1], \"imag\": [0,0]}}"}
+}

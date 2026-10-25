@@ -1,0 +1,50 @@
+{
+  "name": "lte_waveform_family",
+  "script": "lte_waveform_family.py",
+  "description": "LTE propagation, random access, RMC and test-model operations",
+  "implementation": "独立 Python 已提供基线 FDD PRACHInfo 几何、FDD/TDD RMC 与 E-TM 预设及显式抽头 FIR、参考相关和吞吐率计算；PRACHInfo 仅支持登记的标准带宽/格式基线配置，完整 3D/HST 随机信道和图形界面仍不支持。",
+  "inputs": {
+    "function": {
+      "type": "enum",
+      "enum": [
+        "lte3DChannel",
+        "lteDownlinkRMCGenerator",
+        "lteHSTChannel",
+        "lteMovingChannel",
+        "ltePRACH",
+        "ltePRACHDetect",
+        "ltePRACHInfo",
+        "lteRMCDL",
+        "lteRMCDLTool",
+        "lteRMCUL",
+        "lteRMCULTool",
+        "lteTestModel",
+        "lteTestModelGenerator",
+        "lteTestModelTool",
+        "lteThroughputAnalyzer",
+        "lteUplinkRMCGenerator"
+      ],
+      "required": true,
+      "description": "MATLAB LTE public entry"
+    },
+    "params": {
+      "type": "string",
+      "required": true,
+      "max_length": 250000,
+      "mcp_stdin": true,
+      "description": "Selected entry's JSON keyword arguments"
+    }
+  },
+  "outputs": {
+    "function": {
+      "description": "Public entry"
+    },
+    "result": {
+      "description": "Computed result and explicit model scope"
+    }
+  },
+  "example": {
+    "cmd": "python tools/lte_waveform_family.py --function lte3DChannel --params '{}'",
+    "result": "lte3DChannel standalone Python result"
+  }
+}

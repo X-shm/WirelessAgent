@@ -1,0 +1,11 @@
+{
+  "name": "wlan_ofdm_family", "script": "wlan_ofdm_family.py",
+  "description": "WLAN Non-HT、HT、VHT、HE、EHT、S1G、DMG 的 OFDM 几何与 FFT 解调。",
+  "implementation": "按带宽和保护间隔确定 FFT/CP/采样率，处理显式 IQ 波形和可选活动子载波索引。字段专属子载波布置需由调用方提供。",
+  "inputs": {
+    "function": {"type": "enum", "enum": ["wlanDMGOFDMInfo", "wlanEHTOFDMInfo", "wlanHEOFDMInfo", "wlanHTOFDMInfo", "wlanS1GOFDMInfo", "wlanVHTOFDMInfo", "wlanDMGOFDMDemodulate", "wlanEHTDemodulate", "wlanHEDemodulate", "wlanHTLTFDemodulate", "wlanLLTFDemodulate", "wlanNonHTOFDMDemodulate", "wlanS1GDemodulate", "wlanVHTDemodulate", "wlanVHTLTFDemodulate"], "required": true, "description": "MATLAB 公开入口名"},
+    "params": {"type": "string", "required": true, "max_length": 250000, "mcp_stdin": true, "description": "field、channel_bandwidth、guard_interval_us；解调另需 waveform 实虚数组。"}
+  },
+  "outputs": {"function": {"description": "入口名"}, "result": {"description": "OFDM 参数或频域符号网格"}},
+  "example": {"cmd": "python tools/wlan_ofdm_family.py --function wlanHEOFDMInfo --params '{\"channel_bandwidth\":\"CBW20\"}'", "result": "HE 20 MHz FFT 与采样率参数"}
+}

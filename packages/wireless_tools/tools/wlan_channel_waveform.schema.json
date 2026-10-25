@@ -1,0 +1,11 @@
+{
+  "name": "wlan_channel_waveform", "script": "wlan_channel_waveform.py",
+  "description": "WLAN TG 信道的显式抽头衰落切片与 Non-HT 完整波形生成/分析。",
+  "implementation": "独立 Python 复数抽头延迟、Rayleigh/Rician、可复现多普勒时变，以及 20 MHz 单流 Non-HT L-STF/L-LTF/L-SIG/数据字段串接和基础分析。",
+  "inputs": {
+    "function": {"type": "enum", "enum": ["wlanTGacChannel", "wlanTGahChannel", "wlanTGaxChannel", "wlanTGayChannel", "wlanTGnChannel", "wlanWaveformAnalyzer", "wlanWaveformGenerator"], "required": true, "description": "MATLAB 公开入口名"},
+    "params": {"type": "string", "required": true, "max_length": 250000, "mcp_stdin": true, "description": "信道传 waveform、sample_rate_hz 与显式路径参数；生成器传 psdu_bits/mcs；分析器传 waveform。"}
+  },
+  "outputs": {"function": {"description": "入口名"}, "result": {"description": "衰落波形、Non-HT PPDU 或分析指标"}},
+  "example": {"cmd": "python tools/wlan_channel_waveform.py --function wlanWaveformGenerator --params '{\"psdu_bits\":[0,1,0,1,0,1,0,1],\"mcs\":0}'", "result": "20 MHz Non-HT 波形及字段样本索引"}
+}

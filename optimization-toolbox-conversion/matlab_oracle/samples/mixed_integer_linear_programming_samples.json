@@ -1,0 +1,1 @@
+[{"problem":{"c":[-3,-2],"integer_variables":[0,1],"A_ub":[[2,1],[1,2]],"b_ub":[4,4],"bounds":[[0,10],[0,10]]},"expected":{"x":[2,-0],"objective":-6}}]

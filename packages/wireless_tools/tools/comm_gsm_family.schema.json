@@ -1,0 +1,11 @@
+{
+  "name": "comm_gsm_family", "script": "comm_gsm_family.py",
+  "description": "独立 Python GSM TDMA 时隙配置、抽样信息、简化 GMSK 帧和包络检查。",
+  "implementation": "8 时隙、156.25 符号/时隙、GSM 符号率和确定性高斯滤波连续相位调制；不生成 MATLAB 的训练序列和标准 AB/SB。",
+  "inputs": {
+    "function": {"type": "enum", "enum": ["gsmDownlinkBurstType", "gsmUplinkBurstType", "gsmDownlinkConfig", "gsmUplinkConfig", "gsmInfo", "gsmFrame", "gsmCheckTimeMask"], "required": true, "description": "Communications Toolbox 顶层入口名"},
+    "params": {"type": "string", "required": true, "max_length": 250000, "mcp_stdin": true, "description": "函数关键字参数 JSON 对象；gsmFrame 和 gsmInfo 使用配置入口的 cfg 输出。"}
+  },
+  "outputs": {"function": {"description": "调用的入口名"}, "result": {"description": "GSM 配置、帧信息、波形或包络检查"}},
+  "example": {"cmd": "python tools/comm_gsm_family.py --function gsmDownlinkConfig --params '{}'", "result": "默认 GSM 下行配置"}
+}

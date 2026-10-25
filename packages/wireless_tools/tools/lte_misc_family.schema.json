@@ -1,0 +1,48 @@
+{
+  "name": "lte_misc_family",
+  "script": "lte_misc_family.py",
+  "description": "LTE coding, configuration and headless GUI-helper operations",
+  "implementation": "独立 Python LTE Turbo QPP 编解码、单码块速率匹配/恢复、24 位 MIB 及固定 12 子载波资源块参数已与 MATLAB 样本对照；多码块软缓冲及 GUI 未复现。",
+  "inputs": {
+    "function": {
+      "type": "enum",
+      "enum": [
+        "evaluateGUIParameter",
+        "lteMIB",
+        "lteRateMatchTurbo",
+        "lteRateRecoverTurbo",
+        "lteTransmitDiversityDecode",
+        "lteTurboDecode",
+        "lteTurboEncode",
+        "lteWarning",
+        "saLteDLConformanceTestBenchGUI",
+        "saLteNscRB",
+        "saLteParamExpand",
+        "saLteULCtrlEncode",
+        "saProgressBar",
+        "saVectorDataSource"
+      ],
+      "required": true,
+      "description": "MATLAB LTE public entry"
+    },
+    "params": {
+      "type": "string",
+      "required": true,
+      "max_length": 250000,
+      "mcp_stdin": true,
+      "description": "Selected entry's JSON keyword arguments"
+    }
+  },
+  "outputs": {
+    "function": {
+      "description": "Public entry"
+    },
+    "result": {
+      "description": "Computed result and explicit model scope"
+    }
+  },
+  "example": {
+    "cmd": "python tools/lte_misc_family.py --function saLteNscRB --params '{}'",
+    "result": "saLteNscRB standalone Python result"
+  }
+}

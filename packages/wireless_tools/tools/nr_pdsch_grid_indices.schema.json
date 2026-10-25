@@ -1,0 +1,19 @@
+{
+  "name": "nr_pdsch_grid_indices",
+  "script": "nr_pdsch_grid_indices.py",
+  "description": "独立 Python 生成单端口 NR PDSCH DM-RS 或 PDSCH 数据 RE 的载波线性索引。",
+  "implementation": "3GPP TS 38.211 §§7.3.1.5/7.4.1.1.2；显式 DM-RS 符号集合、类型 1/2 和无数据 CDM 组。",
+  "inputs": {
+    "operation": {"type": "enum", "enum": ["dmrs", "data"], "required": true, "description": "DM-RS 或 PDSCH 数据索引"},
+    "nrb": {"type": "integer", "required": true, "description": "载波网格 RB 数"},
+    "prb_set": {"type": "string", "required": true, "description": "JSON 格式 0-based PRB 集合"},
+    "symbol_allocation": {"type": "string", "required": true, "description": "JSON [起始符号,符号数]"},
+    "dmrs_symbols": {"type": "string", "required": true, "description": "JSON 格式显式 DM-RS 符号集合"},
+    "config_type": {"type": "integer", "required": false, "enum": [1, 2], "default": 1, "description": "DM-RS 配置类型"},
+    "num_cdm_groups_without_data": {"type": "integer", "required": false, "default": 2, "description": "DM-RS 符号上预留的 CDM 组数"},
+    "modulation": {"type": "enum", "enum": ["QPSK", "16QAM", "64QAM", "256QAM", "1024QAM"], "required": false, "default": "QPSK", "description": "数据 G 计算所需调制方式"},
+    "index_base": {"type": "enum", "enum": ["0based", "1based"], "required": false, "default": "1based", "description": "索引基数"}
+  },
+  "outputs": {"indices": {"description": "载波网格列主序线性 RE 索引"}, "n_indices": {"description": "RE 数量"}, "info": {"description": "数据 RE 和比特容量", "optional": true}},
+  "example": {"cmd": "python tools/nr_pdsch_grid_indices.py --operation dmrs --nrb 1 --prb_set '[0]' --symbol_allocation '[0,14]' --dmrs_symbols '[2]'", "result": "{\"indices\": [25,27,29,31,33,35], \"n_indices\": 6}"}
+}

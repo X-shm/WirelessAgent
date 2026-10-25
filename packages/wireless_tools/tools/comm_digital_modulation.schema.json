@@ -1,0 +1,25 @@
+{
+  "name": "comm_digital_modulation",
+  "script": "comm_digital_modulation.py",
+  "description": "独立 Python APSK、任意星座 QAM、MIL-188 QAM 和 MSK 调制/解调。",
+  "implementation": "APSK 使用显式同心环自然索引；MIL-188 使用已检入的 MATLAB R2026a 全星座样本；MSK 使用连续相位二进制切片。",
+  "inputs": {
+    "function": {
+      "type": "enum",
+      "enum": ["apskmod", "apskdemod", "genqammod", "genqamdemod", "mil188qammod", "mil188qamdemod", "mskmod", "mskdemod"],
+      "required": true, "description": "Communications Toolbox 顶层入口名"
+    },
+    "params": {
+      "type": "string", "required": true, "max_length": 250000, "mcp_stdin": true,
+      "description": "JSON 参数对象：APSK 用 symbols/samples、ring_sizes、radii；任意 QAM 用 constellation；MIL-188 用 order；MSK 用 bits/samples 和 samples_per_symbol。"
+    }
+  },
+  "outputs": {
+    "function": {"description": "调用的入口名"},
+    "result": {"description": "调制复数样本或解调整数符号"}
+  },
+  "example": {
+    "cmd": "python tools/comm_digital_modulation.py --function mil188qammod --params '{\"symbols\":[0,1,2,3],\"order\":16}'",
+    "result": "MIL-188 QAM 复数样本"
+  }
+}

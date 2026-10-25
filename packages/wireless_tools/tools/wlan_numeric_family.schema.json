@@ -1,0 +1,11 @@
+{
+  "name": "wlan_numeric_family", "script": "wlan_numeric_family.py",
+  "description": "WLAN 频率、星座参考点、载荷长度、加扰状态和频谱等数值入口。",
+  "implementation": "独立 Python 数值计算；部分依赖完整 PPDU 配置的入口采用明确的常用子集参数。",
+  "inputs": {
+    "function": {"type": "enum", "enum": ["wlanAPEPLength", "wlanChannelFrequency", "wlanClosestReferenceSymbol", "wlanHETBNDPFeedbackStatus", "wlanInterpretScramblerState", "wlanMSDULengths", "wlanPSDULength", "wlanReferenceSymbols", "wlanSampleRate", "wlanSpectralFlatness"], "required": true, "description": "MATLAB 公开函数名"},
+    "params": {"type": "string", "required": true, "max_length": 250000, "mcp_stdin": true, "description": "所选函数的 JSON 关键字参数。"}
+  },
+  "outputs": {"function": {"description": "调用的公开函数名"}, "result": {"description": "数值结果及计算元数据"}},
+  "example": {"cmd": "python tools/wlan_numeric_family.py --function wlanChannelFrequency --params '{\"channel\":6,\"band\":2.4}'", "result": "2.4 GHz WLAN 频道 6 的中心频率"}
+}

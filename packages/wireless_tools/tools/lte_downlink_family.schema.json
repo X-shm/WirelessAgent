@@ -1,0 +1,93 @@
+{
+  "name": "lte_downlink_family",
+  "script": "lte_downlink_family.py",
+  "description": "LTE downlink control, shared channel, reference and allocation operations",
+  "implementation": "独立 Python 下行 CFI、PCFICH、FDD PHICH/PDCCH 几何及基线 RE 索引、CSI-RS/PRS 与单层 PDSCH/EPDCCH DM-RS 基线序列及索引、EPDCCH 数据索引、DCI 编解码及对称带宽 DCI 长度、BCH 编解码、单端口 PBCH、PDCCH 交织和资源网格已与 MATLAB 样本对照；非对称带宽与完整多天线调度链仍为部分实现。",
+  "inputs": {
+    "function": {
+      "type": "enum",
+      "enum": [
+        "lteBCH",
+        "lteBCHDecode",
+        "lteCFI",
+        "lteCFIDecode",
+        "lteCSIRS",
+        "lteCSIRSIndices",
+        "lteDCI",
+        "lteDCIDecode",
+        "lteDCIEncode",
+        "lteDCIInfo",
+        "lteDCIResourceAllocation",
+        "lteDLConformanceTestTool",
+        "lteDLPerfectChannelEstimate",
+        "lteDLResourceGrid",
+        "lteDLResourceGridSize",
+        "lteDLSCH",
+        "lteDLSCHDecode",
+        "lteDLSCHInfo",
+        "lteDMRS",
+        "lteDMRSIndices",
+        "lteDuplexingInfo",
+        "lteEPDCCH",
+        "lteEPDCCHDecode",
+        "lteEPDCCHDMRS",
+        "lteEPDCCHDMRSIndices",
+        "lteEPDCCHIndices",
+        "lteEPDCCHPRBS",
+        "lteEPDCCHSearch",
+        "lteEPDCCHSpace",
+        "ltePBCH",
+        "ltePBCHDecode",
+        "ltePBCHIndices",
+        "ltePBCHPRBS",
+        "ltePCFICH",
+        "ltePCFICHDecode",
+        "ltePCFICHIndices",
+        "ltePCFICHInfo",
+        "ltePCFICHPRBS",
+        "ltePDCCH",
+        "ltePDCCHDecode",
+        "ltePDCCHDeinterleave",
+        "ltePDCCHIndices",
+        "ltePDCCHInfo",
+        "ltePDCCHInterleave",
+        "ltePDCCHPRBS",
+        "ltePDCCHSearch",
+        "ltePDCCHSpace",
+        "ltePDSCH",
+        "ltePDSCHDecode",
+        "ltePHICH",
+        "ltePHICHDecode",
+        "ltePHICHDeprecode",
+        "ltePHICHIndices",
+        "ltePHICHInfo",
+        "ltePHICHPRBS",
+        "ltePHICHPrecode",
+        "ltePHICHTransmitDiversityDecode",
+        "ltePRS",
+        "ltePRSIndices"
+      ],
+      "required": true,
+      "description": "MATLAB LTE public entry"
+    },
+    "params": {
+      "type": "string",
+      "required": true,
+      "max_length": 250000,
+      "mcp_stdin": true,
+      "description": "Selected entry's JSON keyword arguments"
+    }
+  },
+  "outputs": {
+    "function": {
+      "description": "Public entry"
+    },
+    "result": {
+      "description": "Computed result and explicit model scope"
+    }
+  },
+  "example": {
+    "cmd": "python tools/lte_downlink_family.py --function lteDLResourceGridSize --params '{}'",
+    "result": "lteDLResourceGridSize standalone Python result"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "nr_tables",
+  "script": "nr_tables.py",
+  "description": "无需 MATLAB 查询 5G NR 的 CQI 表和 PUSCH MCS 表，支持全表或单索引查询。",
+  "implementation": "将 MATLAB R2026a 导出的标准只读查找表固化为 references/5g_lookup_tables.json。",
+  "inputs": {
+    "family": {"type": "enum", "enum": ["cqi", "pusch"], "required": true, "description": "CQI 或 PUSCH MCS 表族"},
+    "table": {"type": "string", "required": false, "description": "具体表名；省略时返回所有表"},
+    "index": {"type": "integer", "required": false, "description": "0-based CQI/MCS 索引；省略时返回全表"}
+  },
+  "outputs": {"family": {"description": "表族"}, "tables": {"description": "全表族", "optional": true}, "rows": {"description": "指定全表", "optional": true}, "row": {"description": "指定行", "optional": true}},
+  "example": {"cmd": "python tools/nr_tables.py --family cqi --table CQITable1 --index 1", "result": "{\"family\": \"cqi\", \"table\": \"CQITable1\", \"row\": {\"CQIIndex\":1,\"Modulation\":\"QPSK\",...}}"}
+}

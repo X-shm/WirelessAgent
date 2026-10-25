@@ -1,0 +1,36 @@
+{
+  "name": "nr_waveform_io",
+  "script": "nr_waveform_io.py",
+  "description": "独立 Python 单 numerology 资源网格 OFDM 波形生成和分析子集；分析器返回资源网格、PAPR 与频谱。",
+  "implementation": "Standalone NumPy implementation; explicit limited coverage in tool_registry.json.",
+  "inputs": {
+    "function": {
+      "type": "enum",
+      "enum": [
+        "nrWaveformAnalyzer",
+        "nrWaveformGenerator"
+      ],
+      "required": true,
+      "description": "MATLAB 5G Toolbox 入口名"
+    },
+    "params": {
+      "type": "string",
+      "required": true,
+      "max_length": 250000,
+      "mcp_stdin": true,
+      "description": "JSON 对象字符串。Generator: grid([12*nrb,symbols] 复数),nfft,scs_khz；Analyzer: waveform,nfft,nrb,symbols,scs_khz。复数数据用 {real:[...],imag:[...]}。"
+    }
+  },
+  "outputs": {
+    "function": {
+      "description": "调用的 MATLAB 入口名"
+    },
+    "result": {
+      "description": "该入口的结构化计算结果"
+    }
+  },
+  "example": {
+    "cmd": "python tools/nr_waveform_io.py --function nrWaveformGenerator --params '{\"grid\":{\"real\":[[0],[0],[0],[0],[0],[0],[0],[0],[0],[0],[0],[0]]},\"nfft\":128}'",
+    "result": "按入口参数返回 JSON 对象；缺失必需参数时返回 error"
+  }
+}

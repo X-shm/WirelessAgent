@@ -1,0 +1,36 @@
+{
+  "name": "nr_pdcch_resources",
+  "script": "nr_pdcch_resources.py",
+  "description": "独立 Python 单符号、非交织 CORESET 资源映射；每 CCE 为 6 REG，每 REG 为 9 数据 RE 加 3 DM-RS RE。",
+  "implementation": "Standalone NumPy implementation; explicit limited coverage in tool_registry.json.",
+  "inputs": {
+    "function": {
+      "type": "enum",
+      "enum": [
+        "nrPDCCHResources",
+        "nrPDCCHSpace"
+      ],
+      "required": true,
+      "description": "MATLAB 5G Toolbox 入口名"
+    },
+    "params": {
+      "type": "string",
+      "required": true,
+      "max_length": 250000,
+      "mcp_stdin": true,
+      "description": "JSON 对象字符串。Resources: nrb,coreset_start_rb,coreset_nrb,symbol,aggregation_level,candidate,index_base；Space: nrb,coreset_start_rb,coreset_nrb,symbol,num_candidates,index_base。"
+    }
+  },
+  "outputs": {
+    "function": {
+      "description": "调用的 MATLAB 入口名"
+    },
+    "result": {
+      "description": "该入口的结构化计算结果"
+    }
+  },
+  "example": {
+    "cmd": "python tools/nr_pdcch_resources.py --function nrPDCCHResources --params '{\"nrb\":6}'",
+    "result": "按入口参数返回 JSON 对象；缺失必需参数时返回 error"
+  }
+}

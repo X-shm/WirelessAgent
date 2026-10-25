@@ -1,0 +1,14 @@
+{
+  "name": "nr_pdcch_decode",
+  "script": "nr_pdcch_decode.py",
+  "description": "独立 Python 解调和解扰 NR PDCCH QPSK 符号，输出 DCI 编码字软比特。",
+  "implementation": "3GPP TS 38.211 §7.3.2；QPSK max-log LLR 加 Gold 序列去扰。",
+  "inputs": {
+    "symbols": {"type": "string", "required": true, "description": "复数 PDCCH 符号向量 JSON {real,imag}"},
+    "nid": {"type": "integer", "required": true, "description": "PDCCH DMRS 加扰标识"},
+    "nrnti": {"type": "integer", "required": true, "description": "UE RNTI"},
+    "nvar": {"type": "number", "required": false, "default": 1e-10, "description": "复数噪声方差；0 按 1e-10 处理"}
+  },
+  "outputs": {"soft_bits": {"description": "去扰后的近似 LLR"}, "n_bits": {"description": "软比特数"}},
+  "example": {"cmd": "python tools/nr_pdcch_decode.py --symbols '{\"real\":[0.7071067811865476],\"imag\":[0.7071067811865476]}' --nid 0 --nrnti 0 --nvar 1", "result": "{\"soft_bits\": [...], \"n_bits\": 2}"}
+}

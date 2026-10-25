@@ -1,0 +1,29 @@
+{
+  "name": "comm_legacy_numeric",
+  "script": "comm_legacy_numeric.py",
+  "description": "Communications Toolbox 传统数值和信源处理入口的独立 Python 实现。",
+  "implementation": "NumPy/SciPy 实现二进制转换、滤波噪声带宽、归一化、随机样本、压扩、量化与 BER 置信区间的显式功能切片。",
+  "inputs": {
+    "function": {
+      "type": "enum",
+      "enum": ["bi2de", "de2bi", "hex2poly", "oct2poly", "noisebw", "modnorm", "vec2mat", "randerr", "randsrc", "compand", "quantiz", "berconfint"],
+      "required": true,
+      "description": "Communications Toolbox 顶层入口名"
+    },
+    "params": {
+      "type": "string",
+      "required": true,
+      "max_length": 250000,
+      "mcp_stdin": true,
+      "description": "JSON 参数对象；参数名与 Python 函数签名一致，详见 tools/comm_legacy_numeric.py。"
+    }
+  },
+  "outputs": {
+    "function": {"description": "调用的入口名"},
+    "result": {"description": "结构化计算结果"}
+  },
+  "example": {
+    "cmd": "python tools/comm_legacy_numeric.py --function de2bi --params '{\"values\":[5],\"width\":3}'",
+    "result": "{\"function\":\"de2bi\",\"result\":{\"bits\":[[1,0,1]]}}"
+  }
+}

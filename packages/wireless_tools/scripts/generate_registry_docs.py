@@ -183,6 +183,16 @@ def build_readme(tools: list[dict[str, object]]) -> str:
             "工具的完整输入/输出契约位于 `tools/<tool>.schema.json`。"
             "位置子命令（例如 `wireless_utils` 与 `nr_dci`）由 schema 的 `subcommands` 字段描述。",
             "",
+            "MCP 服务需要安装 `requirements-mcp.txt`；它从注册表公开全部工具，"
+            "5G Toolbox 的 45 个新增入口通过 10 个分组工具的 `function` 参数选择。",
+            "这些分组的大段 `params` JSON 在 MCP 内通过标准输入转发，"
+            "避免 Windows 命令行长度限制；直接使用 CLI 时可通过 `--params -` 从标准输入读取。",
+            "",
+            "```bash",
+            "python -m pip install -r requirements-mcp.txt",
+            "python -m mcp_server --transport stdio",
+            "```",
+            "",
             "## 验证",
             "",
             "验证流程、契约检查范围与当前注册状态清单见 [VALIDATION.md](VALIDATION.md)。",
@@ -284,6 +294,9 @@ def build_validation_guide(tools: list[dict[str, object]]) -> str:
             f"`tool_registry.json` 当前登记 `{len(tools)}` 个工具，且每项均引用一份 schema。"
             f"注册状态分布：{status_summary(tools)}。",
             "本文件不把注册状态扩大解释为额外的标准符合性结论；具体覆盖边界以每项 `coverage` 字段为准。",
+            "`independent_validated` 表示所声明的 Python 功能切片通过独立数值/性质检查、"
+            "接口契约和调用回归；`validated` 还具有相应的 MATLAB 对照证据。"
+            "两者都不表示 MATLAB 原函数的全部参数和行为已实现。",
             bluetooth_scope_note(tools),
             "",
             "## 必跑命令",
@@ -310,6 +323,21 @@ def build_validation_guide(tools: list[dict[str, object]]) -> str:
             "# Python 语法编译检查",
             "python -m compileall -q tools scripts",
             "```",
+            "",
+            "MCP 端到端验证需先在所选 Python 环境安装 `requirements-mcp.txt`。"
+            "第一项覆盖全部注册工具示例及 stdio/HTTP 传输，第二项逐一执行新增的 45 个 5G 入口：",
+            "",
+            "```bash",
+            "python -m pip install -r requirements-mcp.txt",
+            "python -m unittest scripts.test_mcp_server scripts.test_nr_remaining_mcp",
+            "```",
+            "",
+            "这 10 个 5G 分组工具的 `independent_validated` 仅覆盖注册表列出的 Python 功能切片："
+            "45 个映射入口均经过 MCP 调用，且具备固定数值、性质和边界回归。"
+            "没有 MATLAB 对照的切片不宣称与 MATLAB 原函数等价。",
+            "新增的 `matlab_oracle/gen_samples_nr_remaining.m` 可重建 BCH、UCI、UMa 路损和"
+            "PUCCH 格式 1 的完整 MATLAB R2026a 对照向量；"
+            "`validate_nr_remaining_oracle.py` 用检入样本执行无 MATLAB 依赖的回归。",
             "",
             "具备 MATLAB R2026a 与 Bluetooth Toolbox 时，还可核查 52 个注册名称是否在本机真实解析：",
             "",

@@ -1,0 +1,15 @@
+{
+  "name": "nr_pusch_scrambling",
+  "script": "nr_pusch_scrambling.py",
+  "description": "独立 Python 执行 NR PUSCH 二进制加扰和软比特解扰。",
+  "implementation": "3GPP TS 38.211 §6.3.1.1；二进制 XOR 和 LLR 符号翻转。",
+  "inputs": {
+    "operation": {"type": "enum", "enum": ["scramble", "descramble"], "required": true, "description": "处理方向"},
+    "data": {"type": "string", "required": true, "description": "JSON 二进制比特数组或软值数组"},
+    "nid": {"type": "integer", "required": true, "description": "PUSCH 加扰标识"},
+    "rnti": {"type": "integer", "required": true, "description": "UE RNTI"},
+    "q": {"type": "integer", "required": false, "default": 0, "description": "码字编号 0 或 1"}
+  },
+  "outputs": {"operation": {"description": "处理方向"}, "data": {"description": "加扰比特或解扰软值"}},
+  "example": {"cmd": "python tools/nr_pusch_scrambling.py --operation scramble --data '[0,1,0,1]' --nid 42 --rnti 100", "result": "{\"operation\": \"scramble\", \"data\": [1,1,1,0]}"}
+}

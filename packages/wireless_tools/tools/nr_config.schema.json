@@ -1,0 +1,17 @@
+{
+  "name": "nr_config",
+  "script": "nr_config.py",
+  "description": "在无 MATLAB 环境中构造 38 类 5G NR 配置的 JSON 属性快照，支持已知属性覆盖。",
+  "implementation": "本机 MATLAB R2026a 开发期导出的默认属性固化在 references/5g_config_defaults.json；运行时仅使用 Python 和 JSON。复杂的 MATLAB 类约束及所有属性联动尚未完整复现。",
+  "inputs": {
+    "class_name": {
+      "type": "enum",
+      "enum": ["nrCarrierConfig", "nrCORESETConfig", "nrCSIReportConfig", "nrCSIRSConfig", "nrDLCarrierConfig", "nrIntraCellGuardBandsConfig", "nrPathLossConfig", "nrPDCCHConfig", "nrPDSCHConfig", "nrPDSCHDMRSConfig", "nrPDSCHPTRSConfig", "nrPDSCHReservedConfig", "nrPRACHConfig", "nrPRSConfig", "nrPUCCH0Config", "nrPUCCH1Config", "nrPUCCH2Config", "nrPUCCH3Config", "nrPUCCH4Config", "nrPUSCHConfig", "nrPUSCHDMRSConfig", "nrPUSCHPTRSConfig", "nrSCSCarrierConfig", "nrSearchSpaceConfig", "nrSRSConfig", "nrULCarrierConfig", "nrWavegenBWPConfig", "nrWavegenCSIRSConfig", "nrWavegenPDCCHConfig", "nrWavegenPDSCHConfig", "nrWavegenPUCCH0Config", "nrWavegenPUCCH1Config", "nrWavegenPUCCH2Config", "nrWavegenPUCCH3Config", "nrWavegenPUCCH4Config", "nrWavegenPUSCHConfig", "nrWavegenSRSConfig", "nrWavegenSSBurstConfig"],
+      "required": true,
+      "description": "配置对象类名；省略 properties 可查看完整默认属性"
+    },
+    "properties": {"type": "string", "required": false, "default": "{}", "description": "JSON 对象形式的顶层或嵌套属性覆盖；未知属性报错"}
+  },
+  "outputs": {"class_name": {"description": "配置类名"}, "properties": {"description": "最终配置属性 JSON；可传给后续 NR 工具"}},
+  "example": {"cmd": "python tools/nr_config.py --class_name nrCarrierConfig --properties '{\"NSizeGrid\":10}'", "result": "{\"class_name\": \"nrCarrierConfig\", \"properties\": {\"NSizeGrid\":10, ...}}"}
+}
