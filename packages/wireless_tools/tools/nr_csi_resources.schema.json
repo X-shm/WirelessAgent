@@ -18,6 +18,8 @@
     "params": {
       "type": "string",
       "required": true,
+      "max_length": 250000,
+      "mcp_stdin": true,
       "description": "JSON 对象字符串。CSIRSIndices: nrb,symbol,subcarrier_offset,density,index_base；CSIRSMeasurements: grid,indices,nrb,index_base；CSIReportCSIRS/CSIMeasurementsSRS: channel,noise_variance。"
     }
   },

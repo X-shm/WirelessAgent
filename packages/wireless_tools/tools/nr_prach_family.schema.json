@@ -20,6 +20,8 @@
     "params": {
       "type": "string",
       "required": true,
+      "max_length": 250000,
+      "mcp_stdin": true,
       "description": "JSON 对象字符串。PRACH: root,sequence_length,cyclic_shift；Detect: received,root,sequence_length,threshold；Grid: sequence_length,nsc,symbols,subcarrier_offset；Indices: sequence_length,subcarrier_offset,nsc,index_base；OFDMInfo: sequence_length,nfft,subcarrier_spacing_hz,cp_samples；OFDMModulate: symbols,nfft,cp_samples。"
     }
   },

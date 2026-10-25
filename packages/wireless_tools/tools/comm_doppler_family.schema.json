@@ -1,0 +1,25 @@
+{
+  "name": "comm_doppler_family",
+  "script": "comm_doppler_family.py",
+  "description": "独立 Python 多种多普勒谱的归一化脉冲响应与配置。",
+  "implementation": "Flat/Gaussian/Jakes 使用闭式时域式；Bell/Rounded/BiGaussian/RJakes/AJakes 使用显式谱采样、逆 FFT 和 Hamming 能量归一化。",
+  "inputs": {
+    "function": {
+      "type": "enum",
+      "enum": ["flatir", "gaussianir", "jakesir", "bellir", "roundedir", "bigaussianir", "rjakesir", "ajakesir", "doppler"],
+      "required": true, "description": "Communications Toolbox 顶层入口名"
+    },
+    "params": {
+      "type": "string", "required": true, "max_length": 250000, "mcp_stdin": true,
+      "description": "JSON 参数对象；脉冲响应需要 fd/fc、time，部分谱需 coefficient/coefficients、sigmas/centers/gains、frequency_range 和 oversampling。"
+    }
+  },
+  "outputs": {
+    "function": {"description": "调用的入口名"},
+    "result": {"description": "归一化 impulse_response 或谱参数"}
+  },
+  "example": {
+    "cmd": "python tools/comm_doppler_family.py --function flatir --params '{\"fd\":100,\"time\":[-0.01,0,0.01]}'",
+    "result": "单位能量的 Flat Doppler 脉冲响应"
+  }
+}

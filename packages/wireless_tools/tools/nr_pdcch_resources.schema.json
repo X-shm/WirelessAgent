@@ -16,6 +16,8 @@
     "params": {
       "type": "string",
       "required": true,
+      "max_length": 250000,
+      "mcp_stdin": true,
       "description": "JSON 对象字符串。Resources: nrb,coreset_start_rb,coreset_nrb,symbol,aggregation_level,candidate,index_base；Space: nrb,coreset_start_rb,coreset_nrb,symbol,num_candidates,index_base。"
     }
   },

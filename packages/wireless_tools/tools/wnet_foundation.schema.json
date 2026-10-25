@@ -1,0 +1,11 @@
+{
+  "name": "wnet_foundation", "script": "wnet_foundation.py",
+  "description": "独立 Python wnet 公共命名空间类的 Agent 调用接口。",
+  "implementation": "FIFO 队列操作、技术类型常量、节点参数验证，以及抽象 Mobility/Traffic 的可调用配置描述。",
+  "inputs": {
+    "function": {"type": "enum", "enum": ["wnet.FIFOQueue", "wnet.Mobility", "wnet.Node", "wnet.TechnologyType", "wnet.Traffic"], "required": true, "description": "公共 MATLAB 类名"},
+    "params": {"type": "string", "required": true, "max_length": 250000, "mcp_stdin": true, "description": "函数关键字参数 JSON 对象；FIFOQueue 使用 operations 数组。"}
+  },
+  "outputs": {"function": {"description": "调用的类名"}, "result": {"description": "队列结果、常量或类配置"}},
+  "example": {"cmd": "python tools/wnet_foundation.py --function wnet.TechnologyType --params '{\"name\":\"WLAN\"}'", "result": "WLAN 技术编号 1"}
+}

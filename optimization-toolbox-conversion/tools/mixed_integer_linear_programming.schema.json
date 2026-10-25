@@ -1,0 +1,11 @@
+{
+  "name": "mixed_integer_linear_programming",
+  "script": "mixed_integer_linear_programming.py",
+  "description": "求解含整数变量的线性目标和线性约束问题；对应 MATLAB intlinprog。",
+  "inputs": {
+    "problem": {"type": "string", "required": true, "description": "JSON 对象：必需 c、integer_variables（从 0 开始的变量索引）；可选 A_ub/b_ub、A_eq/b_eq、bounds。"},
+    "options": {"type": "string", "required": false, "description": "可选 JSON 对象：max_iterations、tolerance、display。"}
+  },
+  "outputs": {"x": "最优变量或无可行解时 null", "objective": "目标函数值或 null", "success": "求解是否成功", "status": "求解器状态码", "message": "求解信息", "iterations": "搜索节点数", "method": "HiGHS 混合整数线性规划算法"},
+  "example": {"cmd": "python tools/mixed_integer_linear_programming.py --problem '{\"c\":[-3,-2],\"integer_variables\":[0,1],\"A_ub\":[[2,1],[1,2]],\"b_ub\":[4,4],\"bounds\":[[0,10],[0,10]]}'", "result": "{\"x\":[1.0,2.0],\"objective\":-7.0,\"success\":true}"}
+}

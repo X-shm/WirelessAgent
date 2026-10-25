@@ -1,0 +1,11 @@
+{
+  "name": "goal_attainment_optimization",
+  "script": "goal_attainment_optimization.py",
+  "description": "带权重地寻找满足多项目标的最小最大偏差解；对应 MATLAB fgoalattain 的线性目标子集。",
+  "inputs": {
+    "problem": {"type": "string", "required": true, "description": "JSON 对象：objective_matrix、可选 objective_offset、goals、正 weights；可选线性约束和 bounds。"},
+    "options": {"type": "string", "required": false, "description": "可选 JSON 对象：max_iterations、tolerance、display。"}
+  },
+  "outputs": {"x": "优化变量", "attainment": "目标达成因子，负值表示目标均有余量", "objective_values": "各目标函数值", "success": "求解是否成功", "status": "求解器状态码", "message": "求解信息", "iterations": "迭代次数", "method": "加权目标达成线性规划"},
+  "example": {"cmd": "python tools/goal_attainment_optimization.py --problem '{\"objective_matrix\":[[1],[-1]],\"goals\":[1,-1],\"weights\":[1,1],\"bounds\":[[0,2]]}'", "result": "{\"x\":[1.0],\"attainment\":0.0,\"success\":true}"}
+}

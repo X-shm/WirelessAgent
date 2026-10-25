@@ -47,7 +47,8 @@ def run_cli(description: str, functions: dict[str, object]) -> None:
     parser.add_argument("--params", required=True, help="JSON object of function parameters")
     args = parser.parse_args()
     try:
-        params = json.loads(args.params)
+        payload = sys.stdin.read() if args.params == "-" else args.params
+        params = json.loads(payload)
         if not isinstance(params, dict):
             raise ValueError("params must be a JSON object")
         result = functions[args.function](**params)

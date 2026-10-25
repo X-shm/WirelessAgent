@@ -1,0 +1,11 @@
+{
+  "name": "create_optimization_warmstart",
+  "script": "create_optimization_warmstart.py",
+  "description": "为 quadprog/lsqlin 创建热启动输入描述；对应 MATLAB optimwarmstart 的初始点子集。",
+  "inputs": {
+    "problem": {"type": "string", "required": true, "description": "JSON 对象：solver 为 quadprog 或 lsqlin；x0 为有限实数向量；options.algorithm 必须为 active-set。"},
+    "options": {"type": "string", "required": false, "description": "不使用此参数；optimoptions 对象描述放在 problem.options。"}
+  },
+  "outputs": {"solver": "求解器名称", "x0": "初始点向量", "options": "选项对象", "active_set_reuse": "是否复用 MATLAB 活跃约束历史；当前实现为 false", "coverage": "支持范围说明"},
+  "example": {"cmd": "python tools/create_optimization_warmstart.py --problem '{\"solver\":\"quadprog\",\"x0\":[1,3],\"options\":{\"algorithm\":\"active-set\"}}'", "result": "{\"solver\":\"quadprog\",\"x0\":[1.0,3.0],\"options\":{\"algorithm\":\"active-set\"},\"active_set_reuse\":false}"}
+}

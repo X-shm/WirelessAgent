@@ -40,15 +40,19 @@ def pucch0(ack=None, sr: int = 0, nid: int = 0, initial_cs: int = 0,
     return {"symbols": np.tile(sequence, num_symbols), "mcs": mcs}
 
 
-def pucch1(uci_bits, nid: int = 0, initial_cs: int = 0, num_symbols: int = 4):
+def pucch1(uci_bits, nid: int = 0, initial_cs: int = 0,
+           num_symbols: int = 4, slot: int = 0):
     data = bits(uci_bits, "uci_bits")
     if len(data) not in (1, 2) or not 4 <= num_symbols <= 14:
         raise ValueError("format 1 needs one/two UCI bits and 4..14 symbols")
-    payload = np.r_[data, np.zeros(2 - len(data), dtype=np.uint8)]
-    qpsk = modulate(payload, "QPSK")[0]
-    base = _base_sequence(nid, initial_cs)
-    return {"symbols": np.tile(base * qpsk, (num_symbols + 1) // 2),
-            "dmrs_symbols": list(range(1, num_symbols, 2))}
+    modulation = "BPSK" if len(data) == 1 else "QPSK"
+    symbol = modulate(data, modulation)[0]
+    shifts = pucch_hopping_info(nid, slot, initial_cs)["cyclic_shifts"]
+    data_locations = range(1, num_symbols, 2)
+    symbols = np.concatenate([_base_sequence(nid, int(shifts[l])) * symbol
+                              for l in data_locations])
+    return {"symbols": symbols,
+            "dmrs_symbols": list(range(0, num_symbols, 2))}
 
 
 def _coded(uci_bits, format_number: int, nid: int = 0, nrb: int = 1,
@@ -92,11 +96,16 @@ def pucch4(uci_bits, nid: int = 0, nrb: int = 1, num_symbols: int = 4):
 
 
 def pucch(format_number: int, uci_bits=None, ack=None, sr: int = 0,
-          nid: int = 0, initial_cs: int = 0, nrb: int = 1, num_symbols: int | None = None):
+          nid: int = 0, initial_cs: int = 0, nrb: int = 1,
+          num_symbols: int | None = None, slot: int = 0):
     if format_number == 0:
+        if slot:
+            raise ValueError("nonzero slot is supported only for format 1")
         return pucch0(ack, sr, nid, initial_cs, num_symbols or 1)
     if format_number == 1:
-        return pucch1(uci_bits, nid, initial_cs, num_symbols or 4)
+        return pucch1(uci_bits, nid, initial_cs, num_symbols or 4, slot)
+    if slot:
+        raise ValueError("nonzero slot is supported only for format 1")
     return _coded(uci_bits, format_number, nid, nrb,
                   num_symbols or (2 if format_number == 2 else 4))
 
@@ -117,7 +126,9 @@ def pucch_indices(nrb: int, rb: int = 0, symbol_start: int = 0,
             index = index_base + l * 12 * nrb + rb * 12 + k
             if format_number == 2 and k in dmrs_subcarriers:
                 dmrs.append(index)
-            elif format_number in (1, 3, 4) and (l - symbol_start) % 2:
+            elif format_number == 1 and (l - symbol_start) % 2 == 0:
+                dmrs.append(index)
+            elif format_number in (3, 4) and (l - symbol_start) % 2:
                 dmrs.append(index)
             else:
                 data.append(index)
@@ -132,14 +143,20 @@ def pucch_dmrs_indices(nrb: int, rb: int = 0, symbol_start: int = 0,
 
 
 def pucch_dmrs(nid: int, nrb: int = 1, num_symbols: int = 4,
-               format_number: int = 1, initial_cs: int = 0):
+               format_number: int = 1, initial_cs: int = 0, slot: int = 0):
     if format_number not in (1, 2, 3, 4):
         raise ValueError("DM-RS supports formats 1..4")
     idx = pucch_dmrs_indices(nrb, 0, 0, num_symbols, format_number, 0)["indices"]
     if format_number == 2:
         sequence = prbs(nid, 2 * len(idx)).reshape(-1, 2).astype(int)
         symbols = ((1 - 2 * sequence[:, 0]) + 1j * (1 - 2 * sequence[:, 1])) / np.sqrt(2)
+    elif format_number == 1:
+        shifts = pucch_hopping_info(nid, slot, initial_cs)["cyclic_shifts"]
+        symbols = np.concatenate([_base_sequence(nid, int(shifts[l]))
+                                  for l in range(0, num_symbols, 2)])
     else:
+        if slot:
+            raise ValueError("nonzero slot is supported only for format 1")
         base = _base_sequence(nid, initial_cs)
         symbols = np.tile(base, max(1, len(idx) // 12))[:len(idx)]
     return {"symbols": symbols, "indices": idx}
@@ -156,7 +173,8 @@ def pucch_hopping_info(nid: int, slot: int = 0, initial_cs: int = 0):
 
 def pucch_decode(symbols, format_number: int, nid: int = 0,
                  initial_cs: int = 0, num_symbols: int = 1, noise_variance: float = 1.0,
-                 ack_bits: int = 1, allow_sr: bool = False):
+                 ack_bits: int = 1, allow_sr: bool = False,
+                 uci_bits_length: int = 2, slot: int = 0):
     received = complex_array(symbols).reshape(-1)
     if noise_variance <= 0:
         raise ValueError("noise_variance must be positive")
@@ -179,11 +197,18 @@ def pucch_decode(symbols, format_number: int, nid: int = 0,
         return {"ack": candidates[index][0], "sr": candidates[index][1],
                 "correlation": float(scores[index])}
     if format_number == 1:
-        base = np.tile(_base_sequence(nid, initial_cs), (num_symbols + 1) // 2)
+        if uci_bits_length not in (1, 2):
+            raise ValueError("format 1 uci_bits_length must be 1 or 2")
+        if not 4 <= num_symbols <= 14:
+            raise ValueError("format 1 num_symbols must be 4..14")
+        shifts = pucch_hopping_info(nid, slot, initial_cs)["cyclic_shifts"]
+        base = np.concatenate([_base_sequence(nid, int(shifts[l]))
+                               for l in range(1, num_symbols, 2)])
         if len(received) != len(base):
             raise ValueError("format 1 received symbol length mismatch")
         estimate = np.vdot(base, received) / len(base)
-        llr = soft_demodulate(np.asarray([estimate]), "QPSK", noise_variance)
+        modulation = "BPSK" if uci_bits_length == 1 else "QPSK"
+        llr = soft_demodulate(np.asarray([estimate]), modulation, noise_variance)
         return {"bits": (llr < 0).astype(int), "llr": llr}
     if format_number in (2, 3, 4):
         if format_number == 4:

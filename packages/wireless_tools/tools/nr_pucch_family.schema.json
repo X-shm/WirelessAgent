@@ -25,7 +25,9 @@
     "params": {
       "type": "string",
       "required": true,
-      "description": "JSON 对象字符串。nrPUCCH: format_number,uci_bits 或 ack,sr,nid,initial_cs,nrb,num_symbols；格式 0: ack,sr,nid,initial_cs,num_symbols；格式 1: uci_bits,nid,initial_cs,num_symbols；格式 2..4: 已编码 uci_bits,nid,nrb,num_symbols；Decode: symbols,format_number,nid,initial_cs,num_symbols,noise_variance；格式 0 解码另可设 ack_bits,allow_sr；Indices/DMRSIndices: nrb,rb,symbol_start,num_symbols,format_number,index_base；DMRS: nid,nrb,num_symbols,format_number,initial_cs；HoppingInfo: nid,slot,initial_cs。"
+      "max_length": 250000,
+      "mcp_stdin": true,
+      "description": "JSON 对象字符串。nrPUCCH: format_number,uci_bits 或 ack,sr,nid,initial_cs,nrb,num_symbols；格式 0: ack,sr,nid,initial_cs,num_symbols；格式 1: uci_bits,nid,initial_cs,num_symbols,slot，1 位使用 BPSK，2 位使用 QPSK，数据位于相对奇数 OFDM 符号，DM-RS 位于相对偶数符号；格式 2..4: 已编码 uci_bits,nid,nrb,num_symbols；Decode: symbols,format_number,nid,initial_cs,num_symbols,noise_variance；格式 0 解码另可设 ack_bits,allow_sr，格式 1 解码 1 位时设 uci_bits_length=1（默认 2），并可传 slot；Indices/DMRSIndices: nrb,rb,symbol_start,num_symbols,format_number,index_base；DMRS: nid,nrb,num_symbols,format_number,initial_cs,slot；HoppingInfo: nid,slot,initial_cs。"
     }
   },
   "outputs": {

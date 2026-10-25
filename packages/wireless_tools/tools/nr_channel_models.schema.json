@@ -20,6 +20,8 @@
     "params": {
       "type": "string",
       "required": true,
+      "max_length": 250000,
+      "mcp_stdin": true,
       "description": "JSON 对象字符串。TDL/CDL: samples,sample_rate,delays,gains,dopplers；HST: samples,sample_rate,speed_mps,carrier_hz；PathLoss: freq_hz,bs,ue,los,scenario=FSPL|UMa；PerfectChannelEstimate: path_gains,delays,sample_rate,nfft,nsc；PhaseNoise: samples,sample_rate,linewidth_hz,seed。复数数据用 {real:[...],imag:[...]}。"
     }
   },

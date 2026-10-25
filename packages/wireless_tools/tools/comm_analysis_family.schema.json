@@ -1,0 +1,12 @@
+{
+  "name": "comm_analysis_family",
+  "script": "comm_analysis_family.py",
+  "description": "独立 Python BER 拟合、同步误差分析、眼图和星座图数据及半解析 BER 估计。",
+  "implementation": "单调 log-BER 插值、高斯同步误差积分、可供前端绘图的坐标数组，以及确定种子的无噪声通道加 AWGN 最近邻估计。",
+  "inputs": {
+    "function": {"type": "enum", "enum": ["berfit", "bersync", "eyediagram", "scatterplot", "semianalytic"], "required": true, "description": "Communications Toolbox 顶层入口名"},
+    "params": {"type": "string", "required": true, "max_length": 250000, "mcp_stdin": true, "description": "函数关键字参数 JSON 对象；复数样本用 real/imag 数组表示。"}
+  },
+  "outputs": {"function": {"description": "调用的入口名"}, "result": {"description": "BER 序列或绘图坐标数组"}},
+  "example": {"cmd": "python tools/comm_analysis_family.py --function bersync --params '{\"ebno_db\":[0,5],\"sigma\":0}'", "result": "BPSK BER 数组"}
+}

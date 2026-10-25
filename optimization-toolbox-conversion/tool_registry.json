@@ -1,0 +1,19 @@
+{
+  "skill": "optimization-toolbox-adapters",
+  "contract_version": "1.0",
+  "matlab_release": "R2026a",
+  "tools": [
+    {"name":"constrained_nonlinear_optimize","source_functions":["fmincon"],"product":"Optimization Toolbox","status":"validated_subset","coverage":"quadratic objective, linear constraints and bounds","schema":"tools/constrained_nonlinear_optimize.schema.json"},
+    {"name":"linear_programming","source_functions":["linprog"],"product":"Optimization Toolbox","status":"validated_subset","coverage":"linear objective, linear equalities/inequalities and bounds","schema":"tools/linear_programming.schema.json"},
+    {"name":"quadratic_programming","source_functions":["quadprog"],"product":"Optimization Toolbox","status":"validated_subset","coverage":"convex quadratic objective, linear constraints and bounds","schema":"tools/quadratic_programming.schema.json"},
+    {"name":"mixed_integer_linear_programming","source_functions":["intlinprog"],"product":"Optimization Toolbox","status":"validated_subset","coverage":"mixed-integer linear objective and constraints","schema":"tools/mixed_integer_linear_programming.schema.json"},
+    {"name":"minimax_optimization","source_functions":["fminimax"],"product":"Optimization Toolbox","status":"validated_subset","coverage":"linear objective functions and linear constraints","schema":"tools/minimax_optimization.schema.json"},
+    {"name":"goal_attainment_optimization","source_functions":["fgoalattain"],"product":"Optimization Toolbox","status":"validated_subset","coverage":"linear objective functions, goals, weights and linear constraints","schema":"tools/goal_attainment_optimization.schema.json"},
+    {"name":"create_optimization_options","source_functions":["optimoptions"],"product":"Optimization Toolbox","status":"validated_subset","coverage":"common normalized settings for the six converted solver adapters","schema":"tools/create_optimization_options.schema.json"},
+    {"name":"create_optimization_warmstart","source_functions":["optimwarmstart"],"product":"Optimization Toolbox","status":"validated_subset","coverage":"quadprog/lsqlin initial-point descriptor; does not retain MATLAB active-set history","schema":"tools/create_optimization_warmstart.schema.json"}
+  ],
+  "shared_inputs": {
+    "options": "optimoptions-style settings are represented as optional CLI JSON input.",
+    "x0": "optimwarmstart adapter returns a portable initial-point descriptor; MATLAB active-set history is not retained."
+  }
+}

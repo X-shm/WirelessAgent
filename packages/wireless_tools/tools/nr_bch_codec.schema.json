@@ -16,6 +16,8 @@
     "params": {
       "type": "string",
       "required": true,
+      "max_length": 250000,
+      "mcp_stdin": true,
       "description": "JSON 对象字符串。nrBCH: payload(24 bits),sfn,hrf,lssb(4/8/64),idxoffset,ncellid；nrBCHDecode: llr(864),lssb,ncellid,list_length=1。"
     }
   },

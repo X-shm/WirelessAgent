@@ -17,6 +17,8 @@
     "params": {
       "type": "string",
       "required": true,
+      "max_length": 250000,
+      "mcp_stdin": true,
       "description": "JSON 对象字符串。nrDCIDecode: llr,payload_length,rnti; nrUCIEncode: payload,e,modulation; nrUCIDecode: llr,payload_length,modulation。LLR 正值代表比特 0。"
     }
   },

@@ -1,0 +1,11 @@
+{
+  "name": "comm_cyclic_trellis", "script": "comm_cyclic_trellis.py",
+  "description": "独立 Python 二元循环码矩阵、综合表、卷积码网格分析和 LFSR 位移转换。",
+  "implementation": "GF(2) 多项式除法、系统/非系统生成矩阵、权重优先陪集首、显式网格遍历和有限长度距离谱；LFSR 位掩码约定由输出给出。",
+  "inputs": {
+    "function": {"type": "enum", "enum": ["cyclgen", "cyclpoly", "gen2par", "syndtable", "istrellis", "iscatastrophic", "distspec", "shift2mask", "mask2shift"], "required": true, "description": "Communications Toolbox 顶层入口名"},
+    "params": {"type": "string", "required": true, "max_length": 250000, "mcp_stdin": true, "description": "函数关键字参数 JSON 对象；多项式为二进制系数数组。"}
+  },
+  "outputs": {"function": {"description": "调用的入口名"}, "result": {"description": "GF(2) 矩阵、综合表、网格诊断或位掩码"}},
+  "example": {"cmd": "python tools/comm_cyclic_trellis.py --function cyclpoly --params '{\"n\":7,\"k\":4}'", "result": "(7,4) 循环码生成多项式"}
+}

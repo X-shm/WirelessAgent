@@ -1,0 +1,11 @@
+{
+  "name": "wnet_support", "script": "wnet_support.py",
+  "description": "检查独立 Python Wireless Network 工具所需的运行依赖。",
+  "implementation": "返回 Python、NumPy、SciPy 和 MCP 的可用状态；相当于 MATLAB 支持包检查的 Python 迁移入口。",
+  "inputs": {
+    "function": {"type": "enum", "enum": ["wirelessnetworkSupportPackageCheck"], "required": true, "description": "公开 MATLAB 函数名"},
+    "params": {"type": "string", "required": true, "max_length": 250000, "mcp_stdin": true, "description": "空 JSON 对象。"}
+  },
+  "outputs": {"function": {"description": "调用的函数名"}, "result": {"description": "Python 运行时及依赖能力"}},
+  "example": {"cmd": "python tools/wnet_support.py --function wirelessnetworkSupportPackageCheck --params '{}'", "result": "Python 运行依赖状态"}
+}

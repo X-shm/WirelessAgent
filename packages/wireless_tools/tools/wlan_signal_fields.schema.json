@@ -1,0 +1,11 @@
+{
+  "name": "wlan_signal_fields", "script": "wlan_signal_fields.py",
+  "description": "WLAN 训练字段、SIGNAL 字段与单流数据 OFDM 波形。",
+  "implementation": "20 MHz 传统 L-STF/L-LTF、L-SIG 24 位字段以及 Service/PSDU/尾位/扰码/BCC/交织/星座/OFDM 数据链；HT/VHT 字段采用明确的单流基础切片。",
+  "inputs": {
+    "function": {"type": "enum", "enum": ["wlanLSTF", "wlanHTSTF", "wlanHTLTF", "wlanVHTSTF", "wlanVHTLTF", "wlanLSIG", "wlanHTSIG", "wlanVHTSIGA", "wlanVHTSIGB", "wlanNonHTData", "wlanHTData", "wlanVHTData"], "required": true, "description": "MATLAB 公开入口名"},
+    "params": {"type": "string", "required": true, "max_length": 250000, "mcp_stdin": true, "description": "训练字段传带宽；L-SIG 传 mcs/psdu_length；数据字段传 psdu_bits/mcs。"}
+  },
+  "outputs": {"function": {"description": "入口名"}, "result": {"description": "波形实虚数组、字段位与采样参数"}},
+  "example": {"cmd": "python tools/wlan_signal_fields.py --function wlanLSIG --params '{\"mcs\":0,\"psdu_length\":100}'", "result": "Non-HT L-SIG 字段位与波形"}
+}

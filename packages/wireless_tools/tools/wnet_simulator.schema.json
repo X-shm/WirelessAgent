@@ -1,0 +1,11 @@
+{
+  "name": "wnet_simulator", "script": "wnet_simulator.py",
+  "description": "独立 Python 无线网络离散事件仿真，支持节点、包传输、显式动作和取消。",
+  "implementation": "无状态声明式调用；理想或自由空间视距路径损耗、接收灵敏度判定，并生成可供事件追踪器读取的事件。",
+  "inputs": {
+    "function": {"type": "enum", "enum": ["wirelessNetworkSimulator"], "required": true, "description": "公开 MATLAB 类名"},
+    "params": {"type": "string", "required": true, "max_length": 250000, "mcp_stdin": true, "description": "JSON 对象：duration_s、nodes、transmissions、actions、cancel_actions 和 channel_model。"}
+  },
+  "outputs": {"function": {"description": "调用的类名"}, "result": {"description": "包传输、接收状态、事件和动作结果"}},
+  "example": {"cmd": "python tools/wnet_simulator.py --function wirelessNetworkSimulator --params '{\"duration_s\":1,\"nodes\":[{\"node_id\":1},{\"node_id\":2}],\"transmissions\":[{\"time_s\":0.1,\"transmitter_id\":1,\"receiver_id\":2,\"size_bytes\":100}]}'", "result": "一次节点间传输及接收事件"}
+}

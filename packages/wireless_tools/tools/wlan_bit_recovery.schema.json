@@ -1,0 +1,11 @@
+{
+  "name": "wlan_bit_recovery", "script": "wlan_bit_recovery.py",
+  "description": "WLAN DMG、Non-HT、HT、VHT、HE、EHT 的数据及信令位恢复。",
+  "implementation": "从显式均衡复符号进行 Gray 星座硬/软解映射，可选 BCC Viterbi 译码和扰码逆变换；L-SIG 恢复附带长度与校验解析。",
+  "inputs": {
+    "function": {"type": "enum", "enum": ["wlanDMGDataBitRecover", "wlanDMGHeaderBitRecover", "wlanEHTDataBitRecover", "wlanEHTSIGCommonBitRecover", "wlanEHTSIGUserBitRecover", "wlanHEDataBitRecover", "wlanHESIGABitRecover", "wlanHESIGBCommonBitRecover", "wlanHESIGBUserBitRecover", "wlanLSIGBitRecover", "wlanNonHTDataBitRecover", "wlanUSIGBitRecover", "wlanVHTDataBitRecover", "wlanVHTSIGABitRecover", "wlanVHTSIGBBitRecover", "wlanHTDataRecover", "wlanHTSIGRecover", "wlanLSIGRecover", "wlanNonHTDataRecover", "wlanVHTDataRecover", "wlanVHTSIGARecover", "wlanVHTSIGBRecover"], "required": true, "description": "MATLAB 公开入口名"},
+    "params": {"type": "string", "required": true, "max_length": 250000, "mcp_stdin": true, "description": "symbols 的 {real,imag} 数组或 coded_bits，以及 modulation、noise_variance、decode_bcc 等。"}
+  },
+  "outputs": {"function": {"description": "入口名"}, "result": {"description": "恢复的位、可选 LLR/字节和 L-SIG 字段"}},
+  "example": {"cmd": "python tools/wlan_bit_recovery.py --function wlanLSIGBitRecover --params '{\"symbols\":{\"real\":[-1,1,-1,1],\"imag\":[0,0,0,0]},\"modulation\":\"BPSK\"}'", "result": "L-SIG BPSK 硬判决位"}
+}

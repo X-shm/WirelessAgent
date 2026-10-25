@@ -1,0 +1,63 @@
+{
+  "name": "lte_nb_family",
+  "script": "lte_nb_family.py",
+  "description": "NB-IoT resource, sequence, channel and timing operations",
+  "implementation": "独立 Python NB-IoT NPSS/NSSS/NRS 序列及索引、NB 资源网格、NPBCH/NPDSCH/NPDCCH 索引、FDD NPUSCH 数据/DRS 索引及 Data DRS 基线序列、基线 NPRACHInfo 已与 MATLAB 样本对照；NPRACHInfo 仅支持登记的 FDD 基线配置，其余 NB-IoT 信道编码仍为部分实现。",
+  "inputs": {
+    "function": {
+      "type": "enum",
+      "enum": [
+        "lteNBDLFrameOffset",
+        "lteNBResourceGrid",
+        "lteNDLSCH",
+        "lteNDLSCHDecode",
+        "lteNPBCH",
+        "lteNPBCHDecode",
+        "lteNPBCHIndices",
+        "lteNPDCCH",
+        "lteNPDCCHDecode",
+        "lteNPDCCHIndices",
+        "lteNPDSCH",
+        "lteNPDSCHDecode",
+        "lteNPDSCHIndices",
+        "lteNPRACH",
+        "lteNPRACHDetect",
+        "lteNPRACHInfo",
+        "lteNPSS",
+        "lteNPSSIndices",
+        "lteNPUSCH",
+        "lteNPUSCHDecode",
+        "lteNPUSCHDRS",
+        "lteNPUSCHDRSIndices",
+        "lteNPUSCHIndices",
+        "lteNRS",
+        "lteNRSIndices",
+        "lteNSSS",
+        "lteNSSSIndices",
+        "lteNULSCH",
+        "lteNULSCHDecode"
+      ],
+      "required": true,
+      "description": "MATLAB LTE public entry"
+    },
+    "params": {
+      "type": "string",
+      "required": true,
+      "max_length": 250000,
+      "mcp_stdin": true,
+      "description": "Selected entry's JSON keyword arguments"
+    }
+  },
+  "outputs": {
+    "function": {
+      "description": "Public entry"
+    },
+    "result": {
+      "description": "Computed result and explicit model scope"
+    }
+  },
+  "example": {
+    "cmd": "python tools/lte_nb_family.py --function lteNBResourceGrid --params '{}'",
+    "result": "lteNBResourceGrid standalone Python result"
+  }
+}

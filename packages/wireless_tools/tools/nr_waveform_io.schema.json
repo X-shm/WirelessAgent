@@ -16,6 +16,8 @@
     "params": {
       "type": "string",
       "required": true,
+      "max_length": 250000,
+      "mcp_stdin": true,
       "description": "JSON 对象字符串。Generator: grid([12*nrb,symbols] 复数),nfft,scs_khz；Analyzer: waveform,nfft,nrb,symbols,scs_khz。复数数据用 {real:[...],imag:[...]}。"
     }
   },

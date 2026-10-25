@@ -23,66 +23,35 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from _complex_io import parse_complex
 
-# IEEE 802.11 Gray 映射表（索引 = 比特模式整数值，值 = 星座符号位置 k）
-_QPSK_MAP = [1, 0, 3, 2]
-
-_16QAM_MAP = [2, 3, 1, 0, 6, 7, 5, 4, 14, 15, 13, 12, 10, 11, 9, 8]
-
-_64QAM_MAP = [
-    4, 5, 7, 6, 2, 3, 1, 0, 12, 13, 15, 14, 10, 11, 9, 8,
-    28, 29, 31, 30, 26, 27, 25, 24, 20, 21, 23, 22, 18, 19, 17, 16,
-    52, 53, 55, 54, 50, 51, 49, 48, 60, 61, 63, 62, 58, 59, 57, 56,
-    44, 45, 47, 46, 42, 43, 41, 40, 36, 37, 39, 38, 34, 35, 33, 32,
-]
-
-
-def _256qam_map() -> list[int]:
-    first_col = [8, 9, 11, 10, 14, 15, 13, 12, 4, 5, 7, 6, 2, 3, 1, 0]
-    offsets = [0, 16, 48, 32, 96, 112, 80, 64, 192, 208, 240, 224, 160, 176, 144, 128]
-    return [fc + off for off in offsets for fc in first_col]
-
-
-def _1024qam_map() -> list[int]:
-    first_col = [16, 17, 19, 18, 22, 23, 21, 20, 28, 29, 31, 30, 26, 27, 25, 24,
-                 8, 9, 11, 10, 14, 15, 13, 12, 4, 5, 7, 6, 2, 3, 1, 0]
-    offsets = [0, 32, 96, 64, 192, 224, 160, 128,
-               384, 416, 480, 448, 320, 352, 288, 256,
-               768, 800, 864, 832, 960, 992, 928, 896,
-               640, 672, 736, 704, 576, 608, 544, 512]
-    return [fc + off for off in offsets for fc in first_col]
-
-
-def _4096qam_map() -> list[int]:
-    first_col = [32, 33, 35, 34, 38, 39, 37, 36, 44, 45, 47, 46, 42, 43, 41, 40,
-                 56, 57, 59, 58, 62, 63, 61, 60, 52, 53, 55, 54, 50, 51, 49, 48,
-                 16, 17, 19, 18, 22, 23, 21, 20, 28, 29, 31, 30, 26, 27, 25, 24,
-                 8, 9, 11, 10, 14, 15, 13, 12, 4, 5, 7, 6, 2, 3, 1, 0]
-    offsets = [0, 64, 192, 128, 384, 448, 320, 256,
-               768, 832, 960, 896, 640, 704, 576, 512,
-               1536, 1600, 1728, 1664, 1920, 1984, 1856, 1792,
-               1280, 1344, 1472, 1408, 1152, 1216, 1088, 1024,
-               3072, 3136, 3264, 3200, 3456, 3520, 3392, 3328,
-               3840, 3904, 4032, 3968, 3712, 3776, 3648, 3584,
-               2560, 2624, 2752, 2688, 2944, 3008, 2880, 2816,
-               2304, 2368, 2496, 2432, 2176, 2240, 2112, 2048]
-    return [fc + off for off in offsets for fc in first_col]
-
-
-_SYM_MAPS = {
-    2: _QPSK_MAP,
-    4: _16QAM_MAP,
-    6: _64QAM_MAP,
-    8: _256qam_map(),
-    10: _1024qam_map(),
-    12: _4096qam_map(),
-}
-
 VALID_BPSCS = [1, 2, 4, 6, 8, 10, 12]
 
 
 def _check_bpscs(num_bpscs: int) -> None:
     if num_bpscs not in VALID_BPSCS:
         raise ValueError(f"numBPSCS must be one of {VALID_BPSCS}, got {num_bpscs}")
+
+
+def _qam_points_for_binary_indices(indices: np.ndarray, num_bpscs: int) -> np.ndarray:
+    """IEEE WLAN mapping: each axis starts with a sign bit then Gray magnitude bits."""
+    indices = np.asarray(indices, dtype=np.uint32).reshape(-1)
+    if num_bpscs == 1:
+        return np.where(indices == 0, -1.0, 1.0).astype(complex)
+    axis_bits = num_bpscs // 2
+    magnitude_bits = axis_bits - 1
+    axis_values = []
+    for shift in (axis_bits, 0):
+        word = (indices >> shift) & ((1 << axis_bits) - 1)
+        sign = np.where((word >> magnitude_bits) == 0, -1.0, 1.0)
+        gray = word & ((1 << magnitude_bits) - 1)
+        binary = gray.copy()
+        offset = 1
+        while offset < magnitude_bits:
+            binary ^= binary >> offset
+            offset *= 2
+        magnitude = (1 << axis_bits) - 1 - 2 * binary.astype(int)
+        axis_values.append(sign * magnitude)
+    scale = 1.0 / np.sqrt(2.0 * (2 ** num_bpscs - 1) / 3.0)
+    return (axis_values[0] + 1j * axis_values[1]) * scale
 
 
 def constellation_map(bits: np.ndarray, num_bpscs: int,
@@ -102,23 +71,11 @@ def constellation_map(bits: np.ndarray, num_bpscs: int,
     if len(bits) % num_bpscs != 0:
         raise ValueError(f"bits length {len(bits)} not a multiple of numBPSCS {num_bpscs}")
 
-    if num_bpscs == 1:
-        # IEEE 802.11: bit 0 -> -1, bit 1 -> +1
-        sym = np.where(bits == 0, -1.0, 1.0).astype(complex)
-    else:
-        m = 2 ** num_bpscs
-        sq_m = int(np.sqrt(m))
-        sym_tab = np.array(_SYM_MAPS[num_bpscs])
-
-        bits_mat = bits.reshape(-1, num_bpscs)
-        powers = 2 ** np.arange(num_bpscs - 1, -1, -1)
-        indices = bits_mat @ powers
-
-        k = sym_tab[indices]
-        i_pos = 2 * (k % sq_m) - sq_m + 1
-        q_pos = 2 * (k // sq_m) - sq_m + 1
-        scale = 1.0 / np.sqrt(2.0 * (m - 1) / 3.0)
-        sym = (i_pos + 1j * q_pos).astype(complex) * scale
+    if not np.all((bits == 0) | (bits == 1)):
+        raise ValueError("bits must contain only 0 or 1")
+    bits_mat = bits.reshape(-1, num_bpscs)
+    powers = 2 ** np.arange(num_bpscs - 1, -1, -1)
+    sym = _qam_points_for_binary_indices(bits_mat @ powers, num_bpscs)
 
     if phase is not None:
         sym = sym * np.exp(1j * phase)
@@ -126,14 +83,9 @@ def constellation_map(bits: np.ndarray, num_bpscs: int,
 
 
 def _build_constellation(num_bpscs: int) -> np.ndarray:
-    """Build constellation point array indexed by symbol position k."""
+    """Build constellation points indexed by the binary bit pattern."""
     m = 2 ** num_bpscs
-    sq_m = int(np.sqrt(m))
-    scale = 1.0 / np.sqrt(2.0 * (m - 1) / 3.0)
-    k = np.arange(m)
-    i_pos = 2 * (k % sq_m) - sq_m + 1
-    q_pos = 2 * (k // sq_m) - sq_m + 1
-    return (i_pos + 1j * q_pos).astype(complex) * scale
+    return _qam_points_for_binary_indices(np.arange(m), num_bpscs)
 
 
 def constellation_demap(symbols: np.ndarray, noise_var: float, num_bpscs: int,
@@ -165,23 +117,17 @@ def constellation_demap(symbols: np.ndarray, noise_var: float, num_bpscs: int,
         return 2.0 * symbols.real / max(noise_var, 1e-30)
 
     m = 2 ** num_bpscs
-    sym_tab = np.array(_SYM_MAPS[num_bpscs])
     constellation = _build_constellation(num_bpscs)
 
     diffs = symbols[:, None] - constellation[None, :]
     dist2 = np.abs(diffs) ** 2
 
-    # inverse table: symbol position k -> bit pattern integer
-    inv = np.zeros(m, dtype=np.int64)
-    for bits_int, k in enumerate(sym_tab):
-        inv[k] = bits_int
     powers = 2 ** np.arange(num_bpscs - 1, -1, -1)
-    point_bits = ((inv[:, None] // powers) % 2)  # [M, numBPSCS]
+    point_bits = ((np.arange(m)[:, None] // powers) % 2)  # [M, numBPSCS]
 
     if demap_type == "hard":
         nearest = np.argmin(dist2, axis=1)
-        bits_ints = inv[nearest]
-        bits = ((bits_ints[:, None] // powers) % 2).astype(np.int8)
+        bits = ((nearest[:, None] // powers) % 2).astype(np.int8)
         return bits.reshape(-1)
 
     # soft: max-log-MAP approximate LLR

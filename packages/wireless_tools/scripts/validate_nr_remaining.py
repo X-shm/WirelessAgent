@@ -108,6 +108,12 @@ def main() -> int:
     assert np.array_equal(short_symbols, pucch0([1], nid=7)["symbols"])
     long_symbols = pucch1([0, 1], nid=7)["symbols"]
     assert pucch_decode(long_symbols, 1, nid=7, num_symbols=4)["bits"].tolist() == [0, 1]
+    for bit in (0, 1):
+        one_bit_symbols = pucch1([bit], nid=7)["symbols"]
+        decoded = pucch_decode(one_bit_symbols, 1, nid=7, num_symbols=4,
+                               uci_bits_length=1)
+        assert decoded["bits"].tolist() == [bit]
+        assert len(decoded["llr"]) == 1
     assert len(pucch_indices(1, format_number=2, num_symbols=2)["indices"]) == 16
     assert len(pucch_dmrs_indices(1, format_number=2, num_symbols=2)["indices"]) == 8
     assert len(pucch_dmrs(7, format_number=2, num_symbols=2)["symbols"]) == 8
@@ -136,6 +142,96 @@ def main() -> int:
     waveform = waveform_generator(resource_grid, 128)["waveform"]
     analysis = waveform_analyzer(waveform, 128, 1, 14)
     assert np.allclose(analysis["grid"], resource_grid, atol=1e-12)
+
+    # Independent edge cases for each of the ten grouped tools.  These are
+    # slice-level invariants, separate from the checked-in MATLAB oracle cases.
+    for lssb, idxoffset in ((4, 17), (8, 17), (64, 37)):
+        encoded = bch(mib, 1023, 0, lssb, idxoffset, 1007)["codeword"]
+        decoded = bch_decode((1 - 2 * encoded.astype(float)) * 25, lssb, 1007)
+        assert decoded["crc_ok"] and np.array_equal(decoded["payload"], mib)
+
+    for length, e in ((19, 108), (20, 128), (100, 256)):
+        data = np.arange(length, dtype=np.uint8) % 2
+        encoded = uci_encode(data, e)["codeword"]
+        decoded = uci_decode((1 - 2 * encoded.astype(float)) * 25, length)
+        assert decoded["crc_ok"] and np.array_equal(decoded["payload"], data)
+
+    mimo = tdl_channel([[1, 0], [0, 1]], 1000, [0],
+                       [[[1, 0], [0, 1]]])["samples"]
+    assert np.array_equal(mimo, np.eye(2))
+    doppler = cdl_channel([1, 1], 1000, [0], [1], [250])["samples"][:, 0]
+    assert np.allclose(doppler, [1, 1j], atol=1e-12)
+    near = path_loss(3.5e9, [0, 0, 0], [100, 0, 0])["pathloss_db"]
+    far = path_loss(3.5e9, [0, 0, 0], [200, 0, 0])["pathloss_db"]
+    assert np.isclose(far - near, 20 * np.log10(2))
+    noisy_phase = phase_noise([1] * 32, 1000, 10, seed=7)
+    assert np.array_equal(noisy_phase["phase_radians"],
+                          phase_noise([1] * 32, 1000, 10, seed=7)["phase_radians"])
+    assert np.any(noisy_phase["phase_radians"] != 0)
+
+    density_counts = [csirs_indices(4, density=d)["n_re"] for d in (0, 1, 3)]
+    assert density_counts == [2, 4, 12]
+    assert csirs_indices(2, symbol=3, subcarrier_offset=2)["indices"] == [75, 87]
+    reference_grid = np.zeros((24, 1), dtype=complex)
+    reference_grid[[2, 14], 0] = 2
+    reference_csi = csirs_measurements(reference_grid, [3, 15], 2)
+    assert reference_csi["RSRP"] == 4 and reference_csi["RSSI"] == 8
+    assert reference_csi["RSRQ"] == 1
+    first_based = csirs_indices(4, index_base=1)["indices"]
+    zero_based = csirs_indices(4, index_base=0)["indices"]
+    assert np.array_equal(np.asarray(first_based) - 1, zero_based)
+    assert csi_report_csirs([1], .1)["CQI"] >= csi_report_csirs([1], 1)["CQI"]
+
+    two_cce = pdcch_resources(12, coreset_nrb=12, aggregation_level=2)
+    assert len(two_cce["indices"]) == 108 and len(two_cce["dmrs_indices"]) == 36
+    assert not set(two_cce["indices"]) & set(two_cce["dmrs_indices"])
+    assert max(two_cce["indices"] + two_cce["dmrs_indices"]) <= 12 * 12
+    one_cce = pdcch_resources(6, symbol=1)
+    assert one_cce["indices"][:9] == [73, 75, 76, 77, 79, 80, 81, 83, 84]
+    assert one_cce["dmrs_indices"][:3] == [74, 78, 82]
+    assert set(one_cce["indices"] + one_cce["dmrs_indices"]) == set(range(73, 145))
+
+    long_prach = prach(7, 839, 37)["symbols"]
+    long_detection = prach_detect(long_prach, 7, 839)
+    assert long_detection["detected"] and long_detection["cyclic_shift"] == 37
+    assert abs(np.vdot(long_prach, np.roll(long_prach, 1))) < 1e-8
+    long_waveform = prach_ofdm_modulate(long_prach, 1024)["waveform"]
+    assert len(long_waveform) == 1024
+    assert np.isclose(np.sum(abs(long_waveform) ** 2), 839, atol=1e-8)
+    unshifted_prach = prach(1, 139, 0)["symbols"]
+    assert np.isclose(unshifted_prach[0], 1)
+    assert np.isclose(unshifted_prach[1], np.exp(-2j * np.pi / 139))
+
+    sparse_ptrs = pdsch_ptrs_indices(8, list(range(8)), dmrs_symbols=(2, 11),
+                                    frequency_density=4, time_density=2)
+    assert sparse_ptrs["n_re"] == len(sparse_ptrs["indices"])
+    assert not {symbol for _, symbol in sparse_ptrs["subscripts"]} & {2, 11}
+    assert len(pdsch_ptrs(8, list(range(8)), 17, dmrs_symbols=(2, 11),
+                          frequency_density=4, time_density=2)["symbols"]) == sparse_ptrs["n_re"]
+    reference_ptrs = pdsch_ptrs_indices(8, list(range(8)), num_symbols=4,
+                                       dmrs_symbols=(1,), frequency_density=2,
+                                       time_density=2, re_offset=3)
+    assert reference_ptrs["indices"] == [4, 28, 52, 76, 292, 316, 340, 364]
+
+    fmt1_indices = pucch_indices(1, num_symbols=4, format_number=1)
+    assert {int((i - 1) // 12) for i in fmt1_indices["indices"]} == {1, 3}
+    assert {int((i - 1) // 12) for i in fmt1_indices["dmrs_indices"]} == {0, 2}
+    assert len(pucch_dmrs(7, format_number=1, num_symbols=4)["symbols"]) == 24
+
+    for rv in range(4):
+        encoded = ulsch(np.arange(100, dtype=np.uint8) % 2, .5, 1024, rv=rv)["codeword"]
+        decoded = ulsch_decoder((1 - 2 * encoded.astype(float)) * 30,
+                                100, .5, rv=rv, max_iter=20)
+        assert decoded["crc_ok"] and np.array_equal(decoded["payload"],
+                                                     np.arange(100) % 2)
+
+    wider_grid = np.zeros((24, 14), dtype=complex)
+    wider_grid[3, 2] = 1 + 1j
+    wider_grid[15, 9] = -1 + 1j
+    wider_waveform = waveform_generator(wider_grid, 256, scs_khz=30)
+    wider_analysis = waveform_analyzer(wider_waveform["waveform"], 256, 2, 14,
+                                       scs_khz=30)
+    assert np.allclose(wider_analysis["grid"], wider_grid, atol=1e-12)
 
     root = Path(__file__).resolve().parents[1]
     for schema_path in sorted((root / "tools").glob("nr_*.schema.json")):

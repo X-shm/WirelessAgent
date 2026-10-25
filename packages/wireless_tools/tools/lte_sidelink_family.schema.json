@@ -1,0 +1,77 @@
+{
+  "name": "lte_sidelink_family",
+  "script": "lte_sidelink_family.py",
+  "description": "LTE sidelink resource, sequence, channel and waveform operations",
+  "implementation": "独立 Python Sidelink MIB、PSSS/SSSS、PSBCH/PSCCH/PSSCH 资源索引与物理信道编解码、SCI/SL-BCH 编解码、三类 DRS 验证配置、PRBS 及 SC-FDMA 几何已与 MATLAB 样本对照；其余估计和完整多天线链仍为部分实现。",
+  "inputs": {
+    "function": {
+      "type": "enum",
+      "enum": [
+        "ltePSBCH",
+        "ltePSBCHDecode",
+        "ltePSBCHDRS",
+        "ltePSBCHDRSIndices",
+        "ltePSBCHIndices",
+        "ltePSBCHPRBS",
+        "ltePSCCH",
+        "ltePSCCHDecode",
+        "ltePSCCHDRS",
+        "ltePSCCHDRSIndices",
+        "ltePSCCHIndices",
+        "ltePSCCHPRBS",
+        "ltePSSCH",
+        "ltePSSCHDecode",
+        "ltePSSCHDRS",
+        "ltePSSCHDRSIndices",
+        "ltePSSCHIndices",
+        "ltePSSCHPRBS",
+        "ltePSSS",
+        "ltePSSSIndices",
+        "lteSCI",
+        "lteSCIDecode",
+        "lteSCIEncode",
+        "lteSCIInfo",
+        "lteSCIResourceAllocation",
+        "lteSLBCH",
+        "lteSLBCHDecode",
+        "lteSLChannelEstimatePSBCH",
+        "lteSLChannelEstimatePSCCH",
+        "lteSLChannelEstimatePSSCH",
+        "lteSLFrameOffsetPSBCH",
+        "lteSLFrameOffsetPSCCH",
+        "lteSLFrameOffsetPSSCH",
+        "lteSLMIB",
+        "lteSLResourceGrid",
+        "lteSLResourceGridSize",
+        "lteSLSCFDMADemodulate",
+        "lteSLSCFDMAInfo",
+        "lteSLSCFDMAModulate",
+        "lteSLSCH",
+        "lteSLSCHDecode",
+        "lteSSSS",
+        "lteSSSSIndices"
+      ],
+      "required": true,
+      "description": "MATLAB LTE public entry"
+    },
+    "params": {
+      "type": "string",
+      "required": true,
+      "max_length": 250000,
+      "mcp_stdin": true,
+      "description": "Selected entry's JSON keyword arguments"
+    }
+  },
+  "outputs": {
+    "function": {
+      "description": "Public entry"
+    },
+    "result": {
+      "description": "Computed result and explicit model scope"
+    }
+  },
+  "example": {
+    "cmd": "python tools/lte_sidelink_family.py --function lteSLResourceGridSize --params '{}'",
+    "result": "lteSLResourceGridSize standalone Python result"
+  }
+}

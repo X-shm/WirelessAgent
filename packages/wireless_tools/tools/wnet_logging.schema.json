@@ -1,0 +1,11 @@
+{
+  "name": "wnet_logging", "script": "wnet_logging.py",
+  "description": "独立 Python 无线网络事件追踪与 IQ 采样记录。",
+  "implementation": "事件按名称、节点与时间过滤，剔除包字节；IQ 输入可按有理采样率比重采样，并以 JSON 复数数组返回。",
+  "inputs": {
+    "function": {"type": "enum", "enum": ["wirelessNetworkEventTracer", "wirelessIQLogger"], "required": true, "description": "公开 MATLAB 类名"},
+    "params": {"type": "string", "required": true, "max_length": 250000, "mcp_stdin": true, "description": "事件列表和过滤条件，或节点、IQ 样本及采样率的 JSON 对象。"}
+  },
+  "outputs": {"function": {"description": "调用的类名"}, "result": {"description": "过滤后的事件或 IQ 样本和元数据"}},
+  "example": {"cmd": "python tools/wnet_logging.py --function wirelessNetworkEventTracer --params '{\"events\":[{\"EventName\":\"ReceptionEnded\",\"NodeID\":2,\"Timestamp\":0.1}]}'", "result": "过滤后的接收事件"}
+}

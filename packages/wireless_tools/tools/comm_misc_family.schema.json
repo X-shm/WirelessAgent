@@ -1,0 +1,11 @@
+{
+  "name": "comm_misc_family", "script": "comm_misc_family.py",
+  "description": "独立 Python 旧式输入填充、积分清零、VITA 49 报头解析及无图形界面的通信库查询。",
+  "implementation": "intdump 等长分组平均、VITA 49 多包报头与负载边界、Simulink 库描述符分类及 Python 工具目录查询；不启动 Simulink 或 MATLAB GUI。",
+  "inputs": {
+    "function": {"type": "enum", "enum": ["checkinp", "intdump", "comm_links", "commlib", "commprivate", "comms", "vita49Reader"], "required": true, "description": "Communications Toolbox 顶层入口名"},
+    "params": {"type": "string", "required": true, "max_length": 250000, "mcp_stdin": true, "description": "函数关键字参数 JSON 对象；VITA 49 可接收 data_hex 或 data_base64。"}
+  },
+  "outputs": {"function": {"description": "调用的入口名"}, "result": {"description": "数值输出、结构化目录或数据包信息"}},
+  "example": {"cmd": "python tools/comm_misc_family.py --function intdump --params '{\"x\":[1,3,2,4],\"nsamp\":2}'", "result": "[2,3] 符号平均值"}
+}

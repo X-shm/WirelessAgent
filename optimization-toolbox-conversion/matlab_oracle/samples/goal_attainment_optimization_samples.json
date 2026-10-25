@@ -1,0 +1,1 @@
+[{"problem":{"objective_matrix":[[1],[-1]],"goals":[1,-1],"weights":[1,1],"bounds":[[0,2]]},"expected":{"x":[1],"attainment":-2.2204460492503131E-16,"objective_values":[1,-1]}}]

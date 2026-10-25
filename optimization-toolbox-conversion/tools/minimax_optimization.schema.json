@@ -1,0 +1,11 @@
+{
+  "name": "minimax_optimization",
+  "script": "minimax_optimization.py",
+  "description": "最小化多条线性目标函数中的最大值；对应 MATLAB fminimax 的线性目标子集。",
+  "inputs": {
+    "problem": {"type": "string", "required": true, "description": "JSON 对象：objective_matrix、可选 objective_offset；可选线性约束 A_ub/b_ub、A_eq/b_eq 和 bounds。"},
+    "options": {"type": "string", "required": false, "description": "可选 JSON 对象：max_iterations、tolerance、display。"}
+  },
+  "outputs": {"x": "优化变量", "objective": "最大目标值", "objective_values": "各目标函数值", "success": "求解是否成功", "status": "求解器状态码", "message": "求解信息", "iterations": "迭代次数", "method": "上图变量线性规划"},
+  "example": {"cmd": "python tools/minimax_optimization.py --problem '{\"objective_matrix\":[[1],[-1]],\"objective_offset\":[-1,1],\"bounds\":[[0,2]]}'", "result": "{\"x\":[1.0],\"objective\":0.0,\"success\":true}"}
+}

@@ -1,0 +1,11 @@
+{
+  "name": "wlan_mac_family", "script": "wlan_mac_family.py",
+  "description": "WLAN MAC MPDU 构造与解析、A-MPDU 分解、状态枚举和字段索引。",
+  "implementation": "单数据帧 802.11 MAC 头及 CRC32 FCS、分隔符搜索和 CRC8、Non-HT/HT/VHT 常用字段样本索引，传统前导相关检测。",
+  "inputs": {
+    "function": {"type": "enum", "enum": ["wlanAMPDUDeaggregate", "wlanFieldIndices", "wlanFormatDetect", "wlanMACDecodeStatus", "wlanMACFrame", "wlanMPDUDecode"], "required": true, "description": "MATLAB 公开入口名"},
+    "params": {"type": "string", "required": true, "max_length": 250000, "mcp_stdin": true, "description": "所选函数的十六进制 MPDU/A-MPDU、MAC 地址、波形或格式参数。"}
+  },
+  "outputs": {"function": {"description": "入口名"}, "result": {"description": "MAC 帧、状态、字段索引或检测结果"}},
+  "example": {"cmd": "python tools/wlan_mac_family.py --function wlanMACFrame --params '{\"payload\":\"010203\",\"source\":\"001122334455\"}'", "result": "带 FCS 的 MAC 数据帧"}
+}

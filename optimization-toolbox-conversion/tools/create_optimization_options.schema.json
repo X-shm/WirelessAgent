@@ -1,0 +1,11 @@
+{
+  "name": "create_optimization_options",
+  "script": "create_optimization_options.py",
+  "description": "按求解器名称生成通用选项对象；对应 MATLAB optimoptions 的常用选项子集。",
+  "inputs": {
+    "problem": {"type": "string", "required": true, "description": "JSON 对象：solver 为 fmincon/linprog/quadprog/intlinprog/fminimax/fgoalattain 之一；可选 settings 包含 algorithm、max_iterations、tolerance、display。"},
+    "options": {"type": "string", "required": false, "description": "不使用此参数；选项设置放入 problem.settings。"}
+  },
+  "outputs": {"solver": "目标求解器名称", "options": "标准化后的通用选项", "coverage": "支持范围说明"},
+  "example": {"cmd": "python tools/create_optimization_options.py --problem '{\"solver\":\"quadprog\",\"settings\":{\"algorithm\":\"active-set\",\"max_iterations\":500,\"tolerance\":1e-7,\"display\":false}}'", "result": "{\"solver\":\"quadprog\",\"options\":{\"algorithm\":\"active-set\",\"max_iterations\":500,\"tolerance\":1e-7,\"display\":false}}"}
+}

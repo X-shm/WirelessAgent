@@ -1,0 +1,11 @@
+{
+  "name": "comm_sequence_decode", "script": "comm_sequence_decode.py",
+  "description": "独立 Python MLSE、硬判决 Viterbi 和 BCH 分量码二维 TPC 编解码。",
+  "implementation": "有限状态动态规划、硬判决网格译码及现有 BCH 编码器的行列乘积；不覆盖 MATLAB 的连续状态、软判决 Chase-Pyndiah 和扩展/缩短码选项。",
+  "inputs": {
+    "function": {"type": "enum", "enum": ["mlseeq", "tpcenc", "tpcdec", "vitdeccore"], "required": true, "description": "Communications Toolbox 顶层入口名"},
+    "params": {"type": "string", "required": true, "max_length": 250000, "mcp_stdin": true, "description": "函数关键字参数 JSON 对象；TPC 的 n/k 为两元素数组，LLR 正数表示零。"}
+  },
+  "outputs": {"function": {"description": "调用的入口名"}, "result": {"description": "序列估计、码字或译码消息"}},
+  "example": {"cmd": "python tools/comm_sequence_decode.py --function tpcenc --params '{\"msg\":[0,1,0,1,1,0,1,0,0,1,0,1,1,0,1,0],\"n\":[7,7],\"k\":[4,4]}'", "result": "49 位 BCH 乘积码"}
+}

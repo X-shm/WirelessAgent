@@ -1,0 +1,26 @@
+{
+  "name": "comm_source_coding",
+  "script": "comm_source_coding.py",
+  "description": "独立 Python Huffman、算术编码、Lloyd 量化和 DPCM 入口。",
+  "implementation": "显式码表、1 起始整数符号算术编码、标量 Lloyd-Max 量化与无噪声 DPCM 切片。",
+  "inputs": {
+    "function": {
+      "type": "enum",
+      "enum": ["huffmandict", "huffmanenco", "huffmandeco", "arithenco", "arithdeco", "lloyds", "dpcmopt", "dpcmenco", "dpcmdeco"],
+      "required": true,
+      "description": "Communications Toolbox 顶层入口名"
+    },
+    "params": {
+      "type": "string", "required": true, "max_length": 250000, "mcp_stdin": true,
+      "description": "JSON 参数对象：Huffman 使用 symbols/probabilities 或 data/dictionary；算术编码使用 data/counts、解码使用 encoded/counts/length；DPCM 使用 samples/indices、codebook、predictor。"
+    }
+  },
+  "outputs": {
+    "function": {"description": "调用的入口名"},
+    "result": {"description": "结构化码流、码表、量化器或重建信号"}
+  },
+  "example": {
+    "cmd": "python tools/comm_source_coding.py --function huffmandict --params '{\"symbols\":[1,2],\"probabilities\":[0.5,0.5]}'",
+    "result": "Huffman 字典和平均码长"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "quadratic_programming",
+  "script": "quadratic_programming.py",
+  "description": "求解凸二次目标和线性约束组成的二次规划；对应 MATLAB quadprog 的凸问题子集。",
+  "inputs": {
+    "problem": {"type": "string", "required": true, "description": "JSON 对象：H、f、x0；可选 A_ub/b_ub、A_eq/b_eq、bounds。目标为 0.5*x' H x + f' x，H 必须半正定。"},
+    "options": {"type": "string", "required": false, "description": "可选 JSON 对象：max_iterations、tolerance、display。"}
+  },
+  "outputs": {"x": "优化变量", "objective": "目标函数值", "success": "求解是否成功", "status": "求解器状态码", "message": "求解信息", "iterations": "迭代次数", "method": "SLSQP 凸二次规划子集"},
+  "example": {"cmd": "python tools/quadratic_programming.py --problem '{\"H\":[[2]],\"f\":[-4],\"x0\":[0],\"bounds\":[[0,3]]}'", "result": "{\"x\":[2.0],\"objective\":-4.0,\"success\":true}"}
+}

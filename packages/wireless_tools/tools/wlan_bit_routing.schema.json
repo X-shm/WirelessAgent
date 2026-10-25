@@ -1,0 +1,11 @@
+{
+  "name": "wlan_bit_routing", "script": "wlan_bit_routing.py",
+  "description": "WLAN BCC 交织、空间流与频率分段的独立 Python 可逆路由。",
+  "implementation": "802.11 两步 BCC 置换和按调制比特组进行空间流或两段分配；提供对应逆操作。",
+  "inputs": {
+    "function": {"type": "enum", "enum": ["wlanBCCInterleave", "wlanBCCDeinterleave", "wlanStreamParse", "wlanStreamDeparse", "wlanSegmentParseBits", "wlanSegmentDeparseBits", "wlanSegmentParseSymbols", "wlanSegmentDeparseSymbols"], "required": true, "description": "MATLAB 公开函数名"},
+    "params": {"type": "string", "required": true, "max_length": 250000, "mcp_stdin": true, "description": "bits/streams/segments、ncbps、nbpscs、channel_bandwidth 等 JSON 参数。"}
+  },
+  "outputs": {"function": {"description": "调用的函数名"}, "result": {"description": "交织或路由后的数据及分段元数据"}},
+  "example": {"cmd": "python tools/wlan_bit_routing.py --function wlanBCCInterleave --params '{\"bits\":[0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],\"ncbps\":16}'", "result": "16 位 BCC 交织结果"}
+}
