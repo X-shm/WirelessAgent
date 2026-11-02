@@ -10159,17 +10159,21 @@ const Yt = {
   listSessions: () => ln("/sessions/"),
   createSession: () => ln("/sessions/", { method: "POST" }),
   deleteSession: (e) => ln(`/sessions/${e}`, { method: "DELETE" }),
-  chatStream: (e, t, fileIds = [], mode = "talk", tool = null) =>
+  chatStream: (e, t, fileIds = [], mode = "talk", tool = null, modelConfig = null) =>
     fetch(`${Hs}/chat/stream`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${js()}` },
-      body: JSON.stringify({ session_id: e, message: t, file_ids: fileIds, mode, tool }),
+      body: JSON.stringify({ session_id: e, message: t, file_ids: fileIds, mode, tool, model: modelConfig?.model || null, api_base_url: modelConfig?.baseUrl || null, api_key: modelConfig?.apiKey || null }),
     }),
   search: (e, t = 5) => ln(`/rag/search?q=${encodeURIComponent(e)}&top_k=${t}`),
   getMessages: (e) => ln(`/sessions/${e}/messages`),
   listFiles: () => ln("/files/"),
   deleteFile: (e) => ln(`/files/${e}`, { method: "DELETE" }),
   fileContent: (e) => ln(`/files/${e}/content`),
+  createSession: (projectId = null) => ln(projectId ? `/sessions/?project_id=${encodeURIComponent(projectId)}` : "/sessions/", { method: "POST" }),
+  listProjects: () => ln("/projects/"),
+  createProject: (name) => ln("/projects/", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name }) }),
+  deleteProject: (id) => ln(`/projects/${id}`, { method: "DELETE" }),
   listLibraryFiles: () => ln("/library/files"),
   deleteLibraryFile: (e) => ln(`/library/files/${e}`, { method: "DELETE" }),
   libraryFileContent: (e) => ln(`/library/files/${e}/content`),
@@ -11682,7 +11686,7 @@ function jw(e) {
         ? `${Math.floor(r / 36e5)}小时前`
         : t.toLocaleDateString("zh-CN");
 }
-function Ww({ mode = "talk", sessions = [], activeId, onSelect, onCreate, onDelete }) {
+function Ww({ mode = "talk", sessions = [], activeId, onSelect, onCreate, onDelete, projects = [], activeProjectId, onSelectProject, onCreateProject, onDeleteProject }) {
   const navigate = tc();
   const chatActive = mode === "talk" || mode === "work";
   return T.jsxs("aside", {
@@ -11742,7 +11746,36 @@ function Ww({ mode = "talk", sessions = [], activeId, onSelect, onCreate, onDele
             children: "＋ 新对话",
           }),
         }),
-      chatActive &&
+      mode === "work" &&
+        T.jsxs("div", {
+          className: "px-3 pb-2",
+          children: [
+            T.jsxs("div", {
+              className: "flex items-center justify-between px-1 py-2",
+              children: [
+                T.jsx("p", { className: "text-xs font-medium text-muted-foreground", children: "项目" }),
+                T.jsx("button", { type: "button", onClick: onCreateProject, className: "text-xs text-sunset-600 hover:underline", children: "＋ 新建项目" }),
+              ],
+            }),
+            T.jsx("button", {
+              type: "button",
+              onClick: () => onSelectProject(null),
+              className: Or("w-full text-left px-3 py-2 rounded-xl text-xs mb-1", !activeProjectId ? "bg-white border border-cream-200 text-foreground" : "text-muted-foreground hover:bg-white/60"),
+              children: "未归档对话",
+            }),
+            (Array.isArray(projects) ? projects : []).map((project) =>
+              T.jsxs("div", {
+                className: Or("group flex items-center gap-1 px-3 py-2 rounded-xl text-xs mb-1 cursor-pointer", activeProjectId === project.id ? "bg-white border border-cream-200 text-foreground" : "text-muted-foreground hover:bg-white/60"),
+                onClick: () => onSelectProject(project.id),
+                children: [
+                  T.jsx("span", { className: "shrink-0", children: "▸" }),
+                  T.jsx("span", { className: "truncate flex-1", children: project.name }),
+                  T.jsx("button", { type: "button", onClick: (event) => { event.stopPropagation(); onDeleteProject(project.id); }, className: "opacity-0 group-hover:opacity-100 text-red-400", children: "×" }),
+                ],
+              }, project.id),
+            ),
+          ],
+        }),      chatActive &&
         T.jsxs("div", {
           className: "flex-1 overflow-y-auto px-2",
           children: [
@@ -33330,6 +33363,123 @@ function bA() {
     }),
   });
 }
+function WkGetSelectedModel() {
+  try {
+    const models = JSON.parse(localStorage.getItem("apiModels") || "[]");
+    const selectedId = localStorage.getItem("selectedModelId") || "";
+    return models.find((item) => item.id === selectedId) || null;
+  } catch {
+    return null;
+  }
+}
+
+function WkApiSettings({ open, onClose }) {
+  const [models, setModels] = D.useState(() => {
+    try { return JSON.parse(localStorage.getItem("apiModels") || "[]"); } catch { return []; }
+  });
+  const [selectedId, setSelectedId] = D.useState(() => localStorage.getItem("selectedModelId") || "");
+  const [form, setForm] = D.useState({ name: "", baseUrl: "", apiKey: "", model: "" });
+  const [error, setError] = D.useState("");
+
+  const persist = (nextModels, nextSelected) => {
+    setModels(nextModels);
+    setSelectedId(nextSelected);
+    localStorage.setItem("apiModels", JSON.stringify(nextModels));
+    localStorage.setItem("selectedModelId", nextSelected);
+  };
+
+  const addModel = () => {
+    const name = form.name.trim();
+    const baseUrl = form.baseUrl.trim().replace(/\/+$/, "");
+    const model = form.model.trim();
+    if (!name || !baseUrl || !model) {
+      setError("名称、接口地址和模型名不能为空");
+      return;
+    }
+    const item = {
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2),
+      name,
+      baseUrl,
+      apiKey: form.apiKey.trim(),
+      model,
+    };
+    const next = [...models, item];
+    persist(next, item.id);
+    setForm({ name: "", baseUrl: "", apiKey: "", model: "" });
+    setError("");
+  };
+
+  const removeModel = (id) => {
+    const next = models.filter((item) => item.id !== id);
+    persist(next, selectedId === id ? (next[0] && next[0].id) || "" : selectedId);
+  };
+
+  if (!open) return null;
+  return T.jsx("div", {
+    className: "fixed inset-0 z-50 flex items-center justify-center p-4",
+    style: { background: "rgba(30,24,20,0.55)" },
+    onClick: onClose,
+    children: T.jsxs("div", {
+      className: "w-full max-w-xl rounded-3xl bg-white shadow-2xl overflow-hidden",
+      onClick: (event) => event.stopPropagation(),
+      children: [
+        T.jsxs("div", {
+          className: "flex items-center justify-between px-5 py-4 border-b border-cream-200",
+          children: [
+            T.jsxs("div", {
+              children: [
+                T.jsx("p", { className: "text-sm font-medium text-foreground", children: "API 与模型配置" }),
+                T.jsx("p", { className: "text-xs text-muted-foreground mt-1", children: "配置 OpenAI 兼容接口；密钥仅保存在当前浏览器" }),
+              ],
+            }),
+            T.jsx("button", { type: "button", onClick: onClose, className: "w-8 h-8 rounded-full hover:bg-cream-100", children: "×" }),
+          ],
+        }),
+        T.jsxs("div", {
+          className: "p-5 space-y-4 max-h-[70vh] overflow-y-auto",
+          children: [
+            models.length > 0 &&
+              T.jsxs("div", {
+                className: "space-y-2",
+                children: [
+                  T.jsx("p", { className: "text-xs font-medium text-muted-foreground", children: "当前使用的模型" }),
+                  models.map((item) =>
+                    T.jsxs("div", {
+                      className: Or("flex items-center gap-3 rounded-2xl border px-3 py-2.5", selectedId === item.id ? "border-sunset-400 bg-accent" : "border-cream-200"),
+                      children: [
+                        T.jsx("button", {
+                          type: "button",
+                          onClick: () => persist(models, item.id),
+                          className: "min-w-0 flex-1 text-left",
+                          children: [
+                            T.jsx("p", { className: "text-sm font-medium text-foreground truncate", children: item.name }),
+                            T.jsx("p", { className: "text-xs text-muted-foreground truncate mt-0.5", children: item.model + " · " + item.baseUrl }),
+                          ],
+                        }),
+                        T.jsx("button", { type: "button", onClick: () => removeModel(item.id), className: "text-xs text-red-400 hover:underline", children: "删除" }),
+                      ],
+                    }, item.id),
+                  ),
+                ],
+              }),
+            T.jsxs("div", {
+              className: "rounded-2xl bg-cream-50 p-4 space-y-3",
+              children: [
+                T.jsx("p", { className: "text-sm font-medium text-foreground", children: "添加模型" }),
+                T.jsx("input", { value: form.name, onChange: (e) => setForm({ ...form, name: e.target.value }), placeholder: "显示名称，如 DeepSeek", className: "w-full rounded-xl border border-cream-300 px-3 py-2 text-sm" }),
+                T.jsx("input", { value: form.baseUrl, onChange: (e) => setForm({ ...form, baseUrl: e.target.value }), placeholder: "API 地址，如 https://api.deepseek.com/v1", className: "w-full rounded-xl border border-cream-300 px-3 py-2 text-sm" }),
+                T.jsx("input", { value: form.model, onChange: (e) => setForm({ ...form, model: e.target.value }), placeholder: "模型名，如 deepseek-chat", className: "w-full rounded-xl border border-cream-300 px-3 py-2 text-sm" }),
+                T.jsx("input", { value: form.apiKey, onChange: (e) => setForm({ ...form, apiKey: e.target.value }), type: "password", placeholder: "API Key", className: "w-full rounded-xl border border-cream-300 px-3 py-2 text-sm" }),
+                error && T.jsx("p", { className: "text-xs text-red-400", children: error }),
+                T.jsx("button", { type: "button", onClick: addModel, className: "px-4 py-2 rounded-xl bg-sunset-500 text-white text-sm font-medium", children: "添加并设为当前模型" }),
+              ],
+            }),
+          ],
+        }),
+      ],
+    }),
+  });
+}
 function WkSaveToLibraryButton({ file, compact = false }) {
   const [state, setState] = D.useState("idle");
   const save = async () => {
@@ -33698,6 +33848,48 @@ function cp({ role: e, content: t, isStreaming: n, onPreview }) {
     ],
   });
 }
+function WkEmptyChat({ mode, onModeChange }) {
+  return T.jsx("div", {
+    className: "flex-1 flex items-center justify-center px-6 py-8",
+    children: T.jsxs("div", {
+      className: "text-center max-w-xl w-full",
+      children: [
+        T.jsx("div", {
+          className: "mx-auto mb-6 w-20 h-20 rounded-3xl bg-white border border-cream-200 shadow-lg flex items-center justify-center",
+          children: T.jsx("span", { className: "text-2xl", children: "📡" }),
+        }),
+        T.jsx("h1", { className: "text-2xl font-bold text-foreground", children: "你好，我是 WirelessAgent" }),
+        T.jsx("p", { className: "text-sm text-muted-foreground mt-3 leading-relaxed", children: "无线通信 AI 辅导助手，请选择对话模式开始" }),
+        T.jsxs("div", {
+          className: "flex items-center justify-center gap-4 mt-8",
+          children: [
+            T.jsx("button", {
+              type: "button",
+              onClick: () => onModeChange("talk"),
+              style: { minWidth: 160 },
+              className: Or(
+                "px-8 py-4 rounded-2xl text-base font-medium border transition-colors",
+                mode === "talk" ? "bg-sunset-500 border-sunset-500 text-white" : "bg-white border-cream-300 text-foreground hover:bg-accent",
+              ),
+              children: "交谈",
+            }),
+            T.jsx("button", {
+              type: "button",
+              onClick: () => onModeChange("work"),
+              style: { minWidth: 160 },
+              className: Or(
+                "px-8 py-4 rounded-2xl text-base font-medium border transition-colors",
+                mode === "work" ? "bg-sunset-500 border-sunset-500 text-white" : "bg-white border-cream-300 text-foreground hover:bg-accent",
+              ),
+              children: "工作",
+            }),
+          ],
+        }),
+        T.jsx("p", { className: "text-xs text-muted-foreground/60 mt-6", children: mode === "work" ? "当前模式：工作对话" : "当前模式：交谈对话" }),
+      ],
+    }),
+  });
+}
 
 function vA() {
   return T.jsx("div", {
@@ -33845,7 +34037,7 @@ function vA() {
     }),
   });
 }
-function EA({ messages: e, streamingContent: t, onPreview }) {
+function EA({ messages: e, streamingContent: t, onPreview, mode, onModeChange }) {
   const bottomRef = D.useRef(null);
   const scrollRef = D.useRef(null);
   const stick = D.useRef(!0);
@@ -33863,7 +34055,7 @@ function EA({ messages: e, streamingContent: t, onPreview }) {
     const node = scrollRef.current;
     if (node) stick.current = node.scrollTop + node.clientHeight >= node.scrollHeight - 80;
   };
-  if (e.length === 0 && !t) return T.jsx(vA, {});
+  if (e.length === 0 && !t) return T.jsx(WkEmptyChat, { mode, onModeChange });
   return T.jsxs("div", {
     ref: scrollRef,
     onScroll,
@@ -33881,6 +34073,7 @@ function wA({ onSend: e, disabled: t, loading: n, mode, tool, onToolChange, init
   const [files, setFiles] = D.useState([]);
   const inputRef = D.useRef(null);
   const textRef = D.useRef(null);
+  const [settingsOpen, setSettingsOpen] = D.useState(!1);
 
   D.useEffect(() => {
     if (!initialText) return;
@@ -33935,7 +34128,7 @@ function wA({ onSend: e, disabled: t, loading: n, mode, tool, onToolChange, init
   const send = () => {
     if (!canSend) return;
     const message = text.trim() || "请阅读并分析我上传的文件。";
-    e(message, uploaded.map((item) => item.meta), tool || null);
+    e(message, uploaded.map((item) => item.meta), tool || null, WkGetSelectedModel());
     setText("");
     setFiles([]);
     requestAnimationFrame(() => textRef.current && textRef.current.focus());
@@ -33948,36 +34141,9 @@ function wA({ onSend: e, disabled: t, loading: n, mode, tool, onToolChange, init
     }
   };
 
-  const toolButton = (key, label) =>
-    T.jsx("button", {
-      type: "button",
-      onClick: () => onToolChange && onToolChange(tool === key ? null : key),
-      className: Or(
-        "px-3 py-1.5 rounded-xl border text-xs font-medium transition-colors",
-        tool === key
-          ? "bg-sunset-500 border-sunset-500 text-white"
-          : "bg-white border-cream-300 text-muted-foreground hover:text-foreground hover:bg-accent",
-      ),
-      children: label,
-    });
-
   return T.jsxs("div", {
     className: "border-t border-cream-300 bg-gradient-to-t from-cream-50 to-transparent px-4 pb-6 pt-3",
     children: [
-      mode === "work" &&
-        T.jsxs("div", {
-          className: "flex items-center gap-2 flex-wrap max-w-3xl mx-auto mb-2",
-          children: [
-            T.jsx("span", { className: "text-xs text-muted-foreground", children: "本对话能力" }),
-            toolButton("search", "标准检索"),
-            toolButton("homework", "习题解答"),
-            tool &&
-              T.jsx("span", {
-                className: "text-xs text-sunset-600",
-                children: "已附加，直接在下方提问即可",
-              }),
-          ],
-        }),
       files.length > 0 &&
         T.jsx("div", {
           className: "flex gap-2 mb-3 flex-wrap max-w-3xl mx-auto",
@@ -34029,6 +34195,13 @@ function wA({ onSend: e, disabled: t, loading: n, mode, tool, onToolChange, init
       T.jsxs("div", {
         className: "flex items-end gap-2.5 max-w-3xl mx-auto",
         children: [
+          T.jsx("button", {
+            type: "button",
+            onClick: () => setSettingsOpen(!0),
+            className: "p-2.5 rounded-2xl text-muted-foreground hover:text-sunset-500 hover:bg-accent transition-colors shrink-0",
+            title: "API 与模型配置",
+            children: "API",
+          }),
           T.jsxs("label", {
             className: Or(
               "p-2.5 rounded-2xl cursor-pointer text-muted-foreground hover:text-sunset-500 hover:bg-accent transition-all duration-200",
@@ -34075,6 +34248,7 @@ function wA({ onSend: e, disabled: t, loading: n, mode, tool, onToolChange, init
         className: "text-center text-xs text-muted-foreground/50 mt-2.5 font-medium",
         children: "文件会先上传，再随消息一起交给模型读取；点击已上传文件可预览。",
       }),
+      T.jsx(WkApiSettings, { open: settingsOpen, onClose: () => setSettingsOpen(!1) }),
     ],
   });
 }
@@ -34094,8 +34268,8 @@ function xA() {
   D.useEffect(() => {
     i();
   }, [i]);
-  const o = D.useCallback(async () => {
-      const a = await Yt.createSession();
+  const o = D.useCallback(async (projectId = null) => {
+      const a = await Yt.createSession(projectId);
       if (a.ok) {
         const s = await a.json();
         return (t((u) => [s, ...u]), s);
@@ -34112,7 +34286,7 @@ function _A() {
   const [loading, setLoading] = D.useState(!1);
   const abortRef = D.useRef(null);
 
-  const send = D.useCallback(async (sessionId, text, files, mode, tool) => {
+  const send = D.useCallback(async (sessionId, text, files, mode, tool, modelConfig) => {
     const attachments = Array.isArray(files) ? files : [];
     const userMessage = {
       id: crypto.randomUUID(),
@@ -34125,7 +34299,7 @@ function _A() {
     const controller = new AbortController();
     abortRef.current = controller;
     try {
-      const response = await Yt.chatStream(sessionId, text, attachments.map((file) => file.id), mode, tool);
+      const response = await Yt.chatStream(sessionId, text, attachments.map((file) => file.id), mode, tool, modelConfig);
       const reader = response.body && response.body.getReader();
       if (!reader) throw new Error("No response body");
       const decoder = new TextDecoder();
@@ -34203,6 +34377,9 @@ function kA() {
     try { return JSON.parse(localStorage.getItem("sessionModes") || "{}"); } catch { return {}; }
   });
   const [toolsBySession, setToolsBySession] = D.useState({});
+  const [pendingTool, setPendingTool] = D.useState(null);
+  const [projects, setProjects] = D.useState([]);
+  const [activeProjectId, setActiveProjectId] = D.useState(null);
   const [prefill, setPrefill] = D.useState("");
   const [preview, setPreview] = D.useState(null);
   const creatingRef = D.useRef({ talk: !1, work: !1 });
@@ -34210,8 +34387,11 @@ function kA() {
 
   const activeId = activeIds[mode];
   const currentChat = mode === "work" ? workChat : talkChat;
-  const visibleSessions = sessions.filter((session) => (sessionModes[session.id] || "talk") === mode);
-  const tool = mode === "work" && activeId ? toolsBySession[activeId] || null : null;
+  const modeSessions = sessions.filter((session) => (sessionModes[session.id] || "talk") === mode);
+  const visibleSessions = mode === "work"
+    ? modeSessions.filter((session) => (activeProjectId ? session.project_id === activeProjectId : !session.project_id))
+    : modeSessions;
+  const tool = mode === "work" ? (activeId ? toolsBySession[activeId] || null : pendingTool) : null;
 
   D.useEffect(() => {
     localStorage.setItem("chatMode", mode);
@@ -34231,6 +34411,18 @@ function kA() {
     if (!localStorage.getItem("token")) navigate("/login", { replace: !0 });
   }, [navigate]);
 
+  const loadProjects = D.useCallback(async () => {
+    if (!localStorage.getItem("token")) return;
+    try {
+      const response = await Yt.listProjects();
+      if (response.ok) { const data = await response.json(); setProjects(Array.isArray(data) ? data : []); }
+    } catch {}
+  }, []);
+
+  D.useEffect(() => {
+    if (mode === "work") loadProjects();
+  }, [mode, loadProjects]);
+
   const rememberSession = (sessionId, sessionMode) => {
     setSessionModes((prev) => ({ ...prev, [sessionId]: sessionMode }));
   };
@@ -34239,9 +34431,13 @@ function kA() {
     if (creatingRef.current[mode]) return null;
     creatingRef.current[mode] = !0;
     try {
-      const session = await create();
+      const projectId = mode === "work" ? activeProjectId : null;
+      const session = await create(projectId);
       if (!session) return null;
       rememberSession(session.id, mode);
+      if (mode === "work" && pendingTool) {
+        setToolsBySession((prev) => ({ ...prev, [session.id]: pendingTool }));
+      }
       loadedRef.current.add(mode + ":" + session.id);
       currentChat.clear();
       setActiveIds((prev) => ({ ...prev, [mode]: session.id }));
@@ -34249,7 +34445,7 @@ function kA() {
     } finally {
       creatingRef.current[mode] = !1;
     }
-  }, [mode, create, currentChat]);
+  }, [mode, create, currentChat, activeProjectId, pendingTool]);
 
   D.useEffect(() => {
     if (sessionsLoading || activeId) return;
@@ -34273,11 +34469,17 @@ function kA() {
     }).catch(() => {});
   }, [activeId, mode, currentChat]);
 
-  const selectSession = (id) => {
-    setActiveIds((prev) => ({ ...prev, [mode]: id }));
+  const selectMode = (nextMode) => {
+    if (nextMode === mode) return;
+    setMode(nextMode);
+    setPendingTool(null);
   };
 
+  const selectSession = (id) => setActiveIds((prev) => ({ ...prev, [mode]: id }));
+
   const createSession = async () => {
+    setActiveIds((prev) => ({ ...prev, [mode]: null }));
+    loadedRef.current.delete(mode + ":pending");
     await ensureSession();
   };
 
@@ -34295,20 +34497,63 @@ function kA() {
     }
   };
 
-  const submit = async (text, files, selectedTool) => {
+  const createProject = async () => {
+    const name = window.prompt("请输入项目名称");
+    if (!name || !name.trim()) return;
+    const response = await Yt.createProject(name.trim());
+    if (!response.ok) return;
+    const project = await response.json();
+    setProjects((prev) => [project, ...prev]);
+    setActiveProjectId(project.id);
+    setActiveIds((prev) => ({ ...prev, work: null }));
+    setMode("work");
+  };
+
+  const deleteProject = async (id) => {
+    if (!window.confirm("确定删除该项目吗？项目内对话会变为未归档状态。")) return;
+    const response = await Yt.deleteProject(id);
+    if (!response.ok) return;
+    setProjects((prev) => prev.filter((item) => item.id !== id));
+    if (activeProjectId === id) {
+      setActiveProjectId(null);
+      setActiveIds((prev) => ({ ...prev, work: null }));
+    }
+  };
+
+  const selectProject = (id) => {
+    setActiveProjectId(id);
+    setActiveIds((prev) => ({ ...prev, work: null }));
+    setMode("work");
+  };
+
+  const submit = async (text, files, selectedTool, modelConfig) => {
     if (!activeId) {
       const session = await ensureSession();
       if (!session) return;
-      currentChat.send(session.id, text, files, mode, selectedTool);
+      currentChat.send(session.id, text, files, mode, selectedTool, modelConfig);
       return;
     }
-    currentChat.send(activeId, text, files, mode, selectedTool);
+    currentChat.send(activeId, text, files, mode, selectedTool, modelConfig);
   };
 
   const setTool = (nextTool) => {
-    if (!activeId) return;
+    if (!activeId) {
+      setPendingTool(nextTool);
+      return;
+    }
     setToolsBySession((prev) => ({ ...prev, [activeId]: nextTool }));
   };
+
+  const toolButton = (key, label) =>
+    T.jsx("button", {
+      type: "button",
+      onClick: () => setTool(tool === key ? null : key),
+      className: Or(
+        "px-3 py-1.5 rounded-xl border text-xs font-medium transition-colors",
+        tool === key ? "bg-sunset-500 border-sunset-500 text-white" : "bg-white border-cream-300 text-muted-foreground hover:text-foreground hover:bg-accent",
+      ),
+      children: label,
+    });
 
   return T.jsxs("div", {
     className: "flex h-screen overflow-hidden bg-cream-100",
@@ -34317,24 +34562,40 @@ function kA() {
         mode,
         sessions: visibleSessions,
         activeId,
+        projects,
+        activeProjectId,
         onSelect: selectSession,
         onCreate: createSession,
         onDelete: deleteSession,
+        onSelectProject: selectProject,
+        onCreateProject: createProject,
+        onDeleteProject: deleteProject,
       }),
       T.jsxs("main", {
         className: "flex-1 flex flex-col min-w-0 bg-cream-50",
         children: [
           T.jsxs("div", {
-            className: "shrink-0 px-4 py-2.5 border-b border-cream-200 bg-white/70 flex items-center justify-between gap-3",
+            className: "shrink-0 px-4 py-2.5 border-b border-cream-200 bg-white/80 flex items-center justify-between gap-3 flex-wrap",
             children: [
-              T.jsx("p", { className: "text-sm font-medium text-foreground", children: mode === "work" ? "工作对话" : "交谈对话" }),
-              T.jsx("p", {
-                className: "text-xs text-muted-foreground/70",
-                children: mode === "work" ? "可在输入框上方启用标准检索或习题解答" : "适合问答、讲解和讨论",
+              T.jsxs("div", {
+                className: "flex items-center gap-2 flex-wrap",
+                children: [
+                  T.jsxs("div", {
+                    className: "flex p-1 rounded-2xl bg-cream-100 border border-cream-200",
+                    children: [
+                      T.jsx("button", { type: "button", onClick: () => selectMode("talk"), className: Or("px-3 py-1.5 rounded-xl text-xs font-medium", mode === "talk" ? "bg-white shadow-sm text-sunset-600" : "text-muted-foreground"), children: "交谈" }),
+                      T.jsx("button", { type: "button", onClick: () => selectMode("work"), className: Or("px-3 py-1.5 rounded-xl text-xs font-medium", mode === "work" ? "bg-white shadow-sm text-sunset-600" : "text-muted-foreground"), children: "工作" }),
+                    ],
+                  }),
+                  mode === "work" && toolButton("search", "标准检索"),
+                  mode === "work" && toolButton("homework", "习题解答"),
+                  T.jsx("button", { type: "button", onClick: createSession, className: "px-3 py-1.5 rounded-xl bg-accent text-accent-foreground text-xs font-medium", children: "＋ 新对话" }),
+                ],
               }),
+              T.jsx("p", { className: "text-xs text-muted-foreground/70", children: mode === "work" ? (activeProjectId ? "工作对话 · 项目模式" : "工作对话") : "交谈对话" }),
             ],
           }),
-          T.jsx(EA, { messages: currentChat.messages, streamingContent: currentChat.streaming, onPreview: setPreview }),
+          T.jsx(EA, { messages: currentChat.messages, streamingContent: currentChat.streaming, onPreview: setPreview, mode, onModeChange: selectMode }),
           T.jsx("div", {
             className: "shrink-0",
             children: T.jsx(wA, {

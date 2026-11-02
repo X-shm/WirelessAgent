@@ -1,4 +1,4 @@
-function Ww({ mode = "talk", sessions = [], activeId, onSelect, onCreate, onDelete }) {
+function Ww({ mode = "talk", sessions = [], activeId, onSelect, onCreate, onDelete, projects = [], activeProjectId, onSelectProject, onCreateProject, onDeleteProject }) {
   const navigate = tc();
   const chatActive = mode === "talk" || mode === "work";
   return T.jsxs("aside", {
@@ -58,7 +58,36 @@ function Ww({ mode = "talk", sessions = [], activeId, onSelect, onCreate, onDele
             children: "＋ 新对话",
           }),
         }),
-      chatActive &&
+      mode === "work" &&
+        T.jsxs("div", {
+          className: "px-3 pb-2",
+          children: [
+            T.jsxs("div", {
+              className: "flex items-center justify-between px-1 py-2",
+              children: [
+                T.jsx("p", { className: "text-xs font-medium text-muted-foreground", children: "项目" }),
+                T.jsx("button", { type: "button", onClick: onCreateProject, className: "text-xs text-sunset-600 hover:underline", children: "＋ 新建项目" }),
+              ],
+            }),
+            T.jsx("button", {
+              type: "button",
+              onClick: () => onSelectProject(null),
+              className: Or("w-full text-left px-3 py-2 rounded-xl text-xs mb-1", !activeProjectId ? "bg-white border border-cream-200 text-foreground" : "text-muted-foreground hover:bg-white/60"),
+              children: "未归档对话",
+            }),
+            (Array.isArray(projects) ? projects : []).map((project) =>
+              T.jsxs("div", {
+                className: Or("group flex items-center gap-1 px-3 py-2 rounded-xl text-xs mb-1 cursor-pointer", activeProjectId === project.id ? "bg-white border border-cream-200 text-foreground" : "text-muted-foreground hover:bg-white/60"),
+                onClick: () => onSelectProject(project.id),
+                children: [
+                  T.jsx("span", { className: "shrink-0", children: "▸" }),
+                  T.jsx("span", { className: "truncate flex-1", children: project.name }),
+                  T.jsx("button", { type: "button", onClick: (event) => { event.stopPropagation(); onDeleteProject(project.id); }, className: "opacity-0 group-hover:opacity-100 text-red-400", children: "×" }),
+                ],
+              }, project.id),
+            ),
+          ],
+        }),      chatActive &&
         T.jsxs("div", {
           className: "flex-1 overflow-y-auto px-2",
           children: [

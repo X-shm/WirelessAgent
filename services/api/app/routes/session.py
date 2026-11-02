@@ -5,6 +5,8 @@ from sqlalchemy import select
 from app.database import get_db
 from app.models.session import Session
 from app.models.message import Message, MessageRole
+from app.models.project import Project
+from app.deps import get_owned
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -17,6 +19,7 @@ class SessionOut(BaseModel):
     created_at: str
     updated_at: str
     message_count: int = 0
+    project_id: str | None = None
 
 
 @router.get("/", response_model=list[SessionOut])
@@ -32,13 +35,16 @@ async def list_sessions(request: Request, db: AsyncSession = Depends(get_db)):
             id=s.id, title=s.title,
             created_at=s.created_at.isoformat(), updated_at=s.updated_at.isoformat(),
             message_count=len(count_result.scalars().all()),
+            project_id=s.project_id,
         ))
     return out
 
 
 @router.post("/", status_code=201, response_model=SessionOut)
-async def create_session(request: Request, db: AsyncSession = Depends(get_db)):
-    session = Session(user_id=request.state.user_id, title="New Chat")
+async def create_session(request: Request, project_id: str | None = None, db: AsyncSession = Depends(get_db)):
+    if project_id:
+        await get_owned(db, Project, project_id, request.state.user_id, "项目不存在")
+    session = Session(user_id=request.state.user_id, project_id=project_id, title="New Chat")
     db.add(session)
     await db.commit()
     await db.refresh(session)
@@ -46,6 +52,7 @@ async def create_session(request: Request, db: AsyncSession = Depends(get_db)):
         id=session.id, title=session.title,
         created_at=session.created_at.isoformat(), updated_at=session.updated_at.isoformat(),
         message_count=0,
+        project_id=session.project_id,
     )
 
 

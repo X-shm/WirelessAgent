@@ -28,6 +28,9 @@ class ChatRequest(BaseModel):
     file_ids: list[str] = []
     mode: str = "talk"
     tool: str | None = None
+    model: str | None = None
+    api_base_url: str | None = None
+    api_key: str | None = None
 
 
 def _tool_marker(tool: str | None) -> str:
@@ -149,7 +152,14 @@ async def chat_stream(req: ChatRequest, request: Request, db: AsyncSession = Dep
     async def generate():
         full_content = ""
         try:
-            async for token in openclaw.chat_stream(messages, system_prompt=system_prompt, user_id=session.id):
+            async for token in openclaw.chat_stream(
+                    messages,
+                    system_prompt=system_prompt,
+                    user_id=session.id,
+                    model=req.model,
+                    api_base_url=req.api_base_url,
+                    api_key=req.api_key,
+                ):
                 full_content += token
                 yield f"data: {json.dumps({'token': token})}\n\n"
         except Exception as error:
