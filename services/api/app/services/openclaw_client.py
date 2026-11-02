@@ -40,10 +40,13 @@ class OpenClawClient:
             resp.raise_for_status()
             return resp.json()
 
-    async def chat_stream(self, messages: list[dict], system_prompt: str | None = None, user_id: str | None = None, **kwargs):
-        """Stream chat completion via SSE. Yields each token delta string."""
+    async def chat_stream(self, messages: list[dict], system_prompt: str | None = None, user_id: str | None = None, model: str | None = None, api_base_url: str | None = None, api_key: str | None = None, **kwargs):
+        """Stream chat completion via an optional OpenAI-compatible override."""
+        base_url = (api_base_url or self.base_url).rstrip("/")
+        request_key = api_key or self.api_key
+        request_headers = {"Authorization": f"Bearer {request_key}", "Content-Type": "application/json"}
         payload = {
-            "model": self.model,
+            "model": model or self.model,
             "messages": self._build_messages(messages, system_prompt),
             "stream": True,
             **kwargs,
@@ -55,7 +58,7 @@ class OpenClawClient:
             yielded = False
             try:
                 async with httpx.AsyncClient(timeout=120.0) as client:
-                    async with client.stream("POST", f"{self.base_url}/chat/completions", headers=self._headers, json=payload) as resp:
+                    async with client.stream("POST", f"{base_url}/chat/completions", headers=request_headers, json=payload) as resp:
                         resp.raise_for_status()
                         async for line in resp.aiter_lines():
                             if line.startswith("data: "):
