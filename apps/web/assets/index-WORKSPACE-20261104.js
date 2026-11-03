@@ -34323,6 +34323,7 @@ function kA() {
   const workChat = _A();
   const [mode, setMode] = D.useState(() => (localStorage.getItem("chatMode") === "work" ? "work" : "talk"));
   const [activeIds, setActiveIds] = D.useState({ talk: null, work: null });
+  const [draftModes, setDraftModes] = D.useState({});
   const [sessionModes, setSessionModes] = D.useState(() => {
     try { return JSON.parse(localStorage.getItem("sessionModes") || "{}"); } catch { return {}; }
   });
@@ -34385,6 +34386,7 @@ function kA() {
       const session = await create(projectId, title);
       if (!session) return null;
       rememberSession(session.id, mode);
+      setDraftModes((prev) => ({ ...prev, [mode]: !1 }));
       if (mode === "work" && pendingTool) {
         setToolsBySession((prev) => ({ ...prev, [session.id]: pendingTool }));
       }
@@ -34398,11 +34400,11 @@ function kA() {
   }, [mode, create, currentChat, activeProjectId, pendingTool]);
 
   D.useEffect(() => {
-    if (sessionsLoading || activeId) return;
+    if (sessionsLoading || activeId || draftModes[mode]) return;
     if (visibleSessions.length > 0) {
       setActiveIds((prev) => ({ ...prev, [mode]: visibleSessions[0].id }));
     }
-  }, [sessionsLoading, activeId, visibleSessions, mode, ensureSession]);
+  }, [sessionsLoading, activeId, visibleSessions, mode, ensureSession, draftModes]);
 
   D.useEffect(() => {
     if (!activeId) return;
@@ -34423,11 +34425,12 @@ function kA() {
     setPendingTool(null);
   };
 
-  const selectSession = (id) => setActiveIds((prev) => ({ ...prev, [mode]: id }));
+  const selectSession = (id) => { setDraftModes((prev) => ({ ...prev, [mode]: !1 })); setActiveIds((prev) => ({ ...prev, [mode]: id })); };
 
   const createSession = async (projectId = null) => {
     if (mode === "work") setActiveProjectId(projectId);
     if (activeId) loadedRef.current.delete(mode + ":" + activeId);
+    setDraftModes((prev) => ({ ...prev, [mode]: !0 }));
     setActiveIds((prev) => ({ ...prev, [mode]: null }));
     loadedRef.current.delete(mode + ":pending");
     currentChat.clear();
