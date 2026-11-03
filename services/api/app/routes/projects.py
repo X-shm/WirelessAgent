@@ -21,12 +21,14 @@ class ProjectCreate(BaseModel):
 class ProjectUpdate(BaseModel):
     name: str | None = None
     description: str | None = None
+    pinned: bool | None = None
 
 
 class ProjectOut(BaseModel):
     id: str
     name: str
     description: str | None = None
+    pinned: bool = False
     created_at: str
     updated_at: str
 
@@ -54,7 +56,7 @@ async def create_project(req: ProjectCreate, request: Request, db: AsyncSession 
 async def list_projects(request: Request, db: AsyncSession = Depends(get_db)):
     rows = (
         await db.execute(
-            select(Project).where(Project.user_id == request.state.user_id).order_by(Project.updated_at.desc())
+            select(Project).where(Project.user_id == request.state.user_id).order_by(Project.pinned.desc(), Project.updated_at.desc())
         )
     ).scalars().all()
     return [_out(p) for p in rows]
@@ -75,6 +77,8 @@ async def update_project(project_id: str, req: ProjectUpdate, request: Request, 
         project.name = name
     if req.description is not None:
         project.description = req.description
+    if req.pinned is not None:
+        project.pinned = req.pinned
     await db.commit()
     await db.refresh(project)
     return _out(project)

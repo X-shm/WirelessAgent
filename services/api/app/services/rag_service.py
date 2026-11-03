@@ -1,5 +1,6 @@
 """RAG service — document parsing, chunking, indexing, and retrieval."""
 import os
+import io
 from pathlib import Path
 try:
     from app.services.chroma_service import chroma
@@ -53,14 +54,23 @@ class RAGService:
         return chunks
 
     async def _read_pdf(self, file_path: Path) -> str:
-        """Extract text from a PDF file."""
-        # Inline import to avoid hard dependency at module load
+        data = Path(file_path).read_bytes()
+        try:
+            import fitz
+            doc = fitz.open(stream=data, filetype="pdf")
+            text = "\n".join(page.get_text("text") for page in doc)
+            doc.close()
+            if text.strip():
+                return text
+        except Exception:
+            pass
         try:
             from pypdf import PdfReader
-            reader = PdfReader(str(file_path))
+            reader = PdfReader(io.BytesIO(data))
             return "\n".join(page.extract_text() or "" for page in reader.pages)
         except ImportError:
-            return f"[PDF 文件需安装 pypdf: {file_path}]"
+            return f"[PDF 文件需安装 PyMuPDF 或 pypdf: {file_path}]"
+
 
     async def search(self, query: str, top_k: int = 5) -> list[dict]:
         """Search the knowledge base and return formatted results."""

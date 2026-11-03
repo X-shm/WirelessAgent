@@ -45,17 +45,33 @@ def preview_text(path: str) -> str:
 
 def _pdf_text(data: bytes) -> str:
     try:
-        from pypdf import PdfReader
-    except ImportError:
-        return ""
+        import fitz
+        doc = fitz.open(stream=data, filetype="pdf")
+        text = "\n\n".join(page.get_text("text") for page in doc)
+        doc.close()
+        if text.strip():
+            return text
+    except Exception:
+        pass
     try:
+        from pypdf import PdfReader
         reader = PdfReader(io.BytesIO(data))
-        pages = []
-        for page in reader.pages:
-            pages.append(page.extract_text() or "")
-        return "\n\n".join(pages)
+        return "\n\n".join(page.extract_text() or "" for page in reader.pages)
     except Exception:
         return ""
+
+
+def _ocr_text(path: str) -> str:
+    try:
+        result = subprocess.run(
+            ["tesseract", str(path), "stdout", "-l", "chi_sim+eng"],
+            capture_output=True, timeout=180,
+        )
+        if result.returncode == 0:
+            return result.stdout.decode("utf-8", errors="replace")
+    except Exception:
+        pass
+    return ""
 
 
 def _xml_text(data: bytes) -> str:
@@ -110,7 +126,11 @@ def extract_text(path: str, filename: str, content_type: str | None = None) -> s
     if kind == "text":
         return preview_text(path)
     if kind == "pdf":
-        return _pdf_text(Path(path).read_bytes())
+        text = _pdf_text(Path(path).read_bytes())
+        if text.strip():
+            return text
+        ocr = _ocr_text(path)
+        return ocr if ocr.strip() else "文件为图片型或扫描件，无法提取文本"
     if kind == "office":
         direct = _office_zip_text(path)
         if direct:
