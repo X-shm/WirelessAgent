@@ -46,10 +46,11 @@ async def list_sessions(request: Request, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/", status_code=201, response_model=SessionOut)
-async def create_session(request: Request, project_id: str | None = None, db: AsyncSession = Depends(get_db)):
+async def create_session(request: Request, project_id: str | None = None, title: str | None = None, db: AsyncSession = Depends(get_db)):
     if project_id:
         await get_owned(db, Project, project_id, request.state.user_id, "项目不存在")
-    session = Session(user_id=request.state.user_id, project_id=project_id, title="New Chat")
+    clean_title = (title or "").strip()[:50]
+    session = Session(user_id=request.state.user_id, project_id=project_id, title=clean_title or "New Chat")
     db.add(session)
     await db.commit()
     await db.refresh(session)
