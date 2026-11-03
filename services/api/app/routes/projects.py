@@ -35,7 +35,7 @@ class ProjectOut(BaseModel):
 
 def _out(p: Project) -> ProjectOut:
     return ProjectOut(
-        id=p.id, name=p.name, description=p.description, pinned=p.pinned,
+        id=p.id, name=p.name, description=p.description,
         created_at=p.created_at.isoformat(), updated_at=p.updated_at.isoformat(),
     )
 

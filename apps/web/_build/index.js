@@ -64,7 +64,7 @@ Error generating stack: `+i.message+`
  * LICENSE.md file in the root directory of this source tree.
  *
  * @license MIT
- */const tx="6";try{window.__reactRouterVersion=tx}catch{}const nx="startTransition",vh=Xb[nx];function rx(e){let{basename:t,children:n,future:r,window:a}=e,i=R.useRef();i.current==null&&(i.current=cv({window:a,v5Compat:!0}));let o=i.current,[l,s]=R.useState({action:o.action,location:o.location}),{v7_startTransition:c}=r||{},d=R.useCallback(u=>{c&&vh?vh(()=>s(u)):s(u)},[s,c]);return R.useLayoutEffect(()=>o.listen(d),[o,d]),R.useEffect(()=>Xv(r),[r]),R.createElement(Jv,{basename:t,children:n,location:l.location,navigationType:l.action,navigator:o,future:r})}var xh;(function(e){e.UseScrollRestoration="useScrollRestoration",e.UseSubmit="useSubmit",e.UseSubmitFetcher="useSubmitFetcher",e.UseFetcher="useFetcher",e.useViewTransitionState="useViewTransitionState"})(xh||(xh={}));var kh;(function(e){e.UseFetcher="useFetcher",e.UseFetchers="useFetchers",e.UseScrollRestoration="useScrollRestoration"})(kh||(kh={}));const wc="/api";function _c(){return localStorage.getItem("token")}async function Cn(e,t={}){const n={...t.headers},r=_c();r&&(n.Authorization=`Bearer ${r}`),t.body&&typeof t.body=="string"&&(n["Content-Type"]="application/json");const a=await fetch(`${wc}${e}`,{...t,headers:n});return a.status===401&&!e.startsWith("/auth/")&&(localStorage.removeItem("token"),localStorage.removeItem("user"),window.location.reload()),a}const Mt={login:(e,t)=>Cn("/auth/login",{method:"POST",body:JSON.stringify({email:e,password:t})}),guest:()=>Cn("/auth/guest",{method:"POST",body:"{}"}),register:(e,t,n)=>Cn("/auth/register",{method:"POST",body:JSON.stringify({email:e,password:t,display_name:n})}),listSessions:()=>Cn("/sessions/"),createSession:(e=null,u=null)=>{const q=[e?"project_id="+encodeURIComponent(e):"",u?"title="+encodeURIComponent(u):""].filter(Boolean).join("&");return Cn(q?`/sessions/?${q}`:"/sessions/",{method:"POST"})},deleteSession:e=>Cn(`/sessions/${e}`,{method:"DELETE"}),chatStream:(e,t,n=[],o="talk",tool=null,mc=null)=>fetch(`${wc}/chat/stream`,{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${_c()}`},body:JSON.stringify({session_id:e,message:t,file_ids:n,mode:o,tool,model:mc?mc.model:null,api_base_url:mc?mc.baseUrl:null,api_key:mc?mc.apiKey:null})}),search:(e,t=5)=>Cn(`/rag/search?q=${encodeURIComponent(e)}&top_k=${t}`),getMessages:e=>Cn(`/sessions/${e}/messages`),createSession:(e=null,u=null)=>{const q=[e?"project_id="+encodeURIComponent(e):"",u?"title="+encodeURIComponent(u):""].filter(Boolean).join("&");return Cn(q?`/sessions/?${q}`:"/sessions/",{method:"POST"})},listProjects:()=>Cn("/projects/"),createProject:e=>Cn("/projects/",{method:"POST",body:JSON.stringify({name:e})}),deleteProject:e=>Cn(`/projects/${e}`,{method:"DELETE"}),updateProject:(e,n)=>Cn(`/projects/${e}`,{method:"PATCH",body:JSON.stringify(n)}),renameSession:(e,n)=>Cn(`/sessions/${e}`,{method:"PATCH",body:JSON.stringify({title:n})}),moveSession:(e,n)=>Cn(`/sessions/${e}`,{method:"PATCH",body:JSON.stringify({project_id:n})}),listFiles:()=>Cn("/files/"),deleteFile:e=>Cn(`/files/${e}`,{method:"DELETE"}),fileContent:e=>Cn(`/files/${e}/content`),listLibraryFiles:()=>Cn("/library/files"),deleteLibraryFile:e=>Cn(`/library/files/${e}`,{method:"DELETE"}),libraryFileContent:e=>Cn(`/library/files/${e}/content`),saveToLibrary:e=>Cn(`/library/from-chat/${e}`,{method:"POST"}),uploadLibrary:e=>{const t=new FormData;return t.append("file",e),fetch(`${wc}/library/upload`,{method:"POST",headers:{Authorization:`Bearer ${_c()}`},body:t})},upload:e=>{const t=new FormData;return t.append("file",e),fetch(`${wc}/files/upload`,{method:"POST",headers:{Authorization:`Bearer ${_c()}`},body:t})}};/**
+ */const tx="6";try{window.__reactRouterVersion=tx}catch{}const nx="startTransition",vh=Xb[nx];function rx(e){let{basename:t,children:n,future:r,window:a}=e,i=R.useRef();i.current==null&&(i.current=cv({window:a,v5Compat:!0}));let o=i.current,[l,s]=R.useState({action:o.action,location:o.location}),{v7_startTransition:c}=r||{},d=R.useCallback(u=>{c&&vh?vh(()=>s(u)):s(u)},[s,c]);return R.useLayoutEffect(()=>o.listen(d),[o,d]),R.useEffect(()=>Xv(r),[r]),R.createElement(Jv,{basename:t,children:n,location:l.location,navigationType:l.action,navigator:o,future:r})}var xh;(function(e){e.UseScrollRestoration="useScrollRestoration",e.UseSubmit="useSubmit",e.UseSubmitFetcher="useSubmitFetcher",e.UseFetcher="useFetcher",e.useViewTransitionState="useViewTransitionState"})(xh||(xh={}));var kh;(function(e){e.UseFetcher="useFetcher",e.UseFetchers="useFetchers",e.UseScrollRestoration="useScrollRestoration"})(kh||(kh={}));const wc="/api";function _c(){return localStorage.getItem("token")}async function Cn(e,t={}){const n={...t.headers},r=_c();r&&(n.Authorization=`Bearer ${r}`),t.body&&typeof t.body=="string"&&(n["Content-Type"]="application/json");const a=await fetch(`${wc}${e}`,{...t,headers:n});return a.status===401&&!e.startsWith("/auth/")&&(localStorage.removeItem("token"),localStorage.removeItem("user"),window.location.reload()),a}const Mt={login:(e,t)=>Cn("/auth/login",{method:"POST",body:JSON.stringify({email:e,password:t})}),guest:()=>Cn("/auth/guest",{method:"POST",body:"{}"}),register:(e,t,n)=>Cn("/auth/register",{method:"POST",body:JSON.stringify({email:e,password:t,display_name:n})}),listSessions:()=>Cn("/sessions/"),createSession:()=>Cn("/sessions/",{method:"POST"}),deleteSession:e=>Cn(`/sessions/${e}`,{method:"DELETE"}),chatStream:(e,t,n=[],o="talk",tool=null,mc=null)=>fetch(`${wc}/chat/stream`,{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${_c()}`},body:JSON.stringify({session_id:e,message:t,file_ids:n,mode:o,tool,model:mc?mc.model:null,api_base_url:mc?mc.baseUrl:null,api_key:mc?mc.apiKey:null})}),search:(e,t=5)=>Cn(`/rag/search?q=${encodeURIComponent(e)}&top_k=${t}`),getMessages:e=>Cn(`/sessions/${e}/messages`),createSession:(e=null)=>Cn(e?`/sessions/?project_id=${encodeURIComponent(e)}`:"/sessions/",{method:"POST"}),listProjects:()=>Cn("/projects/"),createProject:e=>Cn("/projects/",{method:"POST",body:JSON.stringify({name:e})}),deleteProject:e=>Cn(`/projects/${e}`,{method:"DELETE"}),updateProject:(e,n)=>Cn(`/projects/${e}`,{method:"PATCH",body:JSON.stringify(n)}),renameSession:(e,n)=>Cn(`/sessions/${e}`,{method:"PATCH",body:JSON.stringify({title:n})}),moveSession:(e,n)=>Cn(`/sessions/${e}`,{method:"PATCH",body:JSON.stringify({project_id:n})}),listFiles:()=>Cn("/files/"),deleteFile:e=>Cn(`/files/${e}`,{method:"DELETE"}),fileContent:e=>Cn(`/files/${e}/content`),listLibraryFiles:()=>Cn("/library/files"),deleteLibraryFile:e=>Cn(`/library/files/${e}`,{method:"DELETE"}),libraryFileContent:e=>Cn(`/library/files/${e}/content`),saveToLibrary:e=>Cn(`/library/from-chat/${e}`,{method:"POST"}),uploadLibrary:e=>{const t=new FormData;return t.append("file",e),fetch(`${wc}/library/upload`,{method:"POST",headers:{Authorization:`Bearer ${_c()}`},body:t})},upload:e=>{const t=new FormData;return t.append("file",e),fetch(`${wc}/files/upload`,{method:"POST",headers:{Authorization:`Bearer ${_c()}`},body:t})}};/**
  * @license lucide-react v0.400.0 - ISC
  *
  * This source code is licensed under the ISC license.
@@ -154,23 +154,6 @@ Error generating stack: `+i.message+`
   const [projectMenu, setProjectMenu] = R.useState(null);
   const [sessionMenu, setSessionMenu] = R.useState(null);
   const [moveMenu, setMoveMenu] = R.useState(null);
-  const [newProject, setNewProject] = R.useState(!1);
-  const [newProjectName, setNewProjectName] = R.useState("");
-  const [renameId, setRenameId] = R.useState(null);
-  const [renameKind, setRenameKind] = R.useState(null);
-  const [renameText, setRenameText] = R.useState("");
-  const commitRename = () => {
-    const value = renameText.trim();
-    if (renameId && value) {
-      if (renameKind === "project") onRenameProject(renameId, value);
-      else onRenameSession(renameId, value);
-    }
-    setRenameId(null);
-    setRenameKind(null);
-    setRenameText("");
-    setSessionMenu(null);
-    setProjectMenu(null);
-  };
   const workSessions = Array.isArray(sessions) ? sessions : [];
   const unassigned = workSessions.filter((s) => !s.project_id);
 
@@ -192,9 +175,7 @@ Error generating stack: `+i.message+`
           w.jsxs("div", {
             className: "absolute right-2 top-9 z-30 w-44 rounded-2xl border border-cream-200 bg-white p-1.5 shadow-xl",
             children: [
-              renameId === session.id
-                ? w.jsxs("div", { className: "flex items-center gap-1 px-1 py-1", children: [w.jsx("input", { autoFocus: !0, value: renameText, onChange: (e) => setRenameText(e.target.value), onKeyDown: (e) => { e.stopPropagation(); if (e.key === "Enter") commitRename(); if (e.key === "Escape") { setRenameId(null); setSessionMenu(null); } }, className: "flex-1 min-w-0 px-2 py-1 rounded-lg border border-cream-300 bg-white text-xs", placeholder: "对话名称" }), w.jsx("button", { type: "button", onClick: () => commitRename(), className: "shrink-0 px-2 py-1 rounded-lg text-xs text-sunset-600 hover:bg-accent", children: "确定" }), w.jsx("button", { type: "button", onClick: () => { setRenameId(null); setSessionMenu(null); }, className: "shrink-0 px-2 py-1 rounded-lg text-xs text-muted-foreground hover:bg-accent", children: "取消" })] })
-                : w.jsx("button", { type: "button", onClick: () => { setRenameKind("session"); setRenameId(session.id); setRenameText(session.title || ""); }, className: "w-full text-left px-3 py-2 rounded-lg text-xs hover:bg-cream-100", children: "重命名" }),
+              w.jsx("button", { type: "button", onClick: () => { const name = window.prompt("重命名对话", session.title || ""); if (name && name.trim()) onRenameSession(session.id, name.trim()); setSessionMenu(null); }, className: "w-full text-left px-3 py-2 rounded-lg text-xs hover:bg-cream-100", children: "重命名" }),
               w.jsx("button", { type: "button", onClick: () => { onPinSession(session.id); setSessionMenu(null); }, className: "w-full text-left px-3 py-2 rounded-lg text-xs hover:bg-cream-100", children: "置顶 / 取消置顶" }),
               mode === "work" && w.jsx("button", { type: "button", onClick: () => { setMoveMenu(moveMenu === session.id ? null : session.id); setSessionMenu(null); }, className: "w-full text-left px-3 py-2 rounded-lg text-xs hover:bg-cream-100", children: "添加到项目" }),
               w.jsx("button", { type: "button", onClick: () => { onDelete(session.id); setSessionMenu(null); }, className: "w-full text-left px-3 py-2 rounded-lg text-xs text-red-400 hover:bg-red-50", children: "删除" }),
@@ -212,13 +193,12 @@ Error generating stack: `+i.message+`
       w.jsx("div", { className: "px-3 pt-3 pb-2", children: w.jsxs("div", { className: "grid gap-1 p-1 rounded-2xl bg-cream-100 border border-cream-200", style: { gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }, children: [w.jsx(WkChatModeSwitch, { mode }), w.jsx("button", { type: "button", onClick: () => navigate("/library"), className: vt("flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-medium transition-all duration-200", mode === "library" ? "bg-white shadow-sm text-sunset-600" : "text-muted-foreground hover:text-foreground"), children: "资料库" }), w.jsx("button", { type: "button", onClick: () => navigate("/papers"), className: vt("flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-medium transition-all duration-200", mode === "papers" ? "bg-white shadow-sm text-sunset-600" : "text-muted-foreground hover:text-foreground"), children: "速递" })] }) }),
       chatActive && w.jsx("div", { className: "px-3 pt-2 pb-2", children: w.jsx("button", { type: "button", onClick: () => onCreate(mode === "work" ? activeProjectId : null), className: "w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-2xl bg-accent border border-orange-200 text-accent-foreground text-sm font-medium transition-all duration-200 hover:bg-orange-200", children: "＋ 新对话" }) }),
       mode === "work" && w.jsxs("div", { className: "flex-1 overflow-y-auto px-2", children: [
-        w.jsxs("div", { className: "px-1 py-2 flex items-center justify-between", children: [w.jsx("p", { className: "text-xs font-medium text-muted-foreground", children: "项目" }), w.jsx("button", { type: "button", onClick: () => { setNewProject(!0); setNewProjectName(""); }, className: "px-2.5 py-1.5 rounded-lg bg-white border border-cream-200 text-xs font-medium text-sunset-600 hover:bg-accent", children: "＋ 新建项目" })] }),
-        newProject && w.jsxs("div", { className: "px-1 pb-2 flex items-center gap-1", children: [w.jsx("input", { autoFocus: !0, value: newProjectName, onChange: (e) => setNewProjectName(e.target.value), onKeyDown: (e) => { e.stopPropagation(); if (e.key === "Enter") { const v = newProjectName.trim(); if (v) onCreateProject(v); setNewProject(!1); setNewProjectName(""); } if (e.key === "Escape") { setNewProject(!1); setNewProjectName(""); } }, className: "flex-1 min-w-0 px-2 py-1.5 rounded-lg border border-cream-300 bg-white text-xs", placeholder: "项目名称" }), w.jsx("button", { type: "button", onClick: () => { const v = newProjectName.trim(); if (v) onCreateProject(v); setNewProject(!1); setNewProjectName(""); }, className: "shrink-0 px-2 py-1 rounded-lg text-xs text-sunset-600 hover:bg-accent", children: "确定" }), w.jsx("button", { type: "button", onClick: () => { setNewProject(!1); setNewProjectName(""); }, className: "shrink-0 px-2 py-1 rounded-lg text-xs text-muted-foreground hover:bg-accent", children: "取消" })] }),
+        w.jsxs("div", { className: "px-1 py-2 flex items-center justify-between", children: [w.jsx("p", { className: "text-xs font-medium text-muted-foreground", children: "项目" }), w.jsx("button", { type: "button", onClick: onCreateProject, className: "px-2.5 py-1.5 rounded-lg bg-white border border-cream-200 text-xs font-medium text-sunset-600 hover:bg-accent", children: "＋ 新建项目" })] }),
         w.jsxs("button", { type: "button", onClick: () => onSelectProject(null), className: vt("w-full text-left px-3 py-2 rounded-xl text-xs mb-1", !activeProjectId ? "bg-white border border-cream-200 text-foreground" : "text-muted-foreground hover:bg-white/60"), children: "未归档对话" }),
         unassigned.map(sessionRow),
         projects.map((project) => w.jsxs("div", { className: "relative", children: [
           w.jsxs("div", { className: vt("group flex items-center gap-1 px-3 py-2 rounded-xl text-xs mb-1 cursor-pointer", activeProjectId === project.id ? "bg-white border border-cream-200 text-foreground" : "text-muted-foreground hover:bg-white/60"), onClick: () => { setExpanded((p) => ({ ...p, [project.id]: !p[project.id] })); onSelectProject(project.id); }, children: [w.jsx("button", { type: "button", onClick: (e) => { e.stopPropagation(); setExpanded((p) => ({ ...p, [project.id]: !p[project.id] })); }, className: "shrink-0 text-xs", children: expanded[project.id] ? "▾" : "▸" }), w.jsx("span", { className: "truncate flex-1", children: project.name }), w.jsx("button", { type: "button", onClick: (e) => { e.stopPropagation(); onCreate(project.id); }, className: "shrink-0 text-sunset-600 hover:bg-accent rounded px-1", children: "＋" }), w.jsx("button", { type: "button", onClick: (e) => { e.stopPropagation(); setProjectMenu(projectMenu === project.id ? null : project.id); }, className: "shrink-0 text-muted-foreground/60 hover:text-foreground opacity-0 group-hover:opacity-100", children: "···" })] }),
-          projectMenu === project.id && w.jsxs("div", { className: "absolute right-2 top-9 z-30 w-44 rounded-2xl border border-cream-200 bg-white p-1.5 shadow-xl", children: [renameId === project.id ? w.jsxs("div", { className: "flex items-center gap-1 px-1 py-1", children: [w.jsx("input", { autoFocus: !0, value: renameText, onChange: (e) => setRenameText(e.target.value), onKeyDown: (e) => { e.stopPropagation(); if (e.key === "Enter") commitRename(); if (e.key === "Escape") { setRenameId(null); setProjectMenu(null); } }, className: "flex-1 min-w-0 px-2 py-1 rounded-lg border border-cream-300 bg-white text-xs", placeholder: "项目名称" }), w.jsx("button", { type: "button", onClick: () => commitRename(), className: "shrink-0 px-2 py-1 rounded-lg text-xs text-sunset-600 hover:bg-accent", children: "确定" }), w.jsx("button", { type: "button", onClick: () => { setRenameId(null); setProjectMenu(null); }, className: "shrink-0 px-2 py-1 rounded-lg text-xs text-muted-foreground hover:bg-accent", children: "取消" })] }) : w.jsx("button", { type: "button", onClick: () => { setRenameKind("project"); setRenameId(project.id); setRenameText(project.name); }, className: "w-full text-left px-3 py-2 rounded-lg text-xs hover:bg-cream-100", children: "重命名" }), w.jsx("button", { type: "button", onClick: () => { onPinProject(project.id, !project.pinned); setProjectMenu(null); }, className: "w-full text-left px-3 py-2 rounded-lg text-xs hover:bg-cream-100", children: project.pinned ? "取消置顶" : "置顶" }), w.jsx("button", { type: "button", onClick: () => { window.prompt("项目文件地址", "/projects/" + project.id); setProjectMenu(null); }, className: "w-full text-left px-3 py-2 rounded-lg text-xs hover:bg-cream-100", children: "查看文件地址" }), w.jsx("button", { type: "button", onClick: () => { if (window.confirm("确定删除项目吗？")) onDeleteProject(project.id); setProjectMenu(null); }, className: "w-full text-left px-3 py-2 rounded-lg text-xs text-red-400 hover:bg-red-50", children: "删除项目" })] }),
+          projectMenu === project.id && w.jsxs("div", { className: "absolute right-2 top-9 z-30 w-44 rounded-2xl border border-cream-200 bg-white p-1.5 shadow-xl", children: [w.jsx("button", { type: "button", onClick: () => { const name = window.prompt("重命名项目", project.name); if (name && name.trim()) onRenameProject(project.id, name.trim()); setProjectMenu(null); }, className: "w-full text-left px-3 py-2 rounded-lg text-xs hover:bg-cream-100", children: "重命名" }), w.jsx("button", { type: "button", onClick: () => { onPinProject(project.id, !project.pinned); setProjectMenu(null); }, className: "w-full text-left px-3 py-2 rounded-lg text-xs hover:bg-cream-100", children: project.pinned ? "取消置顶" : "置顶" }), w.jsx("button", { type: "button", onClick: () => { window.prompt("项目文件地址", "/projects/" + project.id); setProjectMenu(null); }, className: "w-full text-left px-3 py-2 rounded-lg text-xs hover:bg-cream-100", children: "查看文件地址" }), w.jsx("button", { type: "button", onClick: () => { if (window.confirm("确定删除项目吗？")) onDeleteProject(project.id); setProjectMenu(null); }, className: "w-full text-left px-3 py-2 rounded-lg text-xs text-red-400 hover:bg-red-50", children: "删除项目" })] }),
           expanded[project.id] && projectSessions(project.id).map(sessionRow),
         ] }, project.id)),
       ] }),
@@ -1008,7 +988,7 @@ let Cu="";function ST({ onSend: e, disabled: t, loading: n, mode, tool, onToolCh
   });
 }
 
-function NT(){const[e,t]=R.useState([]),[n,r]=R.useState(!0),a=R.useCallback(async()=>{try{const l=await Mt.listSessions();l.ok&&t(await l.json())}catch{}finally{r(!1)}},[]);R.useEffect(()=>{a()},[a]);const i=R.useCallback(async(e=null,u=null)=>{const l=await Mt.createSession(e,u);if(l.ok){const s=await l.json();return t(c=>[s,...c]),s}},[]),o=R.useCallback(async l=>{(await Mt.deleteSession(l)).ok&&t(s=>s.filter(c=>c.id!==l))},[]);return{sessions:e,loading:n,refresh:a,create:i,remove:o}}function CT() {
+function NT(){const[e,t]=R.useState([]),[n,r]=R.useState(!0),a=R.useCallback(async()=>{try{const l=await Mt.listSessions();l.ok&&t(await l.json())}catch{}finally{r(!1)}},[]);R.useEffect(()=>{a()},[a]);const i=R.useCallback(async(e=null)=>{const l=await Mt.createSession(e);if(l.ok){const s=await l.json();return t(c=>[s,...c]),s}},[]),o=R.useCallback(async l=>{(await Mt.deleteSession(l)).ok&&t(s=>s.filter(c=>c.id!==l))},[]);return{sessions:e,loading:n,refresh:a,create:i,remove:o}}function CT() {
   const [messages, setMessages] = R.useState([]);
   const [streaming, setStreaming] = R.useState("");
   const [loading, setLoading] = R.useState(!1);
@@ -1155,12 +1135,12 @@ function TT() {
     setSessionModes((prev) => ({ ...prev, [sessionId]: sessionMode }));
   };
 
-  const ensureSession = R.useCallback(async (title = null) => {
+  const ensureSession = R.useCallback(async () => {
     if (creatingRef.current[mode]) return null;
     creatingRef.current[mode] = !0;
     try {
       const projectId = mode === "work" ? activeProjectId : null;
-      const session = await create(projectId, title);
+      const session = await create(projectId);
       if (!session) return null;
       rememberSession(session.id, mode);
       if (mode === "work" && pendingTool) {
@@ -1179,6 +1159,8 @@ function TT() {
     if (sessionsLoading || activeId) return;
     if (visibleSessions.length > 0) {
       setActiveIds((prev) => ({ ...prev, [mode]: visibleSessions[0].id }));
+    } else {
+      ensureSession().catch(() => {});
     }
   }, [sessionsLoading, activeId, visibleSessions, mode, ensureSession]);
 
@@ -1205,10 +1187,9 @@ function TT() {
 
   const createSession = async (projectId = null) => {
     if (mode === "work") setActiveProjectId(projectId);
-    if (activeId) loadedRef.current.delete(mode + ":" + activeId);
     setActiveIds((prev) => ({ ...prev, [mode]: null }));
     loadedRef.current.delete(mode + ":pending");
-    currentChat.clear();
+    await ensureSession();
   };
 
   const deleteSession = (id) => {
@@ -1225,7 +1206,8 @@ function TT() {
     }
   };
 
-  const createProject = async (name) => {
+  const createProject = async () => {
+    const name = window.prompt("请输入项目名称");
     if (!name || !name.trim()) return;
     const response = await Mt.createProject(name.trim());
     if (!response.ok) return;
@@ -1255,9 +1237,7 @@ function TT() {
 
   const submit = async (text, files, selectedTool, modelConfig) => {
     if (!activeId) {
-      const trimmed = (text || "").trim();
-      const autoTitle = trimmed ? (trimmed.length > 24 ? trimmed.slice(0, 24) + "…" : trimmed) : null;
-      const session = await ensureSession(autoTitle);
+      const session = await ensureSession();
       if (!session) return;
       currentChat.send(session.id, text, files, mode, selectedTool, modelConfig);
       return;
@@ -1356,7 +1336,7 @@ function TT() {
                   }),
                   mode === "work" && toolButton("search", "标准检索"),
                   mode === "work" && toolButton("homework", "习题解答"),
-                  w.jsx("button", { type: "button", onClick: () => createSession(mode === "work" ? activeProjectId : null), className: "px-3 py-1.5 rounded-xl bg-accent text-accent-foreground text-xs font-medium", children: "＋ 新对话" }),
+                  w.jsx("button", { type: "button", onClick: createSession, className: "px-3 py-1.5 rounded-xl bg-accent text-accent-foreground text-xs font-medium", children: "＋ 新对话" }),
                 ],
               }),
               w.jsx("p", { className: "text-xs text-muted-foreground/70", children: mode === "work" ? (activeProjectId ? "工作对话 · 项目模式" : "工作对话") : "交谈对话" }),
