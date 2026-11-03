@@ -13,6 +13,11 @@ from datetime import datetime
 router = APIRouter(prefix="/api/sessions", tags=["sessions"])
 
 
+class SessionUpdate(BaseModel):
+    title: str | None = None
+    project_id: str | None = None
+
+
 class SessionOut(BaseModel):
     id: str
     title: str
@@ -53,6 +58,32 @@ async def create_session(request: Request, project_id: str | None = None, db: As
         created_at=session.created_at.isoformat(), updated_at=session.updated_at.isoformat(),
         message_count=0,
         project_id=session.project_id,
+    )
+
+
+
+@router.patch("/{session_id}", response_model=SessionOut)
+async def update_session(session_id: str, req: SessionUpdate, request: Request, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(Session).where(Session.id == session_id, Session.user_id == request.state.user_id)
+    )
+    session = result.scalar_one_or_none()
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    if req.project_id:
+        await get_owned(db, Project, req.project_id, request.state.user_id, "项目不存在")
+        session.project_id = req.project_id
+    elif req.project_id is not None:
+        session.project_id = None
+    if req.title is not None and req.title.strip():
+        session.title = req.title.strip()
+    await db.commit()
+    await db.refresh(session)
+    count_result = await db.execute(select(Message).where(Message.session_id == session.id))
+    return SessionOut(
+        id=session.id, title=session.title,
+        created_at=session.created_at.isoformat(), updated_at=session.updated_at.isoformat(),
+        message_count=len(count_result.scalars().all()), project_id=session.project_id,
     )
 
 

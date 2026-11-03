@@ -12,5 +12,6 @@ class Project(Base):
     user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"), nullable=False, index=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    pinned: Mapped[bool] = mapped_column(default=False, nullable=False)
     created_at: Mapped[datetime] = mapped_column(default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(default=utcnow, onupdate=utcnow)
