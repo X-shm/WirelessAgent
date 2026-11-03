@@ -10157,7 +10157,7 @@ const Yt = {
       body: JSON.stringify({ email: e, password: t, display_name: n }),
     }),
   listSessions: () => ln("/sessions/"),
-  createSession: () => ln("/sessions/", { method: "POST" }),
+  createSession: (projectId = null, title = null) => { const qs = [projectId ? "project_id=" + encodeURIComponent(projectId) : "", title ? "title=" + encodeURIComponent(title) : ""].filter(Boolean).join("&"); return ln(qs ? `/sessions/?${qs}` : "/sessions/", { method: "POST" }); },
   deleteSession: (e) => ln(`/sessions/${e}`, { method: "DELETE" }),
   chatStream: (e, t, fileIds = [], mode = "talk", tool = null, modelConfig = null) =>
     fetch(`${Hs}/chat/stream`, {
@@ -10170,7 +10170,7 @@ const Yt = {
   listFiles: () => ln("/files/"),
   deleteFile: (e) => ln(`/files/${e}`, { method: "DELETE" }),
   fileContent: (e) => ln(`/files/${e}/content`),
-  createSession: (projectId = null) => ln(projectId ? `/sessions/?project_id=${encodeURIComponent(projectId)}` : "/sessions/", { method: "POST" }),
+  createSession: (projectId = null, title = null) => { const qs = [projectId ? "project_id=" + encodeURIComponent(projectId) : "", title ? "title=" + encodeURIComponent(title) : ""].filter(Boolean).join("&"); return ln(qs ? `/sessions/?${qs}` : "/sessions/", { method: "POST" }); },
   listProjects: () => ln("/projects/"),
   createProject: (name) => ln("/projects/", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name }) }),
   deleteProject: (id) => ln(`/projects/${id}`, { method: "DELETE" }),
@@ -11696,6 +11696,23 @@ function Ww({ mode = "talk", sessions = [], activeId, onSelect, onCreate, onDele
   const [projectMenu, setProjectMenu] = D.useState(null);
   const [sessionMenu, setSessionMenu] = D.useState(null);
   const [moveMenu, setMoveMenu] = D.useState(null);
+  const [newProject, setNewProject] = D.useState(!1);
+  const [newProjectName, setNewProjectName] = D.useState("");
+  const [renameId, setRenameId] = D.useState(null);
+  const [renameKind, setRenameKind] = D.useState(null);
+  const [renameText, setRenameText] = D.useState("");
+  const commitRename = () => {
+    const value = renameText.trim();
+    if (renameId && value) {
+      if (renameKind === "project") onRenameProject(renameId, value);
+      else onRenameSession(renameId, value);
+    }
+    setRenameId(null);
+    setRenameKind(null);
+    setRenameText("");
+    setSessionMenu(null);
+    setProjectMenu(null);
+  };
   const workSessions = Array.isArray(sessions) ? sessions : [];
   const unassigned = workSessions.filter((s) => !s.project_id);
 
@@ -11717,7 +11734,9 @@ function Ww({ mode = "talk", sessions = [], activeId, onSelect, onCreate, onDele
           T.jsxs("div", {
             className: "absolute right-2 top-9 z-30 w-44 rounded-2xl border border-cream-200 bg-white p-1.5 shadow-xl",
             children: [
-              T.jsx("button", { type: "button", onClick: () => { const name = window.prompt("重命名对话", session.title || ""); if (name && name.trim()) onRenameSession(session.id, name.trim()); setSessionMenu(null); }, className: "w-full text-left px-3 py-2 rounded-lg text-xs hover:bg-cream-100", children: "重命名" }),
+              renameId === session.id
+                ? T.jsxs("div", { className: "flex items-center gap-1 px-1 py-1", children: [T.jsx("input", { autoFocus: !0, value: renameText, onChange: (e) => setRenameText(e.target.value), onKeyDown: (e) => { e.stopPropagation(); if (e.key === "Enter") commitRename(); if (e.key === "Escape") { setRenameId(null); setSessionMenu(null); } }, className: "flex-1 min-w-0 px-2 py-1 rounded-lg border border-cream-300 bg-white text-xs", placeholder: "对话名称" }), T.jsx("button", { type: "button", onClick: () => commitRename(), className: "shrink-0 px-2 py-1 rounded-lg text-xs text-sunset-600 hover:bg-accent", children: "确定" }), T.jsx("button", { type: "button", onClick: () => { setRenameId(null); setSessionMenu(null); }, className: "shrink-0 px-2 py-1 rounded-lg text-xs text-muted-foreground hover:bg-accent", children: "取消" })] })
+                : T.jsx("button", { type: "button", onClick: () => { setRenameKind("session"); setRenameId(session.id); setRenameText(session.title || ""); }, className: "w-full text-left px-3 py-2 rounded-lg text-xs hover:bg-cream-100", children: "重命名" }),
               T.jsx("button", { type: "button", onClick: () => { onPinSession(session.id); setSessionMenu(null); }, className: "w-full text-left px-3 py-2 rounded-lg text-xs hover:bg-cream-100", children: "置顶 / 取消置顶" }),
               mode === "work" && T.jsx("button", { type: "button", onClick: () => { setMoveMenu(moveMenu === session.id ? null : session.id); setSessionMenu(null); }, className: "w-full text-left px-3 py-2 rounded-lg text-xs hover:bg-cream-100", children: "添加到项目" }),
               T.jsx("button", { type: "button", onClick: () => { onDelete(session.id); setSessionMenu(null); }, className: "w-full text-left px-3 py-2 rounded-lg text-xs text-red-400 hover:bg-red-50", children: "删除" }),
@@ -11735,12 +11754,13 @@ function Ww({ mode = "talk", sessions = [], activeId, onSelect, onCreate, onDele
       T.jsx("div", { className: "px-3 pt-3 pb-2", children: T.jsxs("div", { className: "grid gap-1 p-1 rounded-2xl bg-cream-100 border border-cream-200", style: { gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }, children: [T.jsx(WkChatModeSwitch, { mode }), T.jsx("button", { type: "button", onClick: () => navigate("/library"), className: Or("flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-medium transition-all duration-200", mode === "library" ? "bg-white shadow-sm text-sunset-600" : "text-muted-foreground hover:text-foreground"), children: "资料库" }), T.jsx("button", { type: "button", onClick: () => navigate("/papers"), className: Or("flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-medium transition-all duration-200", mode === "papers" ? "bg-white shadow-sm text-sunset-600" : "text-muted-foreground hover:text-foreground"), children: "速递" })] }) }),
       chatActive && T.jsx("div", { className: "px-3 pt-2 pb-2", children: T.jsx("button", { type: "button", onClick: () => onCreate(mode === "work" ? activeProjectId : null), className: "w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-2xl bg-accent border border-orange-200 text-accent-foreground text-sm font-medium transition-all duration-200 hover:bg-orange-200", children: "＋ 新对话" }) }),
       mode === "work" && T.jsxs("div", { className: "flex-1 overflow-y-auto px-2", children: [
-        T.jsxs("div", { className: "px-1 py-2 flex items-center justify-between", children: [T.jsx("p", { className: "text-xs font-medium text-muted-foreground", children: "项目" }), T.jsx("button", { type: "button", onClick: onCreateProject, className: "px-2.5 py-1.5 rounded-lg bg-white border border-cream-200 text-xs font-medium text-sunset-600 hover:bg-accent", children: "＋ 新建项目" })] }),
+        T.jsxs("div", { className: "px-1 py-2 flex items-center justify-between", children: [T.jsx("p", { className: "text-xs font-medium text-muted-foreground", children: "项目" }), T.jsx("button", { type: "button", onClick: () => { setNewProject(!0); setNewProjectName(""); }, className: "px-2.5 py-1.5 rounded-lg bg-white border border-cream-200 text-xs font-medium text-sunset-600 hover:bg-accent", children: "＋ 新建项目" })] }),
+        newProject && T.jsxs("div", { className: "px-1 pb-2 flex items-center gap-1", children: [T.jsx("input", { autoFocus: !0, value: newProjectName, onChange: (e) => setNewProjectName(e.target.value), onKeyDown: (e) => { e.stopPropagation(); if (e.key === "Enter") { const v = newProjectName.trim(); if (v) onCreateProject(v); setNewProject(!1); setNewProjectName(""); } if (e.key === "Escape") { setNewProject(!1); setNewProjectName(""); } }, className: "flex-1 min-w-0 px-2 py-1.5 rounded-lg border border-cream-300 bg-white text-xs", placeholder: "项目名称" }), T.jsx("button", { type: "button", onClick: () => { const v = newProjectName.trim(); if (v) onCreateProject(v); setNewProject(!1); setNewProjectName(""); }, className: "shrink-0 px-2 py-1 rounded-lg text-xs text-sunset-600 hover:bg-accent", children: "确定" }), T.jsx("button", { type: "button", onClick: () => { setNewProject(!1); setNewProjectName(""); }, className: "shrink-0 px-2 py-1 rounded-lg text-xs text-muted-foreground hover:bg-accent", children: "取消" })] }),
         T.jsxs("button", { type: "button", onClick: () => onSelectProject(null), className: Or("w-full text-left px-3 py-2 rounded-xl text-xs mb-1", !activeProjectId ? "bg-white border border-cream-200 text-foreground" : "text-muted-foreground hover:bg-white/60"), children: "未归档对话" }),
         unassigned.map(sessionRow),
         projects.map((project) => T.jsxs("div", { className: "relative", children: [
           T.jsxs("div", { className: Or("group flex items-center gap-1 px-3 py-2 rounded-xl text-xs mb-1 cursor-pointer", activeProjectId === project.id ? "bg-white border border-cream-200 text-foreground" : "text-muted-foreground hover:bg-white/60"), onClick: () => { setExpanded((p) => ({ ...p, [project.id]: !p[project.id] })); onSelectProject(project.id); }, children: [T.jsx("button", { type: "button", onClick: (e) => { e.stopPropagation(); setExpanded((p) => ({ ...p, [project.id]: !p[project.id] })); }, className: "shrink-0 text-xs", children: expanded[project.id] ? "▾" : "▸" }), T.jsx("span", { className: "truncate flex-1", children: project.name }), T.jsx("button", { type: "button", onClick: (e) => { e.stopPropagation(); onCreate(project.id); }, className: "shrink-0 text-sunset-600 hover:bg-accent rounded px-1", children: "＋" }), T.jsx("button", { type: "button", onClick: (e) => { e.stopPropagation(); setProjectMenu(projectMenu === project.id ? null : project.id); }, className: "shrink-0 text-muted-foreground/60 hover:text-foreground opacity-0 group-hover:opacity-100", children: "···" })] }),
-          projectMenu === project.id && T.jsxs("div", { className: "absolute right-2 top-9 z-30 w-44 rounded-2xl border border-cream-200 bg-white p-1.5 shadow-xl", children: [T.jsx("button", { type: "button", onClick: () => { const name = window.prompt("重命名项目", project.name); if (name && name.trim()) onRenameProject(project.id, name.trim()); setProjectMenu(null); }, className: "w-full text-left px-3 py-2 rounded-lg text-xs hover:bg-cream-100", children: "重命名" }), T.jsx("button", { type: "button", onClick: () => { onPinProject(project.id, !project.pinned); setProjectMenu(null); }, className: "w-full text-left px-3 py-2 rounded-lg text-xs hover:bg-cream-100", children: project.pinned ? "取消置顶" : "置顶" }), T.jsx("button", { type: "button", onClick: () => { window.prompt("项目文件地址", "/projects/" + project.id); setProjectMenu(null); }, className: "w-full text-left px-3 py-2 rounded-lg text-xs hover:bg-cream-100", children: "查看文件地址" }), T.jsx("button", { type: "button", onClick: () => { if (window.confirm("确定删除项目吗？")) onDeleteProject(project.id); setProjectMenu(null); }, className: "w-full text-left px-3 py-2 rounded-lg text-xs text-red-400 hover:bg-red-50", children: "删除项目" })] }),
+          projectMenu === project.id && T.jsxs("div", { className: "absolute right-2 top-9 z-30 w-44 rounded-2xl border border-cream-200 bg-white p-1.5 shadow-xl", children: [renameId === project.id ? T.jsxs("div", { className: "flex items-center gap-1 px-1 py-1", children: [T.jsx("input", { autoFocus: !0, value: renameText, onChange: (e) => setRenameText(e.target.value), onKeyDown: (e) => { e.stopPropagation(); if (e.key === "Enter") commitRename(); if (e.key === "Escape") { setRenameId(null); setProjectMenu(null); } }, className: "flex-1 min-w-0 px-2 py-1 rounded-lg border border-cream-300 bg-white text-xs", placeholder: "项目名称" }), T.jsx("button", { type: "button", onClick: () => commitRename(), className: "shrink-0 px-2 py-1 rounded-lg text-xs text-sunset-600 hover:bg-accent", children: "确定" }), T.jsx("button", { type: "button", onClick: () => { setRenameId(null); setProjectMenu(null); }, className: "shrink-0 px-2 py-1 rounded-lg text-xs text-muted-foreground hover:bg-accent", children: "取消" })] }) : T.jsx("button", { type: "button", onClick: () => { setRenameKind("project"); setRenameId(project.id); setRenameText(project.name); }, className: "w-full text-left px-3 py-2 rounded-lg text-xs hover:bg-cream-100", children: "重命名" }), T.jsx("button", { type: "button", onClick: () => { onPinProject(project.id, !project.pinned); setProjectMenu(null); }, className: "w-full text-left px-3 py-2 rounded-lg text-xs hover:bg-cream-100", children: project.pinned ? "取消置顶" : "置顶" }), T.jsx("button", { type: "button", onClick: () => { window.prompt("项目文件地址", "/projects/" + project.id); setProjectMenu(null); }, className: "w-full text-left px-3 py-2 rounded-lg text-xs hover:bg-cream-100", children: "查看文件地址" }), T.jsx("button", { type: "button", onClick: () => { if (window.confirm("确定删除项目吗？")) onDeleteProject(project.id); setProjectMenu(null); }, className: "w-full text-left px-3 py-2 rounded-lg text-xs text-red-400 hover:bg-red-50", children: "删除项目" })] }),
           expanded[project.id] && projectSessions(project.id).map(sessionRow),
         ] }, project.id)),
       ] }),
@@ -34196,8 +34216,8 @@ function xA() {
   D.useEffect(() => {
     i();
   }, [i]);
-  const o = D.useCallback(async (projectId = null) => {
-      const a = await Yt.createSession(projectId);
+  const o = D.useCallback(async (projectId = null, title = null) => {
+      const a = await Yt.createSession(projectId, title);
       if (a.ok) {
         const s = await a.json();
         return (t((u) => [s, ...u]), s);
@@ -34355,12 +34375,12 @@ function kA() {
     setSessionModes((prev) => ({ ...prev, [sessionId]: sessionMode }));
   };
 
-  const ensureSession = D.useCallback(async () => {
+  const ensureSession = D.useCallback(async (title = null) => {
     if (creatingRef.current[mode]) return null;
     creatingRef.current[mode] = !0;
     try {
       const projectId = mode === "work" ? activeProjectId : null;
-      const session = await create(projectId);
+      const session = await create(projectId, title);
       if (!session) return null;
       rememberSession(session.id, mode);
       if (mode === "work" && pendingTool) {
@@ -34379,8 +34399,6 @@ function kA() {
     if (sessionsLoading || activeId) return;
     if (visibleSessions.length > 0) {
       setActiveIds((prev) => ({ ...prev, [mode]: visibleSessions[0].id }));
-    } else {
-      ensureSession().catch(() => {});
     }
   }, [sessionsLoading, activeId, visibleSessions, mode, ensureSession]);
 
@@ -34407,9 +34425,10 @@ function kA() {
 
   const createSession = async (projectId = null) => {
     if (mode === "work") setActiveProjectId(projectId);
+    if (activeId) loadedRef.current.delete(mode + ":" + activeId);
     setActiveIds((prev) => ({ ...prev, [mode]: null }));
     loadedRef.current.delete(mode + ":pending");
-    await ensureSession();
+    currentChat.clear();
   };
 
   const deleteSession = (id) => {
@@ -34426,8 +34445,7 @@ function kA() {
     }
   };
 
-  const createProject = async () => {
-    const name = window.prompt("请输入项目名称");
+  const createProject = async (name) => {
     if (!name || !name.trim()) return;
     const response = await Yt.createProject(name.trim());
     if (!response.ok) return;
@@ -34457,7 +34475,9 @@ function kA() {
 
   const submit = async (text, files, selectedTool, modelConfig) => {
     if (!activeId) {
-      const session = await ensureSession();
+      const trimmed = (text || "").trim();
+      const autoTitle = trimmed ? (trimmed.length > 24 ? trimmed.slice(0, 24) + "…" : trimmed) : null;
+      const session = await ensureSession(autoTitle);
       if (!session) return;
       currentChat.send(session.id, text, files, mode, selectedTool, modelConfig);
       return;
@@ -34556,7 +34576,7 @@ function kA() {
                   }),
                   mode === "work" && toolButton("search", "标准检索"),
                   mode === "work" && toolButton("homework", "习题解答"),
-                  T.jsx("button", { type: "button", onClick: createSession, className: "px-3 py-1.5 rounded-xl bg-accent text-accent-foreground text-xs font-medium", children: "＋ 新对话" }),
+                  T.jsx("button", { type: "button", onClick: () => createSession(mode === "work" ? activeProjectId : null), className: "px-3 py-1.5 rounded-xl bg-accent text-accent-foreground text-xs font-medium", children: "＋ 新对话" }),
                 ],
               }),
               T.jsx("p", { className: "text-xs text-muted-foreground/70", children: mode === "work" ? (activeProjectId ? "工作对话 · 项目模式" : "工作对话") : "交谈对话" }),

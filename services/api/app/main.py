@@ -11,6 +11,7 @@ from app.limiter import limiter
 from slowapi.errors import RateLimitExceeded
 from slowapi import _rate_limit_exceeded_handler
 from app.database import engine
+from app.migrations import apply_migrations
 from app.models.base import Base
 from app.routes import auth, chat, session, file, library, rag, analytics, papers, projects, tasks
 from app.middleware.auth import auth_middleware
@@ -31,6 +32,7 @@ async def lifespan(app: FastAPI):
     # Startup: create tables (dev convenience; production uses Alembic migrations)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(apply_migrations)
     yield
     # Shutdown
     await engine.dispose()
