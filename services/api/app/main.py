@@ -12,7 +12,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi import _rate_limit_exceeded_handler
 from app.database import engine
 from app.models.base import Base
-from app.routes import auth, chat, session, file, library, rag, analytics, papers, projects, tasks
+from app.routes import auth, chat, session, file, library, rag, analytics, papers, projects, tasks, workspace
 from app.middleware.auth import auth_middleware
 
 # The digest service is deployed separately; it is absent from a fresh checkout.
@@ -68,6 +68,7 @@ app.include_router(analytics.router)
 app.include_router(papers.router)
 app.include_router(projects.router)
 app.include_router(tasks.router)
+app.include_router(workspace.router)
 if digest_router is not None:
     app.include_router(digest_router, prefix="/api/digest")
 
