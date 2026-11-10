@@ -1,4 +1,4 @@
-"""Chat routes — SSE streaming chat via OpenClaw Agent."""
+"""Chat routes — SSE streaming chat via Agent 编排层。"""
 import json
 import re
 from urllib.parse import quote
@@ -8,15 +8,16 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import get_db
+from app.database import get_db, async_session
 from app.models.session import Session
 from app.models.message import Message, MessageRole
 from app.models.file import File
+from app.models.analytics import Analytics
 from app.services.file_preview import extract_text
 from app.services.rag_service import rag
-from app.services.openclaw_client import openclaw
 from app.config import settings
 from app.limiter import limiter
+from app.agent.orchestrator import run_agent
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/chat", tags=["chat"])
@@ -100,7 +101,7 @@ async def _get_session(session_id: str, user_id: str, db: AsyncSession) -> Sessi
 @router.post("/stream")
 @limiter.limit("1/second")
 async def chat_stream(req: ChatRequest, request: Request, db: AsyncSession = Depends(get_db)):
-    """Send a message with optional file attachments and stream the response."""
+    """发送消息，经 Agent 编排层（记忆 + 工具循环）生成回复并 SSE 流式返回。"""
     user_id = request.state.user_id
     session = await _get_session(req.session_id, user_id, db)
 
@@ -117,6 +118,7 @@ async def chat_stream(req: ChatRequest, request: Request, db: AsyncSession = Dep
     db.add(user_msg)
     await db.commit()
 
+    # 取短期历史（含刚保存的用户消息）
     result = await db.execute(
         select(Message).where(Message.session_id == session.id).order_by(Message.created_at)
     )
@@ -150,18 +152,16 @@ async def chat_stream(req: ChatRequest, request: Request, db: AsyncSession = Dep
     system_prompt = settings.wireless_prompt + "\n\n" + mode_prompt + tool_prompt + search_context + _build_file_context(files)
 
     async def generate():
-        full_content = ""
         try:
-            async for token in openclaw.chat_stream(
-                    messages,
-                    system_prompt=system_prompt,
-                    user_id=session.id,
-                    model=req.model,
-                    api_base_url=req.api_base_url,
-                    api_key=req.api_key,
-                ):
-                full_content += token
-                yield f"data: {json.dumps({'token': token})}\n\n"
+            agent_result = await run_agent(
+                user_id,
+                session.id,
+                messages,
+                base_system_prompt=system_prompt,
+                model=req.model,
+                api_base_url=req.api_base_url,
+                api_key=req.api_key,
+            )
         except Exception as error:
             message = str(error).lower()
             if "timeout" in message or "timed out" in message:
@@ -173,17 +173,32 @@ async def chat_stream(req: ChatRequest, request: Request, db: AsyncSession = Dep
             else:
                 error_text = f"服务异常：{str(error)}"
             yield f"data: {json.dumps({'error': error_text}, ensure_ascii=False)}\n\n"
+            return
 
-        if full_content:
-            from app.database import async_session
-            from app.models.analytics import Analytics
-
+        # 持久化 assistant 消息（含工具调用轨迹）+ analytics
+        if agent_result.answer:
             async with async_session() as save_session:
-                assistant_msg = Message(session_id=session.id, role=MessageRole.assistant, content=full_content)
-                save_session.add(assistant_msg)
-                save_session.add(Analytics(session_id=session.id, user_id=user_id, question=message_text, answer=full_content))
+                save_session.add(
+                    Message(
+                        session_id=session.id,
+                        role=MessageRole.assistant,
+                        content=agent_result.answer,
+                        tool_calls={"calls": agent_result.tool_calls} if agent_result.tool_calls else None,
+                    )
+                )
+                save_session.add(
+                    Analytics(
+                        session_id=session.id,
+                        user_id=user_id,
+                        question=message_text,
+                        answer=agent_result.answer,
+                    )
+                )
                 await save_session.commit()
 
+        # SSE 逐字符输出最终答案
+        for ch in agent_result.answer:
+            yield f"data: {json.dumps({'token': ch}, ensure_ascii=False)}\n\n"
         yield f"data: {json.dumps({'done': True, 'message_id': ''})}\n\n"
 
     return StreamingResponse(generate(), media_type="text/event-stream")

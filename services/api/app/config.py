@@ -31,6 +31,11 @@ class Settings(BaseSettings):
     # Skills
     skills_base_path: str = str(Path(__file__).resolve().parent.parent.parent.parent)
 
+    # Agent 编排
+    agent_max_tool_rounds: int = 5
+    agent_tool_timeout: float = 30
+    memory_top_k: int = 10
+
     # arXiv paper digest
     arxiv_digest_dir: str = str(
         Path(__file__).resolve().parents[2] / "arxiv-wireless-digest" / "arxiv-wireless-digest"
