@@ -161,6 +161,8 @@ async def chat_stream(req: ChatRequest, request: Request, db: AsyncSession = Dep
                 model=req.model,
                 api_base_url=req.api_base_url,
                 api_key=req.api_key,
+                mode=req.mode,
+                tool=req.tool,
             )
         except Exception as error:
             message = str(error).lower()

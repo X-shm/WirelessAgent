@@ -9,6 +9,7 @@ from app.agent.tools import build_default_registry
 from app.agent.tools.registry import ToolContext, ToolRegistry
 from app.config import settings
 from app.services.openclaw_client import openclaw
+from app.services.model_router import ModelSpec, model_router
 
 TOOL_CALL_RE = re.compile(r"<tool_call>\s*(.*?)\s*</tool_call>", re.DOTALL)
 
@@ -62,6 +63,30 @@ def _last_message(resp: dict) -> str:
     return (resp.get("choices") or [{}])[0].get("message", {}).get("content") or ""
 
 
+async def _chat_with_fallback(
+    messages: list[dict],
+    system_prompt: str,
+    user_id: str,
+    candidates: list[ModelSpec],
+) -> dict:
+    """按候选顺序调用模型，失败自动降级到下一个；全失败抛最后一个异常。"""
+    last_error: Exception | None = None
+    for spec in candidates:
+        try:
+            return await openclaw.chat(
+                messages,
+                system_prompt=system_prompt,
+                user_id=user_id,
+                model=spec.model,
+                api_base_url=spec.base_url,
+                api_key=spec.api_key,
+            )
+        except Exception as e:  # noqa: BLE001
+            last_error = e
+    assert last_error is not None
+    raise last_error
+
+
 async def run_agent(
     user_id: str,
     session_id: str,
@@ -70,12 +95,15 @@ async def run_agent(
     model: str | None = None,
     api_base_url: str | None = None,
     api_key: str | None = None,
+    mode: str = "talk",
+    tool: str | None = None,
 ) -> AgentResult:
     """执行 Agent 编排循环。
 
     `messages` 已包含当前用户消息（含短期会话历史）。返回最终答案与工具调用轨迹。
     `base_system_prompt` 为上游（chat 路由）拼好的系统提示（模式/工具/检索/文件上下文），
     编排器在此基础上追加工具清单与长期记忆块。
+    `mode`/`tool` 用于模型路由；`model`/`api_base_url`/`api_key` 为手动覆盖（优先）。
     """
     reg = build_default_registry()
     ctx = ToolContext(user_id=user_id)
@@ -86,10 +114,10 @@ async def run_agent(
     system_prompt = _build_system_prompt(reg, memory_block, base_system_prompt, skill_directory)
 
     tool_calls: list[dict] = []
-    call_kwargs = {"model": model, "api_base_url": api_base_url, "api_key": api_key}
+    candidates = model_router.resolve(mode, tool, model, api_base_url, api_key)
 
     for _ in range(settings.agent_max_tool_rounds):
-        resp = await openclaw.chat(messages, system_prompt=system_prompt, user_id=session_id, **call_kwargs)
+        resp = await _chat_with_fallback(messages, system_prompt, session_id, candidates)
         content = _last_message(resp)
         calls = _extract_tool_calls(content)
 
@@ -116,5 +144,5 @@ async def run_agent(
             )
 
     # 达到最大轮次仍要工具：让模型基于已有信息给出回答
-    resp = await openclaw.chat(messages, system_prompt=system_prompt, user_id=session_id, **call_kwargs)
+    resp = await _chat_with_fallback(messages, system_prompt, session_id, candidates)
     return AgentResult(answer=_last_message(resp), tool_calls=tool_calls)

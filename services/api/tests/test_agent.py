@@ -164,3 +164,35 @@ def test_run_agent_system_prompt_has_skills(monkeypatch):
     assert "可用技能" in seen["sp"]
     assert "wireless-problem-solving" in seen["sp"]
     assert "use_skill" in seen["sp"]
+
+
+def test_run_agent_model_fallback(monkeypatch):
+    from app.services.openclaw_client import openclaw
+    from app.config import settings
+
+    pool = [
+        {"name": "kimi", "base_url": "http://a/v1", "api_key": "", "model": "m-kimi",
+         "tags": ["default", "talk"], "priority": 0},
+        {"name": "backup", "base_url": "http://b/v1", "api_key": "", "model": "m-backup",
+         "tags": ["talk"], "priority": 1},
+    ]
+    monkeypatch.setattr(settings, "model_pool", pool)
+
+    calls = {"n": 0, "models": []}
+
+    async def fake_chat(messages, system_prompt=None, user_id=None, model=None, **kwargs):
+        calls["n"] += 1
+        calls["models"].append(model)
+        if calls["n"] == 1:
+            raise RuntimeError("primary down")
+        return {"choices": [{"message": {"content": "备用模型回答"}}]}
+
+    monkeypatch.setattr(openclaw, "chat", fake_chat)
+
+    async def _run():
+        return await run_agent("u_agent_test", "s_agent_test", [{"role": "user", "content": "hi"}], mode="talk")
+
+    res = asyncio.run(_run())
+    assert res.answer == "备用模型回答"
+    assert calls["n"] == 2
+    assert calls["models"] == ["m-kimi", "m-backup"]
