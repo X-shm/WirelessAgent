@@ -30,6 +30,7 @@ class Settings(BaseSettings):
 
     # Skills
     skills_base_path: str = str(Path(__file__).resolve().parent.parent.parent.parent)
+    agent_skills_dir: str = str(Path(__file__).resolve().parent.parent / "skills")
 
     # Agent 编排
     agent_max_tool_rounds: int = 5

@@ -5,6 +5,7 @@ from sqlalchemy import select
 
 from app.agent.tools.registry import Tool, ToolContext, ToolRegistry
 from app.agent.memory import memory_store
+from app.agent.skills import skill_library
 from app.database import async_session
 from app.models.file import File
 from app.models.paper import Paper
@@ -136,6 +137,16 @@ async def _save_memory(args: dict, ctx: ToolContext) -> dict:
     return {"saved": True, "key": mem["key"]}
 
 
+async def _use_skill(args: dict, ctx: ToolContext) -> dict:
+    name = (args.get("name") or "").strip()
+    if not name:
+        return {"error": "缺少技能名 name"}
+    skill = skill_library.get(name)
+    if skill is None:
+        return {"error": f"未知技能 {name}，可用：{', '.join(skill_library.names()) or '（无）'}"}
+    return {"name": skill.name, "content": skill_library.body_prompt(skill)}
+
+
 def register_builtin(reg: ToolRegistry) -> None:
     reg.register(
         Tool(
@@ -240,5 +251,17 @@ def register_builtin(reg: ToolRegistry) -> None:
                 "required": ["key", "content"],
             },
             handler=_save_memory,
+        )
+    )
+    reg.register(
+        Tool(
+            name="use_skill",
+            description="加载某个技能的完整指令。需要某领域技能（如习题解答流程、回答格式规范）的详细步骤时调用，返回该技能全文。",
+            parameters={
+                "type": "object",
+                "properties": {"name": {"type": "string", "description": "技能名"}},
+                "required": ["name"],
+            },
+            handler=_use_skill,
         )
     )

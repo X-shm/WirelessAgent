@@ -4,6 +4,7 @@ import re
 from dataclasses import dataclass, field
 
 from app.agent.memory import memory_store
+from app.agent.skills import skill_library
 from app.agent.tools import build_default_registry
 from app.agent.tools.registry import ToolContext, ToolRegistry
 from app.config import settings
@@ -18,7 +19,12 @@ class AgentResult:
     tool_calls: list[dict] = field(default_factory=list)
 
 
-def _build_system_prompt(reg: ToolRegistry, memory_block: str, base_prompt: str | None = None) -> str:
+def _build_system_prompt(
+    reg: ToolRegistry,
+    memory_block: str,
+    base_prompt: str | None = None,
+    skill_directory: str = "",
+) -> str:
     parts = [base_prompt or settings.wireless_prompt]
     parts.append(
         "\n\n## 可用工具\n"
@@ -28,6 +34,12 @@ def _build_system_prompt(reg: ToolRegistry, memory_block: str, base_prompt: str 
         "如果不需要工具，直接正常回答即可，不要输出 <tool_call>。"
     )
     parts.append("\n工具清单：\n" + reg.describe())
+    if skill_directory:
+        parts.append(
+            "\n\n## 可用技能\n"
+            + skill_directory
+            + "\n需要某技能的详细指令时，调用 use_skill 工具加载其全文并遵循。"
+        )
     if memory_block:
         parts.append("\n\n" + memory_block)
     return "\n".join(parts)
@@ -70,7 +82,8 @@ async def run_agent(
 
     memories = await memory_store.list(user_id, settings.memory_top_k)
     memory_block = memory_store.to_prompt(memories)
-    system_prompt = _build_system_prompt(reg, memory_block, base_system_prompt)
+    skill_directory = skill_library.directory_prompt()
+    system_prompt = _build_system_prompt(reg, memory_block, base_system_prompt, skill_directory)
 
     tool_calls: list[dict] = []
     call_kwargs = {"model": model, "api_base_url": api_base_url, "api_key": api_key}

@@ -96,3 +96,71 @@ def test_run_agent_unknown_tool(monkeypatch):
     res = asyncio.run(_run())
     assert res.tool_calls, "应该记录了工具调用轨迹"
     assert res.tool_calls[0]["result"] == {"error": "未知工具 nope"}
+
+
+def test_parse_skill_md_frontmatter():
+    from app.agent.skills import _parse_skill_md
+
+    text = (
+        "---\n"
+        "name: demo\n"
+        "description: |\n"
+        "  第一行\n"
+        "  第二行\n"
+        "user-invocable: true\n"
+        "---\n"
+        "\n"
+        "正文内容"
+    )
+    meta, body = _parse_skill_md(text)
+    assert meta["name"] == "demo"
+    assert meta["description"] == "第一行\n第二行"
+    assert meta["user-invocable"] == "true"
+    assert body == "正文内容"
+
+
+def test_skill_library_directory_prompt():
+    from app.agent.skills import skill_library
+
+    directory = skill_library.directory_prompt()
+    assert "wireless-problem-solving" in directory
+    assert "answer-format" in directory
+
+
+def test_use_skill_hit_and_miss():
+    from app.agent.tools.registry import ToolContext
+
+    async def _run():
+        reg = build_default_registry()
+        ctx = ToolContext(user_id="u_agent_test")
+        tool = reg.get("use_skill")
+        assert tool is not None
+
+        hit = await tool.handler({"name": "answer-format"}, ctx)
+        assert hit["name"] == "answer-format"
+        assert "回答格式规范" in hit["content"]
+
+        miss = await tool.handler({"name": "nope"}, ctx)
+        assert "未知技能" in miss["error"]
+
+    asyncio.run(_run())
+
+
+def test_run_agent_system_prompt_has_skills(monkeypatch):
+    from app.services.openclaw_client import openclaw
+
+    seen = {}
+
+    async def fake_chat(messages, system_prompt=None, user_id=None, **kwargs):
+        seen["sp"] = system_prompt
+        return {"choices": [{"message": {"content": "你好"}}]}
+
+    monkeypatch.setattr(openclaw, "chat", fake_chat)
+
+    async def _run():
+        return await run_agent("u_agent_test", "s_agent_test", [{"role": "user", "content": "hi"}])
+
+    asyncio.run(_run())
+    assert "可用技能" in seen["sp"]
+    assert "wireless-problem-solving" in seen["sp"]
+    assert "use_skill" in seen["sp"]
