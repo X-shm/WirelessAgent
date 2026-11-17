@@ -1,4 +1,4 @@
-"""Chat routes — SSE streaming chat via Agent 编排层。"""
+"""Chat routes — 工作模式走 Agent 编排层，对话模式走简单薄转发。"""
 import json
 import re
 from urllib.parse import quote
@@ -18,6 +18,7 @@ from app.services.rag_service import rag
 from app.config import settings
 from app.limiter import limiter
 from app.agent.orchestrator import run_agent
+from app.services.openclaw_client import openclaw
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/chat", tags=["chat"])
@@ -98,10 +99,21 @@ async def _get_session(session_id: str, user_id: str, db: AsyncSession) -> Sessi
     return session
 
 
+def _error_text(error: Exception) -> str:
+    message = str(error).lower()
+    if "timeout" in message or "timed out" in message:
+        return "回复生成超时，请缩短问题或稍后重试"
+    if "connection" in message or "refused" in message:
+        return "AI 服务暂时不可用，请稍后重试 📡"
+    if "401" in message or "unauthorized" in message:
+        return "AI 服务认证失败，请检查 Gateway 配置"
+    return f"服务异常：{str(error)}"
+
+
 @router.post("/stream")
 @limiter.limit("1/second")
 async def chat_stream(req: ChatRequest, request: Request, db: AsyncSession = Depends(get_db)):
-    """发送消息，经 Agent 编排层（记忆 + 工具循环）生成回复并 SSE 流式返回。"""
+    """工作模式经 Agent 编排层（记忆 + 工具 + 技能）生成回复；对话模式简单薄转发。"""
     user_id = request.state.user_id
     session = await _get_session(req.session_id, user_id, db)
 
@@ -152,55 +164,75 @@ async def chat_stream(req: ChatRequest, request: Request, db: AsyncSession = Dep
     system_prompt = settings.wireless_prompt + "\n\n" + mode_prompt + tool_prompt + search_context + _build_file_context(files)
 
     async def generate():
+        # 工作模式：Agent 编排层（记忆 + 工具池 + Skills 库 + 工具循环）
+        if req.mode == "work":
+            try:
+                agent_result = await run_agent(
+                    user_id,
+                    session.id,
+                    messages,
+                    base_system_prompt=system_prompt,
+                    model=req.model,
+                    api_base_url=req.api_base_url,
+                    api_key=req.api_key,
+                    mode=req.mode,
+                    tool=req.tool,
+                )
+            except Exception as error:
+                yield f"data: {json.dumps({'error': _error_text(error)}, ensure_ascii=False)}\n\n"
+                return
+
+            # 持久化 assistant 消息（含工具调用轨迹）+ analytics
+            if agent_result.answer:
+                async with async_session() as save_session:
+                    save_session.add(
+                        Message(
+                            session_id=session.id,
+                            role=MessageRole.assistant,
+                            content=agent_result.answer,
+                            tool_calls={"calls": agent_result.tool_calls} if agent_result.tool_calls else None,
+                        )
+                    )
+                    save_session.add(
+                        Analytics(
+                            session_id=session.id,
+                            user_id=user_id,
+                            question=message_text,
+                            answer=agent_result.answer,
+                        )
+                    )
+                    await save_session.commit()
+
+            # SSE 逐字符输出最终答案
+            for ch in agent_result.answer:
+                yield f"data: {json.dumps({'token': ch}, ensure_ascii=False)}\n\n"
+            yield f"data: {json.dumps({'done': True, 'message_id': ''})}\n\n"
+            return
+
+        # 对话模式：简单薄转发（不套编排层）
+        full_content = ""
         try:
-            agent_result = await run_agent(
-                user_id,
-                session.id,
+            async for token in openclaw.chat_stream(
                 messages,
-                base_system_prompt=system_prompt,
+                system_prompt=system_prompt,
+                user_id=session.id,
                 model=req.model,
                 api_base_url=req.api_base_url,
                 api_key=req.api_key,
-                mode=req.mode,
-                tool=req.tool,
-            )
+            ):
+                full_content += token
+                yield f"data: {json.dumps({'token': token}, ensure_ascii=False)}\n\n"
         except Exception as error:
-            message = str(error).lower()
-            if "timeout" in message or "timed out" in message:
-                error_text = "回复生成超时，请缩短问题或稍后重试"
-            elif "connection" in message or "refused" in message:
-                error_text = "AI 服务暂时不可用，请稍后重试 📡"
-            elif "401" in message or "unauthorized" in message:
-                error_text = "AI 服务认证失败，请检查 Gateway 配置"
-            else:
-                error_text = f"服务异常：{str(error)}"
-            yield f"data: {json.dumps({'error': error_text}, ensure_ascii=False)}\n\n"
+            yield f"data: {json.dumps({'error': _error_text(error)}, ensure_ascii=False)}\n\n"
             return
 
-        # 持久化 assistant 消息（含工具调用轨迹）+ analytics
-        if agent_result.answer:
+        if full_content:
             async with async_session() as save_session:
+                save_session.add(Message(session_id=session.id, role=MessageRole.assistant, content=full_content))
                 save_session.add(
-                    Message(
-                        session_id=session.id,
-                        role=MessageRole.assistant,
-                        content=agent_result.answer,
-                        tool_calls={"calls": agent_result.tool_calls} if agent_result.tool_calls else None,
-                    )
-                )
-                save_session.add(
-                    Analytics(
-                        session_id=session.id,
-                        user_id=user_id,
-                        question=message_text,
-                        answer=agent_result.answer,
-                    )
+                    Analytics(session_id=session.id, user_id=user_id, question=message_text, answer=full_content)
                 )
                 await save_session.commit()
-
-        # SSE 逐字符输出最终答案
-        for ch in agent_result.answer:
-            yield f"data: {json.dumps({'token': ch}, ensure_ascii=False)}\n\n"
         yield f"data: {json.dumps({'done': True, 'message_id': ''})}\n\n"
 
     return StreamingResponse(generate(), media_type="text/event-stream")
