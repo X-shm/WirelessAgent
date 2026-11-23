@@ -33,6 +33,11 @@ class ChromaService:
                 model_name=settings.embedding_model
             )
 
+    @property
+    def client(self):
+        self._ensure_client()
+        return self._client
+
     def get_or_create_collection(self, name: str):
         self._ensure_client()
         self._ensure_ef()

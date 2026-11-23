@@ -3,6 +3,7 @@ import html
 import io
 import re
 import subprocess
+import sys
 import tempfile
 import zipfile
 from pathlib import Path
@@ -101,12 +102,13 @@ def _office_zip_text(path: str) -> str:
         return ""
 
 
-def convert_to_pdf(path: str) -> bytes | None:
+def convert_to_pdf(path: str, *, isolated_profile: bool = False) -> bytes | None:
     """用 LibreOffice 将 Office 文档转为 PDF，返回 PDF 字节。"""
     try:
         with tempfile.TemporaryDirectory() as tmp:
+            profile = [f"-env:UserInstallation={(Path(tmp) / 'profile').resolve().as_uri()}"] if isolated_profile else []
             subprocess.run(
-                ["libreoffice", "--headless", "--convert-to", "pdf", "--outdir", tmp, str(path)],
+                ["libreoffice", *profile, "--headless", "--convert-to", "pdf", "--outdir", tmp, str(path)],
                 check=True,
                 timeout=120,
                 stdout=subprocess.DEVNULL,
@@ -120,7 +122,7 @@ def convert_to_pdf(path: str) -> bytes | None:
     return None
 
 
-def extract_text(path: str, filename: str, content_type: str | None = None) -> str:
+def extract_text(path: str, filename: str, content_type: str | None = None, *, isolated_profile: bool = False) -> str:
     """尽力提取可供模型阅读的文本；失败时返回空字符串。"""
     kind = classify(filename, content_type)
     if kind == "text":
@@ -135,7 +137,16 @@ def extract_text(path: str, filename: str, content_type: str | None = None) -> s
         direct = _office_zip_text(path)
         if direct:
             return direct
-        pdf_data = convert_to_pdf(path)
+        pdf_data = convert_to_pdf(path, isolated_profile=isolated_profile)
         if pdf_data:
             return _pdf_text(pdf_data)
     return ""
+
+
+if __name__ == "__main__":
+    source, name, content_type, output, limit = sys.argv[1:]
+    if Path(source).stat().st_size > 16 * 1024**2:
+        text = "[附件超过标准检索读取上限]"
+    else:
+        text = extract_text(source, name, content_type, isolated_profile=True)
+    Path(output).write_text(text[:int(limit)], encoding="utf-8")

@@ -24,6 +24,22 @@ if [[ ! -d "${RELEASE}/services/api/app" || ! -d "${RELEASE}/apps/web/assets" ]]
   exit 2
 fi
 
+# Check the candidate code using the backend service's Python before replacing the live release.
+SERVICE_ENTRY="$(systemctl show wireless-agent --property=ExecStart --value | sed -n 's/^{ path=\([^ ;]*\) .*/\1/p')"
+BACKEND_PYTHON="${WIRELESS_AGENT_PYTHON:-$(dirname "${SERVICE_ENTRY}")/python}"
+if [[ "$(basename "${SERVICE_ENTRY}")" == python* && -z "${WIRELESS_AGENT_PYTHON:-}" ]]; then
+  BACKEND_PYTHON="${SERVICE_ENTRY}"
+fi
+if [[ ! -x "${BACKEND_PYTHON}" ]]; then
+  echo "ERROR: set WIRELESS_AGENT_PYTHON to the backend service interpreter" >&2
+  exit 2
+fi
+(
+  cd "${BASE}/backend"
+  PYTHONPATH="${RELEASE}/services/api" "${BACKEND_PYTHON}" -m app.services.protocol_preflight \
+    --service-pid "$(systemctl show wireless-agent --property=MainPID --value)"
+)
+
 # 1. 备份当前线上代码
 mkdir -p "${BACKUP_DIR}"
 tar -czf "${BACKUP_DIR}/backend-${TS}.tar.gz" -C "${BASE}" backend/app backend/scripts 2>/dev/null || true

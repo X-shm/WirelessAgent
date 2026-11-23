@@ -15,7 +15,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
       - name: Install API and test dependencies
         run: python -m pip install -r services/api/requirements-app.txt -r services/api/requirements-dev.txt
-      - name: Test API and protocol retrieval
+      - name: Test protocol API and retrieval
         run: python -m pytest services/api/tests
+      - name: Test protocol streaming and citations
+        run: node --test apps/web/tests/protocol-chat.test.mjs

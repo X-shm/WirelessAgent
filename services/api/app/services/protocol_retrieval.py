@@ -7,6 +7,7 @@ import httpx
 from anyio.to_thread import run_sync
 
 from .protocol_index import MODEL, dense_protocol_search, embed_protocol_query
+from .protocol_scope import ProtocolScopeUnavailable, requested_protocol_scope
 
 
 DENSE_TOP_K = 50
@@ -68,33 +69,55 @@ class ProtocolRetriever:
         self.collection = collection
         self.chunk_ids = []
         self.document_ids = []
+        self.document_metadata = {}
 
         def corpus_tokens():
             for offset in range(0, count, 512):
                 batch = collection.get(limit=512, offset=offset, include=["documents", "metadatas"])
                 for chunk_id, text, metadata in zip(batch["ids"], batch["documents"], batch["metadatas"], strict=True):
                     self.chunk_ids.append(chunk_id)
-                    self.document_ids.append(metadata["document_id"])
+                    document_id = metadata["document_id"]
+                    self.document_ids.append(document_id)
+                    if document_id not in self.document_metadata:
+                        self.document_metadata[document_id] = (
+                            metadata.get("spec"), str(metadata.get("release")), metadata.get("version"),
+                        )
                     yield TOKEN.findall(_search_text(text, metadata).lower())
 
         self.bm25 = BM25Okapi(corpus_tokens(), **BM25_PARAMETERS)
         if len(self.chunk_ids) != count or len(set(self.chunk_ids)) != count:
             raise ValueError("Protocol collection changed while loading BM25")
 
-    def _dense(self, vector, document_id):
-        hits = dense_protocol_search(self.collection, vector, top_k=DENSE_TOP_K, document_id=document_id, include_content=False)
+    async def _scope(self, requested, document_id):
+        allowed_ids = set()
+        missing = []
+        for selector in requested:
+            matches = {
+                candidate_id for candidate_id, (spec, release, version) in self.document_metadata.items()
+                if (not document_id or document_id == candidate_id)
+                and (selector["spec"] is None or spec == selector["spec"])
+                and (selector["release"] is None or release == str(selector["release"]))
+                and (selector["version"] is None or version == selector["version"])
+            }
+            if not matches:
+                missing.append(selector)
+            allowed_ids.update(matches)
+        return {"requested": requested, "document_ids": sorted(allowed_ids), "missing": missing}
+
+    def _dense(self, vector, document_ids):
+        hits = dense_protocol_search(self.collection, vector, top_k=DENSE_TOP_K, document_ids=document_ids, include_content=False)
         return _rank((hit["chunk_id"], 1.0 - hit["distance"]) for hit in hits)
 
-    def _lexical(self, query, document_id):
-        scores = self.bm25.get_scores(TOKEN.findall(query.lower()))
-        return _rank(
-            (
-                (chunk_id, float(score))
-                for chunk_id, doc_id, score in zip(self.chunk_ids, self.document_ids, scores, strict=True)
-                if not document_id or doc_id == document_id
-            ),
-            BM25_TOP_K,
-        )
+    def _lexical(self, query, document_ids):
+        tokens = TOKEN.findall(query.lower())
+        if document_ids:
+            positions = [position for position, doc_id in enumerate(self.document_ids) if doc_id in document_ids]
+            ids = (self.chunk_ids[position] for position in positions)
+            scores = self.bm25.get_batch_scores(tokens, positions)
+        else:
+            ids = self.chunk_ids
+            scores = self.bm25.get_scores(tokens)
+        return _rank(((chunk_id, float(score)) for chunk_id, score in zip(ids, scores, strict=True)), BM25_TOP_K)
 
     async def _fuse(self, dense, bm25):
         fused_scores = {}
@@ -103,7 +126,7 @@ class ProtocolRetriever:
                 fused_scores[chunk_id] = fused_scores.get(chunk_id, 0.0) + RRF_WEIGHTS[name] / (RRF_K + rank)
         return _rank(fused_scores.items(), RRF_TOP_K)
 
-    def _passages(self, ids):
+    def _passages(self, ids, document_ids):
         if not ids:
             return {}
         rows = self.collection.get(ids=ids, include=["documents", "metadatas"])
@@ -113,13 +136,22 @@ class ProtocolRetriever:
         }
         if set(passages) != set(ids) or len(rows["ids"]) != len(ids):
             raise ValueError("Ranked protocol passages are missing or duplicated")
+        if document_ids and any(row["metadata"]["document_id"] not in document_ids for row in passages.values()):
+            raise ValueError("Ranked protocol passages are outside the requested document scope")
         return passages
 
     async def search(self, query: str, http: httpx.AsyncClient, api_key: str, *, document_id: str | None = None,
                      step=_run_once) -> dict:
+        requested = requested_protocol_scope(query)
+        document_ids = (document_id,) if document_id else ()
+        if requested:
+            scope = await step("scope", partial(self._scope, requested, document_id))
+            if scope["missing"]:
+                raise ProtocolScopeUnavailable()
+            document_ids = tuple(scope["document_ids"])
         vector = await step("embedding", partial(embed_protocol_query, query, http, api_key), remote=True)
-        dense = await step("dense", partial(run_sync, self._dense, vector, document_id))
-        bm25 = await step("bm25", partial(run_sync, self._lexical, query, document_id))
+        dense = await step("dense", partial(run_sync, self._dense, vector, document_ids))
+        bm25 = await step("bm25", partial(run_sync, self._lexical, query, document_ids))
         fused = await step("rrf", partial(self._fuse, dense, bm25))
         result = {
             "query": query,
@@ -135,7 +167,7 @@ class ProtocolRetriever:
 
         async def rerank():
             ids = [chunk_id for chunk_id, _ in fused]
-            passages = await run_sync(self._passages, ids)
+            passages = await run_sync(self._passages, ids, document_ids)
             documents = [_search_text(passages[chunk_id]["text"], passages[chunk_id]["metadata"]) for chunk_id in ids]
             try:
                 return await self._rerank(query, ids, documents, http, api_key)
@@ -145,7 +177,7 @@ class ProtocolRetriever:
         reranked = await step("rerank", rerank, remote=True)
         result["trace"]["rerank"] = _trace(reranked)
         ids = [chunk_id for chunk_id, _ in reranked[:CONTEXT_TOP_K]]
-        passages = await step("evidence", partial(run_sync, self._passages, ids))
+        passages = await step("evidence", partial(run_sync, self._passages, ids, document_ids))
         result["evidence"] = [passages[chunk_id] for chunk_id in ids]
         return result
 

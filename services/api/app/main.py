@@ -1,7 +1,8 @@
 """WirelessAgent 閳?FastAPI application entry point."""
 import os
 import sys
-from contextlib import asynccontextmanager
+import asyncio
+from contextlib import asynccontextmanager, suppress
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI
@@ -14,6 +15,7 @@ from app.database import engine
 from app.models.base import Base
 from app.routes import auth, chat, session, file, library, rag, analytics, papers, projects, tasks, workspace
 from app.middleware.auth import auth_middleware
+from app.services.protocol_run import maintain_protocol_runs, stop_protocol_workers
 
 # The digest service is deployed separately; it is absent from a fresh checkout.
 _DIGEST_SCRIPTS = os.path.join(settings.arxiv_digest_dir, "scripts")
@@ -31,9 +33,15 @@ async def lifespan(app: FastAPI):
     # Startup: create tables (dev convenience; production uses Alembic migrations)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    yield
-    # Shutdown
-    await engine.dispose()
+    maintenance = asyncio.create_task(maintain_protocol_runs())
+    try:
+        yield
+    finally:
+        maintenance.cancel()
+        with suppress(asyncio.CancelledError):
+            await maintenance
+        await stop_protocol_workers()
+        await engine.dispose()
 
 
 app = FastAPI(

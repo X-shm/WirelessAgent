@@ -10123,6 +10123,8 @@ var Gd;
     (e.UseFetchers = "useFetchers"),
     (e.UseScrollRestoration = "useScrollRestoration"));
 })(Gd || (Gd = {}));
+import { chatEvents, citationHref, protocolModelKey } from "./protocol-chat.js?v=2";
+
 const Hs = "/api";
 function js() {
   return localStorage.getItem("token");
@@ -10159,12 +10161,14 @@ const Yt = {
   listSessions: () => ln("/sessions/"),
   createSession: (projectId = null, title = null) => { const qs = [projectId ? "project_id=" + encodeURIComponent(projectId) : "", title ? "title=" + encodeURIComponent(title) : ""].filter(Boolean).join("&"); return ln(qs ? `/sessions/?${qs}` : "/sessions/", { method: "POST" }); },
   deleteSession: (e) => ln(`/sessions/${e}`, { method: "DELETE" }),
-  chatStream: (e, t, fileIds = [], mode = "talk", tool = null, modelConfig = null) =>
-    fetch(`${Hs}/chat/stream`, {
+  chatStream: (e, t, fileIds = [], mode = "talk", tool = null, modelConfig = null, signal, requestId) =>
+    ln("/chat/stream", {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${js()}` },
-      body: JSON.stringify({ session_id: e, message: t, file_ids: fileIds, mode, tool, model: modelConfig?.model || null, api_base_url: modelConfig?.baseUrl || null, api_key: modelConfig?.apiKey || null }),
+      signal,
+      body: JSON.stringify({ session_id: e, message: t, file_ids: fileIds, mode, tool, model: modelConfig?.model || null, api_base_url: modelConfig?.baseUrl || null, api_key: modelConfig?.apiKey || null, request_id: requestId }),
     }),
+  resumeProtocol: (id, body, signal) => ln(`/chat/protocol/${id}/resume`, { method: "POST", body: JSON.stringify(body), signal }),
+  cancelProtocol: (id) => ln(`/chat/protocol/${id}/cancel`, { method: "POST" }),
   search: (e, t = 5) => ln(`/rag/search?q=${encodeURIComponent(e)}&top_k=${t}`),
   getMessages: (e) => ln(`/sessions/${e}/messages`),
   listFiles: () => ln("/files/"),
@@ -33856,7 +33860,11 @@ function WkPreviewModal({ file, onClose }) {
   });
 }
 
-function cp({ role: e, content: t, isStreaming: n, onPreview }) {
+const protocolMarkdownComponents = {
+  a: ({ children }) => T.jsx("span", { children }),
+  img: ({ alt }) => T.jsx("span", { children: alt }),
+};
+function cp({ role: e, content: t, isStreaming: n, onPreview, protocolSearch, citations = [] }) {
   const isUser = e === "user";
   const avatar = isUser ? yA : bA;
   const parsed = D.useMemo(() => WkParseAttachments(t), [t]);
@@ -33875,13 +33883,29 @@ function cp({ role: e, content: t, isStreaming: n, onPreview }) {
         children: [
           isUser
             ? T.jsx("p", { className: "whitespace-pre-wrap", children: parsed.text })
-            : chunks.map((chunk, index) =>
+            : protocolSearch
+              ? T.jsx(xS, { remarkPlugins: [DN], rehypePlugins: [hA], components: protocolMarkdownComponents, children: parsed.text })
+              : chunks.map((chunk, index) =>
                 chunk.type === "math-display"
                   ? T.jsx("div", { dangerouslySetInnerHTML: { __html: up(chunk.content, !0) } }, index)
                   : chunk.type === "math-inline"
                     ? T.jsx("span", { dangerouslySetInnerHTML: { __html: up(chunk.content, !1) } }, index)
                     : T.jsx(xS, { remarkPlugins: [DN], rehypePlugins: [hA], children: chunk.content }, index),
               ),
+          protocolSearch && citations.length > 0 && T.jsxs("div", {
+            className: "mt-3",
+            children: [T.jsx("strong", { children: "协议引用" }), T.jsx("ul", {
+              children: citations.map((source) => {
+                const href = citationHref(source);
+                if (!href) return null;
+                const label = `${source.spec} Rel-${source.release} v${source.version}` +
+                  (source.clause ? ` · Clause ${source.clause}` : "") +
+                  (source.pdf_page_start ? ` · PDF 第 ${source.pdf_page_start} 页` : "") +
+                  (source.authority === "derived_index" ? " · 派生索引" : "");
+                return T.jsxs("li", { children: [ `〔${source.marker}〕 `, T.jsx("a", { href, target: "_blank", rel: "noopener noreferrer", className: "protocol-pdf-link", children: label }) ] }, source.chunk_id);
+              }),
+            })],
+          }),
           n &&
             T.jsxs("span", {
               className: "inline-flex gap-1 ml-1.5 align-middle",
@@ -34091,7 +34115,7 @@ function vA() {
     }),
   });
 }
-function EA({ messages: e, streamingContent: t, loading, thinkingLabel, onPreview, mode, onModeChange }) {
+function EA({ messages: e, streamingContent: t, loading, thinkingLabel, onPreview, mode, onModeChange, protocolSearch, protocolNotice, onRetry }) {
   const bottomRef = D.useRef(null);
   const scrollRef = D.useRef(null);
   const stick = D.useRef(!0);
@@ -34123,15 +34147,19 @@ function EA({ messages: e, streamingContent: t, loading, thinkingLabel, onPrevie
     onScroll,
     className: "flex-1 overflow-y-auto py-4",
     children: [
-      e.map((message) => T.jsx(cp, { role: message.role, content: message.content, onPreview }, message.id)),
-      t && T.jsx(cp, { role: "assistant", content: t, isStreaming: !0, onPreview }),
+      e.map((message) => T.jsx(cp, { role: message.role, content: message.content, onPreview, protocolSearch: message.protocol_search, citations: message.citations || [] }, message.id)),
+      t && T.jsx(cp, { role: "assistant", content: t, isStreaming: loading, onPreview, protocolSearch }),
+      protocolNotice && T.jsxs("div", { className: "max-w-3xl mx-auto px-4 py-2 text-sm", children: [
+        T.jsx("span", { role: "status", children: protocolNotice }),
+        onRetry && T.jsx("button", { type: "button", onClick: onRetry, className: "ml-2 text-sunset-600 underline", children: "继续或重试" }),
+      ] }),
       loading && !t && T.jsx("div", { className: "max-w-3xl mx-auto px-4 py-2", children: T.jsxs("div", { className: "inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white border border-cream-200 text-sm text-muted-foreground shadow-sm", children: [T.jsx("span", { className: "w-2 h-2 rounded-full bg-sunset-500 animate-pulse" }), T.jsx("span", { children: (thinkingLabel || "正在思考…") + " · " + thinkSec + " 秒" })] }) }),
       T.jsx("div", { ref: bottomRef }),
     ],
   });
 }
 
-function wA({ onSend: e, disabled: t, loading: n, mode, tool, onToolChange, initialText, onInitialConsumed, onPreview }) {
+function wA({ onSend: e, disabled: t, loading: n, mode, tool, onToolChange, initialText, onInitialConsumed, onPreview, onStop }) {
   const [text, setText] = D.useState("");
   const [files, setFiles] = D.useState([]);
   const inputRef = D.useRef(null);
@@ -34299,10 +34327,10 @@ function wA({ onSend: e, disabled: t, loading: n, mode, tool, onToolChange, init
               ] }),
               T.jsx("button", {
                 type: "button",
-                onClick: send,
-                disabled: !canSend,
+                onClick: n && onStop ? onStop : send,
+                disabled: n && onStop ? false : !canSend,
                 className: "shrink-0 p-2 rounded-xl bg-sunset-500 hover:bg-sunset-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 text-white shadow-md shadow-orange-200",
-                children: n ? "…" : "发送",
+                children: n ? (onStop ? "停止" : "…") : "发送",
               }),
             ],
           }),
@@ -34344,7 +34372,102 @@ function _A() {
   const [messages, setMessages] = D.useState([]);
   const [streaming, setStreaming] = D.useState("");
   const [loading, setLoading] = D.useState(!1);
+  const [protocolSearch, setProtocolSearch] = D.useState(false);
+  const [protocolNotice, setProtocolNotice] = D.useState("");
+  const [canRetry, setCanRetry] = D.useState(false);
   const abortRef = D.useRef(null);
+  const requestRef = D.useRef(null);
+
+  const followProtocol = D.useCallback(async (record, start, retry = false) => {
+    const controller = new AbortController();
+    abortRef.current?.abort();
+    abortRef.current = controller;
+    requestRef.current = record;
+    setLoading(true);
+    setProtocolSearch(true);
+    setProtocolNotice("");
+    setCanRetry(false);
+    let full = "", after = 0, accepted = !start;
+    const active = () => abortRef.current === controller && !controller.signal.aborted;
+
+    try {
+      for (let attempt = 0; attempt < 3 && active(); attempt += 1) {
+        try {
+          let key = null;
+          if (accepted && record.baseUrl) {
+            try {
+              key = protocolModelKey(record, JSON.parse(localStorage.getItem("apiModels") || "[]"));
+            } catch {}
+          }
+          const response = !accepted && start ? await start(controller.signal) : await Yt.resumeProtocol(
+            record.id, { after, retry: retry && attempt === 0, api_key: key }, controller.signal,
+          );
+          if (!response.ok && response.status < 500 && response.status !== 429) {
+            if (response.status === 404 || response.status === 409 || response.status === 422) {
+              sessionStorage.removeItem(`protocol-request:${record.sessionId}`);
+            }
+            setProtocolNotice(`标准问答请求失败（${response.status}）`);
+            return;
+          }
+          for await (const data of chatEvents(response)) {
+            if (!active()) return;
+            if (data.request_id) accepted = true;
+            if (data.done) {
+              full = data.answer ?? full;
+              if (data.status === "complete") {
+                setMessages((prev) => prev.some((message) => message.id === data.message_id) ? prev : [
+                  ...prev, { id: data.message_id, role: "assistant", content: full, protocol_search: true, citations: data.citations },
+                ]);
+                setStreaming("");
+              } else {
+                setStreaming(full);
+              }
+              const notice = {
+                canceled: "已停止", expired: "续跑记录已过期，请发送新问题。",
+                search_failed: "标准检索中断。", generation_interrupted: "生成中断，已保留部分回答。",
+                paused: "连接暂时中断，已保存进度。",
+              }[data.status];
+              setProtocolNotice({
+                credential: "续跑需要原模型的 API 配置。",
+                billing: "模型服务因账户计费异常暂停，请联系管理员。",
+                unknown: "服务未确认处理结果，继续可能重新调用模型。",
+                context_limit: "生成上下文过长，请缩短问题或减少附件。",
+                configuration_changed: "检索配置已更新，请重新发送问题。",
+                scope_unavailable: "指定的规范或版本未入库，请调整范围后重新发送。",
+              }[data.error_kind] || notice || "");
+              setCanRetry(Boolean(data.retryable));
+              if (!data.retryable) {
+                sessionStorage.removeItem(`protocol-request:${record.sessionId}`);
+                requestRef.current = null;
+              }
+              return;
+            }
+            if (data.seq > after) {
+              after = data.seq;
+              full = data.reset ? "" : full + (data.token || "");
+              setStreaming(full);
+            }
+            if (!record.stopping) setProtocolNotice("");
+          }
+        } catch (error) {
+          if (!active()) return;
+        }
+        if (active() && attempt < 2) {
+          setProtocolNotice("连接中断，正在重连…");
+          await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)));
+        }
+      }
+      if (active()) {
+        setProtocolNotice("连接中断，可继续标准问答。");
+        setCanRetry(true);
+      }
+    } finally {
+      if (abortRef.current === controller) {
+        abortRef.current = null;
+        setLoading(false);
+      }
+    }
+  }, []);
 
   const send = D.useCallback(async (sessionId, text, files, mode, tool, modelConfig) => {
     const attachments = Array.isArray(files) ? files : [];
@@ -34354,26 +34477,31 @@ function _A() {
       content: WkToolMarker(tool) + WkFilesMarker(attachments) + text,
     };
     setMessages((prev) => [...prev, userMessage]);
+    setStreaming("");
+    if (mode === "work" && tool === "search") {
+      const record = {
+        id: crypto.randomUUID(), sessionId, modelId: modelConfig?.id, model: modelConfig?.model, baseUrl: modelConfig?.baseUrl,
+      };
+      sessionStorage.setItem(`protocol-request:${sessionId}`, JSON.stringify(record));
+      await followProtocol(record, (signal) => Yt.chatStream(
+        sessionId, text, attachments.map((file) => file.id), mode, tool, modelConfig, signal, record.id,
+      ));
+      return;
+    }
+    setProtocolSearch(false);
+    setProtocolNotice("");
+    setCanRetry(false);
+    requestRef.current = null;
     setLoading(!0);
     setStreaming("");
     const controller = new AbortController();
     abortRef.current = controller;
     try {
-      const response = await Yt.chatStream(sessionId, text, attachments.map((file) => file.id), mode, tool, modelConfig);
-      const reader = response.body && response.body.getReader();
-      if (!reader) throw new Error("No response body");
-      const decoder = new TextDecoder();
+      const response = await Yt.chatStream(sessionId, text, attachments.map((file) => file.id), mode, tool, modelConfig, controller.signal);
       let full = "";
       let scheduled = !1;
       let finished = !1;
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const lines = decoder.decode(value, { stream: !0 }).split("\n");
-        for (const line of lines) {
-          if (!line.startsWith("data: ")) continue;
-          try {
-            const data = JSON.parse(line.slice(6));
+      for await (const data of chatEvents(response)) {
             if (data.token) {
               full += data.token;
               if (!scheduled) {
@@ -34397,8 +34525,6 @@ function _A() {
               }
               setStreaming("");
             }
-          } catch {}
-        }
       }
     } catch (error) {
       if (error.name !== "AbortError") {
@@ -34408,22 +34534,59 @@ function _A() {
         ]);
       }
     } finally {
-      abortRef.current = null;
-      setLoading(!1);
+      if (abortRef.current === controller) {
+        abortRef.current = null;
+        setLoading(!1);
+      }
+    }
+  }, [followProtocol]);
+
+  const stop = D.useCallback(async () => {
+    const record = requestRef.current;
+    if (!record) {
+      abortRef.current?.abort();
+      return;
+    }
+    record.stopping = true;
+    setProtocolNotice("正在停止…");
+    try {
+      let response = await Yt.cancelProtocol(record.id);
+      if (response.status === 404) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        response = await Yt.cancelProtocol(record.id);
+      }
+      if (!response.ok) throw new Error("Cancellation failed");
+    } catch {
+      record.stopping = false;
+      if (requestRef.current === record) setProtocolNotice("未能确认停止，请重试。");
     }
   }, []);
 
-  const stop = D.useCallback(() => {
-    if (abortRef.current) abortRef.current.abort();
-    setLoading(!1);
-  }, []);
-
   const clear = D.useCallback(() => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    requestRef.current = null;
     setMessages([]);
     setStreaming("");
+    setLoading(false);
+    setProtocolSearch(false);
+    setProtocolNotice("");
+    setCanRetry(false);
   }, []);
 
-  return { messages, streaming, loading, send, stop, clear, setMessages };
+  const restore = D.useCallback((sessionId) => {
+    try {
+      const record = JSON.parse(sessionStorage.getItem(`protocol-request:${sessionId}`));
+      if (!record?.id || record.sessionId !== sessionId || abortRef.current) return;
+      followProtocol(record);
+    } catch {}
+  }, [followProtocol]);
+
+  const retry = D.useCallback(() => {
+    if (requestRef.current && !abortRef.current) followProtocol(requestRef.current, null, true);
+  }, [followProtocol]);
+
+  return { messages, streaming, loading, send, stop, clear, restore, retry, canRetry, protocolSearch, protocolNotice, setMessages };
 }
 
 function kA() {
@@ -34526,12 +34689,17 @@ function kA() {
     if (loadedRef.current.has(key)) return;
     loadedRef.current.add(key);
     currentChat.clear();
+    let active = true;
     Yt.getMessages(activeId).then(async (response) => {
       if (!response.ok) return;
       const rows = await response.json();
-      currentChat.setMessages(rows.map((row) => ({ id: row.id, role: row.role, content: row.content })));
+      if (active) {
+        currentChat.setMessages(rows);
+        if (mode === "work") currentChat.restore(activeId);
+      }
     }).catch(() => {});
-  }, [activeId, mode, currentChat]);
+    return () => { active = false; };
+  }, [activeId, mode, currentChat.clear, currentChat.setMessages, currentChat.restore]);
 
   const selectMode = (nextMode) => {
     if (nextMode === mode) return;
@@ -34539,7 +34707,11 @@ function kA() {
     setPendingTool(null);
   };
 
-  const selectSession = (id) => { setDraftModes((prev) => ({ ...prev, [mode]: !1 })); setActiveIds((prev) => ({ ...prev, [mode]: id })); };
+  const selectSession = (id) => {
+    if (id !== activeId) loadedRef.current.delete(mode + ":" + id);
+    setDraftModes((prev) => ({ ...prev, [mode]: !1 }));
+    setActiveIds((prev) => ({ ...prev, [mode]: id }));
+  };
 
   const createSession = async (projectId = null) => {
     if (mode === "work") setActiveProjectId(projectId);
@@ -34717,12 +34889,13 @@ function kA() {
               showFunctions && T.jsx("p", { className: "text-xs text-muted-foreground/70", children: "选择要使用的功能" }),
             ],
           }),
-          !showFunctions && T.jsx(EA, { messages: currentChat.messages, streamingContent: currentChat.streaming, loading: currentChat.loading, thinkingLabel: tool === "search" ? "正在检索知识库…" : tool === "homework" ? "正在分析题目…" : "正在思考…", onPreview: setPreview, mode, onModeChange: selectMode }),
+          !showFunctions && T.jsx(EA, { messages: currentChat.messages, streamingContent: currentChat.streaming, loading: currentChat.loading, protocolSearch: currentChat.protocolSearch, protocolNotice: currentChat.protocolNotice, onRetry: currentChat.canRetry ? currentChat.retry : null, thinkingLabel: tool === "search" ? "正在检索知识库…" : tool === "homework" ? "正在分析题目…" : "正在思考…", onPreview: setPreview, mode, onModeChange: selectMode }),
           !showFunctions && T.jsx("div", {
             className: "shrink-0",
             children: T.jsx(wA, {
               onSend: submit,
               loading: currentChat.loading,
+              onStop: currentChat.stop,
               mode,
               tool,
               onToolChange: setTool,

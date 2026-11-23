@@ -5,6 +5,29 @@ from unittest.mock import Mock
 import httpx
 
 from services.api.app.services import protocol_index, protocol_retrieval as retrieval
+from services.api.app.services.protocol_scope import ProtocolScopeUnavailable, requested_protocol_scope
+
+
+class ProtocolScopeTests(unittest.TestCase):
+    def test_explicit_and_incidental_mentions(self):
+        cases = [
+            ("Explain network slicing in TS 23.501.", []),
+            ("Does TS 23.501 only describe slicing?", []),
+            ("Explain slicing using only 3GPP TS 23.501.", [("23.501", None, None)]),
+            ("Use TS 23.501 only.", [("23.501", None, None)]),
+            ("只用 TS 23.501 和 TS 23.502", [("23.501", None, None), ("23.502", None, None)]),
+            ("只用 TS 29.512 的 Rel-17 v17.6.0", [("29.512", 17, "17.6.0")]),
+            ("Use TS 29.512 (Release 17, v17.6.0) only.", [("29.512", 17, "17.6.0")]),
+            ("Compare TS 29.512 v17.6.0 and v19.7.0.", [("29.512", None, "17.6.0"), ("29.512", None, "19.7.0")]),
+            ("Compare Release 17 and Release 19 of TS 29.512.", [("29.512", 17, None), ("29.512", 19, None)]),
+            ("Use only Release 19.", [(None, 19, None)]),
+        ]
+        for question, expected in cases:
+            with self.subTest(question=question):
+                self.assertEqual(requested_protocol_scope(question), [
+                    {"spec": f"3GPP TS {spec}" if spec else None, "release": release, "version": version}
+                    for spec, release, version in expected
+                ])
 
 
 class ProtocolRetrievalTests(unittest.IsolatedAsyncioTestCase):
@@ -34,10 +57,10 @@ class ProtocolRetrievalTests(unittest.IsolatedAsyncioTestCase):
         self.retriever = retrieval.ProtocolRetriever(self.collection)
         self.rerank_request = None
 
-    def respond(self, request, *, duplicate=False):
+    def respond(self, request, *, duplicate=False, query="scope"):
         body = json.loads(request.content)
         if str(request.url) == protocol_index.EMBEDDINGS_URL:
-            self.assertEqual(body["input"], ["scope"])
+            self.assertEqual(body["input"], [query])
             return httpx.Response(200, json={"model": protocol_index.MODEL, "data": [
                 {"index": 0, "embedding": [1.0] + [0.0] * (protocol_index.DIMENSION - 1)},
             ]})
@@ -102,3 +125,55 @@ class ProtocolRetrievalTests(unittest.IsolatedAsyncioTestCase):
                          "Scope > Association establishment\n1. POST /sm-policies")
         self.assertEqual(result["evidence"][0]["chunk_id"], "chunk-49")
         self.assertEqual(result["evidence"][0]["text"], "1. POST /sm-policies")
+
+    def use_multiple_protocols(self):
+        for index, (spec, release, version, document_id) in enumerate((
+            ("3GPP TS 29.512", 17, "17.6.0", "TS29512-V17.6.0"),
+            ("3GPP TS 29.512", 19, "19.7.0", "TS29512-V19.7.0"),
+            ("3GPP TS 23.501", 19, "19.9.0", "TS23501-V19.9.0"),
+        )):
+            self.metadatas[index * 20:(index + 1) * 20] = [
+                {"spec": spec, "release": release, "version": version, "document_id": document_id}
+            ] * 20
+        self.retriever = retrieval.ProtocolRetriever(self.collection)
+
+    async def test_explicit_documents_filter_dense_and_bm25_before_fusion(self):
+        self.use_multiple_protocols()
+        cases = [
+            ("只用 TS 23.501", ["TS23501-V19.9.0"], self.ids[40:]),
+            ("Explain TS 29.512 Rel-17.", ["TS29512-V17.6.0"], self.ids[:20]),
+            ("Compare TS 29.512 v17.6.0 and v19.7.0.",
+             ["TS29512-V17.6.0", "TS29512-V19.7.0"], self.ids[:40]),
+        ]
+        for query, documents, allowed_chunks in cases:
+            with self.subTest(query=query):
+                self.collection.query.return_value = {
+                    "ids": [allowed_chunks], "distances": [[0.0] * len(allowed_chunks)],
+                }
+                async with httpx.AsyncClient(transport=httpx.MockTransport(
+                    lambda request: self.respond(request, query=query)
+                )) as http:
+                    result = await self.retriever.search(query, http, "test-key")
+                where = documents[0] if len(documents) == 1 else {"$in": documents}
+                self.assertEqual(self.collection.query.call_args.kwargs["where"], {"document_id": where})
+                for stage in ("dense", "bm25"):
+                    self.assertEqual({row["chunk_id"] for row in result["trace"][stage]}, set(allowed_chunks))
+                for stage in ("rrf", "rerank"):
+                    self.assertTrue({row["chunk_id"] for row in result["trace"][stage]} <= set(allowed_chunks))
+                self.assertEqual(len(result["evidence"]), 5)
+                self.assertTrue({row["metadata"]["document_id"] for row in result["evidence"]} <= set(documents))
+
+    async def test_one_missing_version_stops_the_entire_comparison_before_embedding(self):
+        self.use_multiple_protocols()
+        async def step(stage, operation, *, remote=False):
+            self.assertFalse(remote)
+            self.assertEqual(stage, "scope")
+            scope = await operation()
+            self.assertEqual(scope["document_ids"], ["TS29512-V17.6.0"])
+            self.assertEqual(scope["missing"], [{"spec": "3GPP TS 29.512", "release": None, "version": "99.9.9"}])
+            return scope
+
+        async with httpx.AsyncClient(transport=httpx.MockTransport(Mock(side_effect=AssertionError))) as http:
+            with self.assertRaises(ProtocolScopeUnavailable):
+                await self.retriever.search("Compare TS 29.512 v17.6.0 and v99.9.9.", http, "test-key", step=step)
+        self.collection.query.assert_not_called()

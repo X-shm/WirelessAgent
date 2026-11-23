@@ -40,7 +40,7 @@ class OpenClawClient:
             resp.raise_for_status()
             return resp.json()
 
-    async def chat_stream(self, messages: list[dict], system_prompt: str | None = None, user_id: str | None = None, model: str | None = None, api_base_url: str | None = None, api_key: str | None = None, **kwargs):
+    async def chat_stream(self, messages: list[dict], system_prompt: str | None = None, user_id: str | None = None, model: str | None = None, api_base_url: str | None = None, api_key: str | None = None, *, require_complete: bool = False, on_accepted=None, **kwargs):
         """Stream chat completion via an optional OpenAI-compatible override."""
         base_url = (api_base_url or self.base_url).rstrip("/")
         request_key = api_key or self.api_key
@@ -53,27 +53,39 @@ class OpenClawClient:
         }
         if user_id:
             payload["user"] = user_id
-        max_attempts = 2
+        max_attempts = 1 if require_complete else 2
         for attempt in range(max_attempts):
             yielded = False
+            completed = False
             try:
                 async with httpx.AsyncClient(timeout=120.0) as client:
                     async with client.stream("POST", f"{base_url}/chat/completions", headers=request_headers, json=payload) as resp:
                         resp.raise_for_status()
+                        if on_accepted is not None:
+                            await on_accepted()
                         async for line in resp.aiter_lines():
                             if line.startswith("data: "):
                                 data = line[6:]
                                 if data == "[DONE]":
+                                    completed = True
                                     break
                                 try:
                                     chunk = json.loads(data)
-                                    delta = chunk.get("choices", [{}])[0].get("delta", {})
+                                    choice = (chunk.get("choices") or [{}])[0]
+                                    if require_complete:
+                                        finish_reason = choice.get("finish_reason")
+                                        if chunk.get("error") or finish_reason not in (None, "stop"):
+                                            raise RuntimeError("Protocol answer generation was interrupted")
+                                        completed |= finish_reason == "stop"
+                                    delta = choice.get("delta", {})
                                     content = delta.get("content", "")
                                     if content:
                                         yielded = True
                                         yield content
                                 except json.JSONDecodeError:
                                     continue
+                if require_complete and not completed:
+                    raise RuntimeError("Protocol answer stream ended without a completion marker")
                 return
             except Exception:
                 if yielded or attempt >= max_attempts - 1:

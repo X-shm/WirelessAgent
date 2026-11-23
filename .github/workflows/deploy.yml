@@ -5,7 +5,10 @@ on:
     branches: [main]
 
 jobs:
+  standard-search:
+    uses: ./.github/workflows/standard-search.yml
   deploy:
+    needs: standard-search
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

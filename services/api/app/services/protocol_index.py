@@ -255,13 +255,18 @@ async def embed_protocol_query(query: str, http: httpx.AsyncClient, api_key: str
     return vectors[0]
 
 
-def dense_protocol_search(collection, vector, *, top_k=50, document_id=None, include_content=True):
+def dense_protocol_search(collection, vector, *, top_k=50, document_ids=(), include_content=True):
     if top_k < 1:
         raise ValueError("A positive top_k is required")
+    where = None
+    if len(document_ids) == 1:
+        where = {"document_id": document_ids[0]}
+    elif document_ids:
+        where = {"document_id": {"$in": list(document_ids)}}
     result = collection.query(
         query_embeddings=np.asarray([vector], dtype=np.float32),
         n_results=top_k,
-        where={"document_id": document_id} if document_id else None,
+        where=where,
         include=["documents", "metadatas", "distances"] if include_content else ["distances"],
     )
     if not include_content:
@@ -279,7 +284,7 @@ def dense_protocol_search(collection, vector, *, top_k=50, document_id=None, inc
 
 async def search_protocol_index(collection, query: str, http: httpx.AsyncClient, api_key: str, *, top_k=50, document_id=None):
     vector = await embed_protocol_query(query, http, api_key)
-    return dense_protocol_search(collection, vector, top_k=top_k, document_id=document_id)
+    return dense_protocol_search(collection, vector, top_k=top_k, document_ids=(document_id,) if document_id else ())
 
 
 if __name__ == "__main__":

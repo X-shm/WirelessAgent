@@ -107,6 +107,8 @@ class MessageOut(BaseModel):
     role: str
     content: str
     created_at: str
+    protocol_search: bool = False
+    citations: list[dict] | None = None
 
 
 @router.get("/{session_id}/messages", response_model=list[MessageOut])
@@ -122,7 +124,11 @@ async def get_session_messages(session_id: str, request: Request, db: AsyncSessi
     )
     messages = msg_result.scalars().all()
     return [
-        MessageOut(id=m.id, role=m.role.value, content=m.content, created_at=m.created_at.isoformat())
+        MessageOut(
+            id=m.id, role=m.role.value, content=m.content, created_at=m.created_at.isoformat(),
+            protocol_search=bool((m.tool_calls or {}).get("request_id")),
+            citations=(m.tool_calls or {}).get("citations"),
+        )
         for m in messages
     ]
 

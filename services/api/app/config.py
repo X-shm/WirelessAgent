@@ -1,5 +1,6 @@
 """Application configuration via environment variables."""
 from pydantic_settings import BaseSettings
+from pydantic import SecretStr
 from pathlib import Path
 
 
@@ -27,6 +28,7 @@ class Settings(BaseSettings):
     # RAG / Chroma
     chroma_persist_dir: str = "./chroma_data"
     embedding_model: str = "BAAI/bge-small-zh-v1.5"
+    dashscope_api_key: SecretStr = SecretStr("")
 
     # Skills
     skills_base_path: str = str(Path(__file__).resolve().parent.parent.parent.parent)
