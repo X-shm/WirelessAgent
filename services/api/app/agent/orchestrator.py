@@ -1,4 +1,5 @@
 """Agent 编排器：组装上下文 + 工具循环 + 返回最终答案。"""
+import asyncio
 import json
 import re
 from dataclasses import dataclass, field
@@ -7,9 +8,11 @@ from app.agent.memory import memory_store
 from app.agent.skills import skill_library
 from app.agent.tools import build_default_registry
 from app.agent.tools.registry import ToolContext, ToolRegistry
+from app.agent.tools.wireless import get_wireless_spec, wireless_directory_prompt
 from app.config import settings
 from app.services.openclaw_client import openclaw
 from app.services.model_router import ModelSpec, model_router
+from app.services.wireless_tool_runner import run_tool
 
 TOOL_CALL_RE = re.compile(r"<tool_call>\s*(.*?)\s*</tool_call>", re.DOTALL)
 
@@ -25,6 +28,7 @@ def _build_system_prompt(
     memory_block: str,
     base_prompt: str | None = None,
     skill_directory: str = "",
+    wireless_directory: str = "",
 ) -> str:
     parts = [base_prompt or settings.wireless_prompt]
     parts.append(
@@ -40,6 +44,12 @@ def _build_system_prompt(
             "\n\n## 可用技能\n"
             + skill_directory
             + "\n需要某技能的详细指令时，调用 use_skill 工具加载其全文并遵循。"
+        )
+    if wireless_directory:
+        parts.append(
+            "\n\n## 无线工具（5G NR）\n"
+            + wireless_directory
+            + "\n需要调用某无线工具但不确定其参数时，先调用 use_tool 工具加载该工具的完整参数说明。"
         )
     if memory_block:
         parts.append("\n\n" + memory_block)
@@ -111,7 +121,8 @@ async def run_agent(
     memories = await memory_store.list(user_id, settings.memory_top_k)
     memory_block = memory_store.to_prompt(memories)
     skill_directory = skill_library.directory_prompt()
-    system_prompt = _build_system_prompt(reg, memory_block, base_system_prompt, skill_directory)
+    wireless_directory = wireless_directory_prompt()
+    system_prompt = _build_system_prompt(reg, memory_block, base_system_prompt, skill_directory, wireless_directory)
 
     tool_calls: list[dict] = []
     candidates = model_router.resolve(mode, tool, model, api_base_url, api_key)
@@ -128,13 +139,20 @@ async def run_agent(
             name = call["name"]
             args = call.get("args", {}) or {}
             tool = reg.get(name)
-            if tool is None:
-                result = {"error": f"未知工具 {name}"}
-            else:
+            if tool is not None:
                 try:
                     result = await tool.handler(args, ctx)
                 except Exception as e:  # noqa: BLE001
                     result = {"error": f"工具执行失败: {e}"}
+            else:
+                spec = get_wireless_spec(name)
+                if spec is not None:
+                    try:
+                        result = await asyncio.to_thread(run_tool, spec, args, settings.wireless_tool_timeout)
+                    except Exception as e:  # noqa: BLE001
+                        result = {"error": f"工具执行失败: {e}"}
+                else:
+                    result = {"error": f"未知工具 {name}"}
             tool_calls.append({"name": name, "args": args, "result": result})
             messages.append(
                 {"role": "assistant", "content": f"<tool_call>\n{json.dumps(call, ensure_ascii=False)}\n</tool_call>"}

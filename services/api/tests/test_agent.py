@@ -196,3 +196,25 @@ def test_run_agent_model_fallback(monkeypatch):
     assert res.answer == "备用模型回答"
     assert calls["n"] == 2
     assert calls["models"] == ["m-kimi", "m-backup"]
+
+
+def test_run_agent_wireless_tool(monkeypatch):
+    from app.services.openclaw_client import openclaw
+
+    rounds = {"n": 0}
+
+    async def fake_chat(messages, system_prompt=None, user_id=None, **kwargs):
+        rounds["n"] += 1
+        if rounds["n"] == 1:
+            return {"choices": [{"message": {"content": '<tool_call>\n{"name":"nr_modulation","args":{"mod":"QPSK","bits":"1,1,0,1"}}\n</tool_call>'}}]}
+        return {"choices": [{"message": {"content": "调制完成。"}}]}
+
+    monkeypatch.setattr(openclaw, "chat", fake_chat)
+
+    async def _run():
+        return await run_agent("u_agent_test", "s_agent_test", [{"role": "user", "content": "把 1,1,0,1 做 QPSK 调制"}], mode="work")
+
+    res = asyncio.run(_run())
+    assert res.answer == "调制完成。"
+    assert res.tool_calls[0]["name"] == "nr_modulation"
+    assert res.tool_calls[0]["result"]["modulation"] == "QPSK"

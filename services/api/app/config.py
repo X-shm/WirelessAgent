@@ -36,6 +36,10 @@ class Settings(BaseSettings):
     skills_base_path: str = str(Path(__file__).resolve().parent.parent.parent.parent)
     agent_skills_dir: str = str(Path(__file__).resolve().parent.parent / "skills")
 
+    # 无线工具（5G NR CLI）
+    wireless_tools_dir: str = str(Path(__file__).resolve().parents[3] / "packages" / "wireless_tools")
+    wireless_tool_timeout: float = 30
+
     # Agent 编排
     agent_max_tool_rounds: int = 5
     agent_tool_timeout: float = 30

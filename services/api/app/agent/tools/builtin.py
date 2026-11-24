@@ -6,6 +6,7 @@ from sqlalchemy import select
 from app.agent.tools.registry import Tool, ToolContext, ToolRegistry
 from app.agent.memory import memory_store
 from app.agent.skills import skill_library
+from app.agent.tools.wireless import _use_tool
 from app.database import async_session
 from app.models.file import File
 from app.models.paper import Paper
@@ -263,5 +264,17 @@ def register_builtin(reg: ToolRegistry) -> None:
                 "required": ["name"],
             },
             handler=_use_skill,
+        )
+    )
+    reg.register(
+        Tool(
+            name="use_tool",
+            description="加载某个 5G NR 无线工具的完整参数说明。需要调用某无线工具（如 nr_modulation/nr_tbs/nr_ldpc）但不确定其参数时先调用，返回该工具的 input_schema。",
+            parameters={
+                "type": "object",
+                "properties": {"name": {"type": "string", "description": "无线工具名（nr_ 开头）"}},
+                "required": ["name"],
+            },
+            handler=_use_tool,
         )
     )
