@@ -1,0 +1,21 @@
+name: Standard search
+
+on:
+  pull_request:
+  workflow_call:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ANONYMIZED_TELEMETRY: "False"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install API and test dependencies
+        run: python -m pip install -r services/api/requirements-app.txt -r services/api/requirements-dev.txt
+      - name: Test API and protocol retrieval
+        run: python -m pytest services/api/tests

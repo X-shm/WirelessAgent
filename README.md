@@ -34,6 +34,18 @@ WirelessAgent 是一个面向无线通信研究者的垂直 AI Agent 平台，�
 
 首个可运行的端到端仿真切片是 BLE 发射功率与距离扫描：独立任务页、版本化任务 API、持久队列、固定 Agent 编排器及 MCP 工具调用。它可以在本地与预发环境运行，不代表整个 WirelessAgent 平台或所有仿真场景已经集成。启动、接口和验收命令见 [BLE 仿真任务接入说明](docs/BLE仿真任务接入说明.md)。
 
+### 准备 3GPP 标准检索索引
+
+在后端工作目录安装 `requirements-app.txt` 中的依赖。准备完整的 Qwen 向量包、证据 JSONL 和官方 PDF，均放在发布物之外。标准问答上线前可先导入索引。
+
+在服务停止访问该 Chroma 目录时运行导入。令 `--chroma-dir` 与服务的 `CHROMA_PERSIST_DIR` 一致。令 `--pdf-root` 指向 PDF manifest 中各相对路径的基准目录。
+
+```bash
+python -m app.services.protocol_index --vectors-dir "$VECTORS_DIR" --evidence-dir "$EVIDENCE_DIR" --pdf-root "$PDF_ROOT" --pdf-manifest "$PDF_MANIFEST" --chroma-dir ./chroma_data
+```
+
+导入器校验资产摘要、Chunk ID、向量维度和引用的 PDF 版本。完整核对后才更新活动索引清单。同一批资产中断后可用原命令继续导入。
+
 ## 参与贡献 / Contributing
 
 本项目采用 **GitHub Flow**，所有变更通过「Issue → 分支 → PR → 评审 → CI」流程合入，`main` 分支受保护。详见 [CONTRIBUTING.md](CONTRIBUTING.md)。
