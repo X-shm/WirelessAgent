@@ -13,13 +13,20 @@ class ProtocolScopeTests(unittest.TestCase):
         cases = [
             ("Explain network slicing in TS 23.501.", []),
             ("Does TS 23.501 only describe slicing?", []),
+            ("Explain clause 4.2.2 of TS 29.512.", []),
+            ("Explain TS 29.512 4.2.2.", []),
             ("Explain slicing using only 3GPP TS 23.501.", [("23.501", None, None)]),
             ("Use TS 23.501 only.", [("23.501", None, None)]),
             ("只用 TS 23.501 和 TS 23.502", [("23.501", None, None), ("23.502", None, None)]),
+            ("Use only TS 29.512 and TS 23.501 19.9.0.", [("29.512", None, None), ("23.501", None, "19.9.0")]),
             ("只用 TS 29.512 的 Rel-17 v17.6.0", [("29.512", 17, "17.6.0")]),
             ("Use TS 29.512 (Release 17, v17.6.0) only.", [("29.512", 17, "17.6.0")]),
             ("Compare TS 29.512 v17.6.0 and v19.7.0.", [("29.512", None, "17.6.0"), ("29.512", None, "19.7.0")]),
+            ("Compare TS 29.512 v17.6.0 with 99.9.9.", [("29.512", None, "17.6.0"), ("29.512", None, "99.9.9")]),
+            ("Use only TS 29.512 19.7.0.", [("29.512", None, "19.7.0")]),
+            ("Use TS 29.512 19.7.0 only.", [("29.512", None, "19.7.0")]),
             ("Compare Release 17 and Release 19 of TS 29.512.", [("29.512", 17, None), ("29.512", 19, None)]),
+            ("Use only Rel-19 for TS 29.512.", [("29.512", 19, None)]),
             ("Use only Release 19.", [(None, 19, None)]),
         ]
         for question, expected in cases:
@@ -28,6 +35,18 @@ class ProtocolScopeTests(unittest.TestCase):
                     {"spec": f"3GPP TS {spec}" if spec else None, "release": release, "version": version}
                     for spec, release, version in expected
                 ])
+
+    def test_explicit_exclusions_are_not_includes(self):
+        excluded = {"spec": "3GPP TS 29.512", "release": None, "version": "19.7.0", "exclude": True}
+        included = {"spec": "3GPP TS 29.512", "release": None, "version": None}
+        self.assertEqual(requested_protocol_scope("Do not use TS 29.512 v19.7.0."), [excluded])
+        self.assertEqual(requested_protocol_scope("Use only TS 29.512, not TS 29.512 v19.7.0."), [included, excluded])
+        self.assertEqual(requested_protocol_scope("Exclude Rel-19 of TS 29.512."), [
+            {"spec": "3GPP TS 29.512", "release": 19, "version": None, "exclude": True},
+        ])
+        self.assertEqual(requested_protocol_scope("Do not use Release 19."), [
+            {"spec": None, "release": 19, "version": None, "exclude": True},
+        ])
 
 
 class ProtocolRetrievalTests(unittest.IsolatedAsyncioTestCase):
@@ -144,6 +163,8 @@ class ProtocolRetrievalTests(unittest.IsolatedAsyncioTestCase):
             ("Explain TS 29.512 Rel-17.", ["TS29512-V17.6.0"], self.ids[:20]),
             ("Compare TS 29.512 v17.6.0 and v19.7.0.",
              ["TS29512-V17.6.0", "TS29512-V19.7.0"], self.ids[:40]),
+            ("Use only TS 29.512, not TS 29.512 v19.7.0.", ["TS29512-V17.6.0"], self.ids[:20]),
+            ("Do not use TS 29.512 v19.7.0.", ["TS23501-V19.9.0", "TS29512-V17.6.0"], self.ids[:20] + self.ids[40:]),
         ]
         for query, documents, allowed_chunks in cases:
             with self.subTest(query=query):
@@ -175,5 +196,12 @@ class ProtocolRetrievalTests(unittest.IsolatedAsyncioTestCase):
 
         async with httpx.AsyncClient(transport=httpx.MockTransport(Mock(side_effect=AssertionError))) as http:
             with self.assertRaises(ProtocolScopeUnavailable):
-                await self.retriever.search("Compare TS 29.512 v17.6.0 and v99.9.9.", http, "test-key", step=step)
+                await self.retriever.search("Compare TS 29.512 v17.6.0 with 99.9.9.", http, "test-key", step=step)
+        self.collection.query.assert_not_called()
+
+    async def test_empty_included_scope_does_not_fall_back_after_exclusion(self):
+        self.use_multiple_protocols()
+        async with httpx.AsyncClient(transport=httpx.MockTransport(Mock(side_effect=AssertionError))) as http:
+            with self.assertRaises(ProtocolScopeUnavailable):
+                await self.retriever.search("Use only TS 23.501, not TS 23.501.", http, "test-key")
         self.collection.query.assert_not_called()

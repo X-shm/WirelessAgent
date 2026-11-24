@@ -34433,7 +34433,7 @@ function _A() {
                 unknown: "服务未确认处理结果，继续可能重新调用模型。",
                 context_limit: "生成上下文过长，请缩短问题或减少附件。",
                 configuration_changed: "检索配置已更新，请重新发送问题。",
-                scope_unavailable: "指定的规范或版本未入库，请调整范围后重新发送。",
+                scope_unavailable: "无法满足指定的规范或版本范围，请调整后重新发送。",
               }[data.error_kind] || notice || "");
               setCanRetry(Boolean(data.retryable));
               if (!data.retryable) {

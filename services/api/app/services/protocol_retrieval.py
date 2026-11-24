@@ -89,20 +89,29 @@ class ProtocolRetriever:
             raise ValueError("Protocol collection changed while loading BM25")
 
     async def _scope(self, requested, document_id):
+        available = set(self.document_metadata)
+        if document_id:
+            available.intersection_update([document_id])
         allowed_ids = set()
+        excluded_ids = set()
         missing = []
         for selector in requested:
             matches = {
                 candidate_id for candidate_id, (spec, release, version) in self.document_metadata.items()
-                if (not document_id or document_id == candidate_id)
+                if candidate_id in available
                 and (selector["spec"] is None or spec == selector["spec"])
                 and (selector["release"] is None or release == str(selector["release"]))
                 and (selector["version"] is None or version == selector["version"])
             }
+            if selector.get("exclude"):
+                excluded_ids.update(matches)
+                continue
             if not matches:
                 missing.append(selector)
             allowed_ids.update(matches)
-        return {"requested": requested, "document_ids": sorted(allowed_ids), "missing": missing}
+        if all(selector.get("exclude") for selector in requested):
+            allowed_ids = available
+        return {"requested": requested, "document_ids": sorted(allowed_ids - excluded_ids), "missing": missing}
 
     def _dense(self, vector, document_ids):
         hits = dense_protocol_search(self.collection, vector, top_k=DENSE_TOP_K, document_ids=document_ids, include_content=False)
@@ -146,7 +155,7 @@ class ProtocolRetriever:
         document_ids = (document_id,) if document_id else ()
         if requested:
             scope = await step("scope", partial(self._scope, requested, document_id))
-            if scope["missing"]:
+            if scope["missing"] or not scope["document_ids"]:
                 raise ProtocolScopeUnavailable()
             document_ids = tuple(scope["document_ids"])
         vector = await step("embedding", partial(embed_protocol_query, query, http, api_key), remote=True)
