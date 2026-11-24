@@ -61,8 +61,8 @@ code/
 │   │   ├── config.py          # Pydantic Settings
 │   │   ├── database.py        # SQLAlchemy async engine
 │   │   ├── models/            # User, Session, Message, Feedback
-│   │   ├── routes/            # auth, chat(SSE), session, file, rag
-│   │   ├── services/          # openclaw_client, rag_service, chroma_service
+│   │   ├── routes/            # auth, chat(SSE), session, file
+│   │   ├── services/          # openclaw_client, protocol_retrieval, chroma_service
 │   │   └── middleware/        # auth (JWT)
 │   └── chroma_data/           # ChromaDB 向量库
 └── skills/                    # OpenClaw skills 符号链接

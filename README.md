@@ -15,7 +15,7 @@ WirelessAgent 是一个面向无线通信研究者的垂直 AI Agent 平台，�
 | 模块 | 说明 |
 |---|---|
 | 习题解答 | 通信计算题分步解答、知识点延伸与错题本 |
-| 标准检索 | 3GPP / IEEE 文档 RAG 检索 |
+| 标准检索 | 3GPP 协议检索与官方 PDF 引用 |
 | 论文速递 / Agent2Paper | 论文抓取、摘要生成与虚拟作者问答 |
 | 网规辅助 | 链路预算 → SINR 热图 |
 | 报告生成 | 结构化报告导出 |
@@ -39,6 +39,8 @@ WirelessAgent 是一个面向无线通信研究者的垂直 AI Agent 平台，�
 在后端工作目录安装 `requirements-app.txt` 中的依赖。服务器发布后该文件位于 `backend/requirements.txt`。将向量包、证据 JSONL 和 PDF 资产放在外部数据目录，在 `wireless-agent` 服务环境设置 `DASHSCOPE_API_KEY`。
 
 网页选择「默认模型」时，后端使用服务端的 `OPENCLAW_API_KEY` 连接生成网关。用户只有选择「自定义配置」时才需要填写自己的生成服务接口地址、API Key 和模型名。标准检索的 Qwen 向量编码和重排始终使用服务端的 DashScope Key。
+
+旧版 BGE 知识库的 `/api/rag/search` 和 `/api/rag/reindex` 接口已下线。服务器的旧 `.env` 仍可包含 `EMBEDDING_MODEL`，升级后可移除该行。
 
 从后端工作目录导入索引，使 `--chroma-dir` 与 `CHROMA_PERSIST_DIR` 一致（默认 `./chroma_data`）。`--pdf-root` 是 PDF manifest 中 `pdf_path` 的基准目录。向运行环境的本地 Chroma 目录导入前先停止访问该目录的服务。完整导入并核对 Chunk ID 后才更新活动清单。导入中断可用同一条命令继续，旧集合须保留到相关请求的续跑窗口结束。
 

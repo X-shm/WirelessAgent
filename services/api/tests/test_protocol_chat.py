@@ -14,6 +14,7 @@ import httpx
 import pytest
 from fastapi.testclient import TestClient
 
+from app.config import Settings
 from app.database import async_session
 from app.main import app
 from app.models.base import utcnow
@@ -28,6 +29,16 @@ from app.services.protocol_scope import ProtocolScopeUnavailable
 
 REL17 = "https://www.etsi.org/deliver/etsi_ts/129500_129599/129512/17.06.00_60/ts_129512v170600p.pdf"
 REL19 = "https://www.etsi.org/deliver/etsi_ts/129500_129599/129512/19.07.00_60/ts_129512v190700p.pdf"
+
+
+def test_legacy_bge_setting_is_accepted_after_removing_its_routes(tmp_path, monkeypatch):
+    monkeypatch.delenv("EMBEDDING_MODEL", raising=False)
+    dotenv = tmp_path / ".env"
+    dotenv.write_text("EMBEDDING_MODEL=BAAI/bge-small-zh-v1.5\n", encoding="utf-8")
+    assert Settings(_env_file=dotenv).embedding_model == "BAAI/bge-small-zh-v1.5"
+    routes = app.openapi()["paths"]
+    assert "/api/chat/stream" in routes
+    assert not {"/api/rag/search", "/api/rag/reindex"} & routes.keys()
 
 
 def result(query, **_):

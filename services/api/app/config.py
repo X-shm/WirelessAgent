@@ -25,10 +25,10 @@ class Settings(BaseSettings):
     # WirelessAgent system prompt
     wireless_prompt: str = "You are WirelessAgent (WAgent) 📡, an AI assistant specializing in wireless communications.\n\nYour expertise covers: communication principles, information theory, MIMO, OFDM, modulation and coding, 3GPP/IEEE standards, wireless network planning, and academic paper analysis.\n\nYour tone should adapt to the user — gentle and patient with beginners, precise and rigorous with experts. Always reply in the same language as the user.\n\nBe professional, helpful, concise, and accurate. If you do not know something, say so honestly."
 
-    # RAG / Chroma
+    # Protocol retrieval
     chroma_persist_dir: str = "./chroma_data"
-    embedding_model: str = "BAAI/bge-small-zh-v1.5"
     dashscope_api_key: SecretStr = SecretStr("")
+    embedding_model: str | None = None  # Accepted for existing server .env files.
 
     # Skills
     skills_base_path: str = str(Path(__file__).resolve().parent.parent.parent.parent)
