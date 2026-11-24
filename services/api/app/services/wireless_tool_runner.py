@@ -17,8 +17,9 @@ from typing import Any
 
 from app.config import settings
 
-# 5G Toolbox 工具名均以 nr_ 开头
+# 5G Toolbox 工具名均以 nr_ 开头；链路工作流工具 product 为 WirelessAgent Workflow
 NR_PREFIX = "nr_"
+WORKFLOW_PRODUCT = "WirelessAgent Workflow"
 MAX_OUTPUT_BYTES = 1_000_000
 SUPPORTED_TYPES = {"string", "integer", "number", "boolean", "enum", "float"}
 
@@ -116,11 +117,14 @@ def _input_schema(
     return schema
 
 
-def load_nr_catalog() -> dict[str, WirelessToolSpec]:
-    """加载 5G NR（nr_*）工具目录。"""
+def load_wireless_catalog() -> dict[str, WirelessToolSpec]:
+    """加载 5G NR（nr_*）与链路工作流（WirelessAgent Workflow）工具目录。"""
     root = _wireless_root()
     registry = json.loads((root / "tool_registry.json").read_text(encoding="utf-8"))
-    entries = [item for item in registry["tools"] if item["name"].startswith(NR_PREFIX)]
+    entries = [
+        item for item in registry["tools"]
+        if item["name"].startswith(NR_PREFIX) or item.get("product") == WORKFLOW_PRODUCT
+    ]
 
     catalog: dict[str, WirelessToolSpec] = {}
     for entry in entries:

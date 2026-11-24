@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from app.services.wireless_tool_runner import WirelessToolSpec, load_nr_catalog
+from app.services.wireless_tool_runner import WirelessToolSpec, load_wireless_catalog
 
 _pool: dict[str, WirelessToolSpec] | None = None
 
@@ -11,7 +11,7 @@ _pool: dict[str, WirelessToolSpec] | None = None
 def _ensure_loaded() -> dict[str, WirelessToolSpec]:
     global _pool
     if _pool is None:
-        _pool = load_nr_catalog()
+        _pool = load_wireless_catalog()
     return _pool
 
 
@@ -28,7 +28,7 @@ def wireless_directory_prompt() -> str:
     pool = _ensure_loaded()
     if not pool:
         return ""
-    lines = ["可用无线工具（5G NR）："]
+    lines = ["可用无线工具（5G NR + 链路工作流）："]
     for spec in pool.values():
         desc = " ".join(spec.description.split())
         lines.append(f"- {spec.name}: {desc}")
