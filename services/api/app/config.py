@@ -21,6 +21,10 @@ class Settings(BaseSettings):
     openclaw_api_key: str
     openclaw_model: str = "openclaw/default"
 
+    # 模型池（智能路由）：每个元素 {name, base_url, api_key, model, tags, priority}
+    # 空列表 = 仅用默认 OpenClaw 单模型；配置后按 mode/tool 标签路由并支持失败降级
+    model_pool: list[dict] = []
+
     # WirelessAgent system prompt
     wireless_prompt: str = "You are WirelessAgent (WAgent) 📡, an AI assistant specializing in wireless communications.\n\nYour expertise covers: communication principles, information theory, MIMO, OFDM, modulation and coding, 3GPP/IEEE standards, wireless network planning, and academic paper analysis.\n\nYour tone should adapt to the user — gentle and patient with beginners, precise and rigorous with experts. Always reply in the same language as the user.\n\nBe professional, helpful, concise, and accurate. If you do not know something, say so honestly."
 
@@ -30,6 +34,16 @@ class Settings(BaseSettings):
 
     # Skills
     skills_base_path: str = str(Path(__file__).resolve().parent.parent.parent.parent)
+    agent_skills_dir: str = str(Path(__file__).resolve().parent.parent / "skills")
+
+    # 无线工具（5G NR CLI）
+    wireless_tools_dir: str = str(Path(__file__).resolve().parents[3] / "packages" / "wireless_tools")
+    wireless_tool_timeout: float = 30
+
+    # Agent 编排
+    agent_max_tool_rounds: int = 5
+    agent_tool_timeout: float = 30
+    memory_top_k: int = 10
 
     # arXiv paper digest
     arxiv_digest_dir: str = str(
