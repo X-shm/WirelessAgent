@@ -10123,7 +10123,7 @@ var Gd;
     (e.UseFetchers = "useFetchers"),
     (e.UseScrollRestoration = "useScrollRestoration"));
 })(Gd || (Gd = {}));
-import { chatEvents, citationHref, protocolModelKey } from "./protocol-chat.js?v=2";
+import { chatEvents, citationHref, citationLocationLabel, protocolModelKey } from "./protocol-chat.js?v=3";
 
 const Hs = "/api";
 function js() {
@@ -33900,9 +33900,9 @@ function cp({ role: e, content: t, isStreaming: n, onPreview, protocolSearch, ci
                 if (!href) return null;
                 const label = `${source.spec} Rel-${source.release} v${source.version}` +
                   (source.clause ? ` · Clause ${source.clause}` : "") +
-                  (source.pdf_page_start ? ` · PDF 第 ${source.pdf_page_start} 页` : "") +
+                  (" · " + citationLocationLabel(source)) +
                   (source.authority === "derived_index" ? " · 派生索引" : "");
-                return T.jsxs("li", { children: [ `〔${source.marker}〕 `, T.jsx("a", { href, target: "_blank", rel: "noopener noreferrer", className: "protocol-pdf-link", children: label }) ] }, source.chunk_id);
+                return T.jsxs("li", { children: [ `〔${source.marker}〕 `, T.jsx("a", { href, target: "_blank", rel: "noopener noreferrer", className: "protocol-pdf-link", children: label }) ] }, source.marker);
               }),
             })],
           }),

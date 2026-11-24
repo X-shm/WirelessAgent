@@ -29,7 +29,7 @@ def main():
             parser.exit(1, "Standard search preflight failed: DASHSCOPE_API_KEY is missing\n")
         collection = open_protocol_index(chroma.client)
         if collection.metadata.get("source_metadata_version") != SOURCE_METADATA_VERSION:
-            parser.exit(1, "Standard search preflight failed: reimport the protocol index with section paths\n")
+            parser.exit(1, "Standard search preflight failed: reimport the protocol index with the current importer\n")
     except Exception as error:
         parser.exit(1, f"Standard search preflight failed ({type(error).__name__})\n")
     print(f"Standard search preflight passed: {collection.name}, {collection.count()} chunks")

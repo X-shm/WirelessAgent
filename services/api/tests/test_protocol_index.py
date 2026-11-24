@@ -5,11 +5,13 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 import chromadb
+import fitz
 import httpx
 import numpy as np
 from chromadb.api.models.Collection import Collection
 
 from services.api.app.services import protocol_index as index
+from services.api.app.services.protocol_locations import ProtocolPdfLocations
 
 
 class ProtocolIndexTests(unittest.IsolatedAsyncioTestCase):
@@ -24,7 +26,9 @@ class ProtocolIndexTests(unittest.IsolatedAsyncioTestCase):
         self.vectors = np.eye(2, index.DIMENSION, dtype=np.float32)
         self.official_url = "https://www.etsi.org/deliver/etsi_ts/129500_129599/129512/17.06.00_60/ts_129512v170600p.pdf"
         pdf = self.root / "standard.pdf"
-        pdf.write_bytes(b"fixture for checking the PDF digest")
+        with fitz.open() as document:
+            document.new_page().insert_text((72, 72), "Passage 2")
+            document.save(pdf)
         self.write_json(self.pdf_manifest, {"documents": [{
             **self.document, "official_url": self.official_url, "pdf_path": pdf.name, "sha256": index._sha256(pdf),
         }]})
@@ -34,7 +38,7 @@ class ProtocolIndexTests(unittest.IsolatedAsyncioTestCase):
             "text": f"Passage {number}",
             "content_type": "terminology_index" if number == 1 else "prose",
             "metadata": {"release": "17", "authority": "derived_index"} if number == 1 else
-            {"clause": "2", "release": "17", "pdf_page_start": 12,
+            {"clause": "2", "release": "17", "pdf_page_start": 1,
              "clause_path": ["Service", "Create operation", "Association establishment"]},
         }) for number, chunk_id in enumerate(self.ids, 1)), encoding="utf-8")
         self.source_digest = index._sha256(source)
@@ -71,6 +75,7 @@ class ProtocolIndexTests(unittest.IsolatedAsyncioTestCase):
         terminology = collection.get(ids=["chunk-1"], include=["metadatas"])["metadatas"][0]
         self.assertEqual(terminology["authority"], "derived_index")
         self.assertNotIn("clause", terminology)
+        self.assertEqual(terminology["citation_location"], "document")
 
         def embed(request):
             self.assertEqual(json.loads(request.content), {
@@ -88,8 +93,9 @@ class ProtocolIndexTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(hits[0]["chunk_id"], "chunk-2")
         self.assertEqual(hits[0]["text"], "Passage 2")
         self.assertEqual(hits[0]["metadata"], {
-            **self.document, "content_type": "prose", "official_url": self.official_url, "clause": "2", "pdf_page_start": 12,
-            "section_path": "Create operation > Association establishment",
+            **self.document, "content_type": "prose", "official_url": self.official_url, "clause": "2", "pdf_page_start": 1,
+            "section_path": "Create operation > Association establishment", "citation_location": "clause",
+            "citation_spans": "[[1, 9]]",
         })
         self.assertAlmostEqual(hits[0]["distance"], 0)
 
@@ -164,3 +170,74 @@ class ProtocolIndexTests(unittest.IsolatedAsyncioTestCase):
         )
         client.create_collection.assert_not_called()
         client.get_or_create_collection.assert_not_called()
+
+    def test_legacy_evidence_resolves_to_unique_pages_inside_the_clause(self):
+        first = "On success, the PCF returns a Location header identifying the newly created Individual SM Policy resource."
+        second = "For an unknown user, the PCF rejects the creation request with the USER_UNKNOWN cause."
+        text = f"Step 2. {first}\n{second}"
+        row = {"text": text, "content_type": "procedure_step", "metadata": {
+            "clause": "4.2.2.2", "authority": "authoritative_pdf", "pdf_page_start": 1, "pdf_page_end": 3,
+        }}
+        with fitz.open() as pdf:
+            pdf.new_page().insert_text((72, 72), "Association establishment")
+            pdf.new_page(width=850).insert_text((72, 72), "2. " + first)
+            pdf.new_page(width=850).insert_text((72, 72), second)
+            result = ProtocolPdfLocations(pdf, "digest").metadata_for(row)
+            self.assertEqual(result["citation_location"], "evidence")
+            self.assertEqual(json.loads(result["citation_spans"]), [[2, len("Step 2. " + first)], [3, len(text)]])
+            pdf.new_page(width=850).insert_text((72, 72), first)
+            pdf.new_page(width=850).insert_text((72, 72), second)
+            row["metadata"]["pdf_page_end"] = 5
+            self.assertEqual(ProtocolPdfLocations(pdf, "digest").metadata_for(row)["citation_location"], "clause")
+
+    def test_verified_source_spans_handle_a_page_with_no_extracted_text(self):
+        text = "Success\n\n\n\nFailure"
+        row = {"text": text, "content_type": "prose", "metadata": {
+            "source_sha256": "digest", "pdf_page_start": 1, "pdf_page_end": 3,
+            "source_spans": [
+                {"pdf_page": 1, "char_start": 3, "char_end": 10},
+                {"pdf_page": 3, "char_start": 0, "char_end": 7},
+            ],
+        }}
+        with fitz.open() as pdf:
+            pdf.new_page().insert_text((72, 72), "a: Success")
+            pdf.new_page()
+            pdf.new_page().insert_text((72, 72), "Failure")
+            locations = ProtocolPdfLocations(pdf, "digest")
+            self.assertEqual(locations.metadata_for(row), {"citation_location": "evidence", "citation_spans": "[[1, 11], [3, 18]]"})
+            row["metadata"]["source_sha256"] = "wrong-edition"
+            self.assertEqual(locations.metadata_for(row), {"citation_location": "document"})
+            row["metadata"].update(source_sha256="digest", pdf_page_end=4)
+            self.assertEqual(locations.metadata_for(row), {"citation_location": "document"})
+
+    def test_declared_source_spans_reject_out_of_bounds_and_wrong_text(self):
+        with fitz.open() as pdf:
+            page = pdf.new_page()
+            page.insert_text((72, 72), "3GPP TS 29.512 Release 19 ETSI TS 129 512")
+            page.insert_text((72, 90), "Success Failure")
+            page.insert_text((72, 755), "ETSI")
+            locations = ProtocolPdfLocations(pdf, "digest")
+            row = {"text": "Success", "content_type": "prose", "metadata": {
+                "source_sha256": "digest", "pdf_page_start": 1, "pdf_page_end": 1,
+                "source_spans": [{"pdf_page": 1, "char_start": 0, "char_end": 7}],
+            }}
+            self.assertEqual(locations.metadata_for(row), {"citation_location": "evidence", "citation_spans": "[[1, 7]]"})
+            for start in (8, 100000):
+                with self.subTest(start=start):
+                    row["metadata"]["source_spans"][0].update(char_start=start, char_end=start + 7)
+                    self.assertEqual(locations.metadata_for(row), {"citation_location": "document"})
+
+    def test_short_legacy_evidence_requires_a_unique_whole_match(self):
+        text = "dynamic ADC Rule: an ADC rule, for which the PCRF can provide and modify parameters"
+        row = {"text": text, "content_type": "definition", "metadata": {
+            "clause": "3.1", "authority": "authoritative_pdf", "pdf_page_start": 1, "pdf_page_end": 2,
+        }}
+        with fitz.open() as pdf:
+            pdf.new_page().insert_text((72, 72), "Definitions")
+            pdf.new_page(width=850).insert_text((72, 72), text)
+            unique = ProtocolPdfLocations(pdf, "digest").metadata_for(row)
+            self.assertEqual(unique, {"citation_location": "evidence", "citation_spans": json.dumps([[2, len(text)]])})
+            pdf[0].insert_text((72, 90), text)
+            self.assertEqual(ProtocolPdfLocations(pdf, "digest").metadata_for(row)["citation_location"], "clause")
+            row["text"] = "efinition"
+            self.assertEqual(ProtocolPdfLocations(pdf, "digest").metadata_for(row)["citation_location"], "clause")

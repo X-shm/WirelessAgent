@@ -135,6 +135,41 @@ def test_standard_answer_citations_and_export(conversation, monkeypatch):
     assert legacy_export.status_code == 200 and "test@example.org" not in legacy_export.text
 
 
+def test_cross_page_chunk_has_separate_page_citations(conversation, monkeypatch):
+    first = "201 Created and a Location header.\n"
+    second = "400 Bad Request with USER_UNKNOWN."
+
+    async def retrieve(query, **kwargs):
+        retrieved = await ranked_fixture(query, **kwargs)
+        chunk = retrieved["evidence"][0]
+        chunk["text"] = first + second
+        chunk["metadata"].update(
+            citation_location="evidence",
+            citation_spans=json.dumps([[32, len(first)], [33, len(first + second)]]),
+        )
+        return retrieved
+
+    async def generate(_, **kwargs):
+        context = json.loads(kwargs["system_prompt"].rsplit("\n", 1)[-1])
+        assert [(row["citation"], row.get("pdf_page_start"), row["text"]) for row in context] == [
+            ("S1", 32, first), ("S2", 33, second), ("S3", None, "Release 19 evidence."),
+        ]
+        yield "An unknown user gets a 400 response [S2]."
+
+    monkeypatch.setattr(protocol_run, "retrieve_protocol_evidence", retrieve)
+    monkeypatch.setattr(chat.openclaw, "chat_stream", generate)
+    events = send(conversation)
+    done = events[-1]
+    assert done["status"] == "complete"
+    citation, = done["citations"]
+    assert (citation["marker"], citation["chunk_id"], citation["url"], citation["pdf_page_start"]) == (
+        "S2", "r17", REL17, 33,
+    )
+    assert citation["citation_location"] == "evidence"
+    log = conversation[0].portal.call(read_log, done["request_id"])
+    assert log["retrieval"]["context_chunk_ids"] == ["r17", "r19"]
+
+
 def test_search_failure_saves_partial_trace_without_calling_generation(conversation, monkeypatch):
     async def rerank():
         raise httpx.ReadTimeout("provider outcome unknown")

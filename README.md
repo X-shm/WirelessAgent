@@ -46,7 +46,9 @@ WirelessAgent 是一个面向无线通信研究者的垂直 AI Agent 平台，�
 python -m app.services.protocol_index --vectors-dir "$VECTORS_DIR" --evidence-dir "$EVIDENCE_DIR" --pdf-root "$PDF_ROOT" --pdf-manifest "$PDF_MANIFEST" --chroma-dir ./chroma_data
 ```
 
-章节路径参与 BM25 和重排。升级时用本版本的导入器和同一批 NPZ、JSONL 建立新集合，部署预检会核对索引的来源元数据版本。Dense 继续使用预计算向量，引用和生成上下文使用原始 Chunk 正文。
+章节路径参与 BM25 和重排。上线页码追溯前，用本版本的导入器和同一批 NPZ、JSONL 建立来源元数据 v3 的集合。部署预检会核对该版本。Dense 继续使用预计算向量。
+
+导入时会核对原文的页内字符范围和正文。旧语料可通过条款范围内的唯一完整匹配定位证据页。跨页 Chunk 在生成上下文中按页标注，检索仍使用原 Chunk。若只能定位到条款起始页，网页会标注「条款起始页」；没有可核实的页码时，打开同版本官方 PDF。
 
 可用「只用 TS 23.501」「TS 29.512 Rel-17」或「对比 TS 29.512 v17.6.0 和 v19.7.0」指定证据范围。Dense 和 BM25 先按文档范围过滤，再取候选。请求日志记录解析结果及有效文档 ID。任一指定范围未入库时，页面会提示调整范围。
 

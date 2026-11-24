@@ -27,6 +27,20 @@ export function protocolModelKey(record, modelList) {
   return chosen?.apiKey?.trim() || null;
 }
 
+function citationPage(source) {
+  const page = source.pdf_page_start;
+  return source.citation_location !== "document" && Number.isInteger(page) && page > 0 ? page : null;
+}
+
+export function citationLocationLabel(source) {
+  const page = citationPage(source);
+  if (page === null) return "同版本 PDF";
+  const formatted = "PDF 第 " + page + " 页";
+  if (source.citation_location === "clause") return "条款起始页（" + formatted + "）";
+  if (source.citation_location === "figure") return "图示所在页（" + formatted + "）";
+  return formatted;
+}
+
 export function citationHref(source) {
   const spec = /^3GPP TS (\d{2})\.(\d{3})$/.exec(source.spec);
   const version = /^(\d{1,2})\.(\d{1,2})\.(\d{1,2})$/.exec(source.version);
@@ -38,7 +52,8 @@ export function citationHref(source) {
     const parts = version.slice(1).map((part) => part.padStart(2, "0"));
     const pattern = new RegExp(`^/deliver/etsi_ts/${series}00_${series}99/${number}/${parts.join("\\.")}_\\d+/ts_${number}v${parts.join("")}p\\.pdf$`);
     if (url.origin !== "https://www.etsi.org" || url.username || url.password || url.search || url.hash || !pattern.test(url.pathname)) return null;
-    if (Number.isInteger(source.pdf_page_start) && source.pdf_page_start > 0) url.hash = `page=${source.pdf_page_start}`;
+    const page = citationPage(source);
+    if (page !== null) url.hash = "page=" + page;
     return url.href;
   } catch {
     return null;

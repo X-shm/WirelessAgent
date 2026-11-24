@@ -11,6 +11,8 @@ from pathlib import Path
 import httpx
 import numpy as np
 
+from .protocol_locations import ProtocolPdfLocations
+
 
 MODEL = "qwen3.7-text-embedding"
 DIMENSION = 1024
@@ -18,7 +20,7 @@ COLLECTION = "3gpp_protocol_qwen_v1"
 ACTIVE_INDEX = "active_protocol_index.json"
 EMBEDDINGS_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/embeddings"
 INDEX_METADATA = {"embedding_model": MODEL, "dimension": DIMENSION, "hnsw:space": "cosine"}
-SOURCE_METADATA_VERSION = 2
+SOURCE_METADATA_VERSION = 3
 DOCUMENT_FIELDS = ("document_id", "spec", "release", "version")
 SOURCE_FIELDS = ("clause", "authority", "pdf_page_start", "pdf_page_end", "printed_page_start", "printed_page_end")
 
@@ -61,7 +63,9 @@ def _valid_vectors(matrix: np.ndarray, rows: int) -> bool:
     )
 
 
-def _load_document(vectors_dir, evidence_dir, pdf, entry, vector_entry):
+def _load_document(vectors_dir, evidence_dir, pdf, pdf_path, entry, vector_entry):
+    import fitz
+
     source = _checked_file(evidence_dir, entry["file"], entry["sha256"])
     if vector_entry["source_sha256"] != entry["sha256"] or vector_entry["records"] != entry["records"]:
         raise ValueError(f"Vector and JSONL manifests disagree: {source.name}")
@@ -86,6 +90,14 @@ def _load_document(vectors_dir, evidence_dir, pdf, entry, vector_entry):
     if any(identity[field] != pdf[field] for field in DOCUMENT_FIELDS):
         raise ValueError(f"PDF version mismatch: {source.name}")
     official_url = official_protocol_url(pdf)
+    with fitz.open(pdf_path) as document:
+        if pdf.get("page_count", len(document)) != len(document):
+            raise ValueError(f"PDF page count mismatch: {source.name}")
+        metadata = _document_metadata(rows, identity, official_url, ProtocolPdfLocations(document, pdf["sha256"]))
+    return ids, vectors, [row["text"] for row in rows], metadata
+
+
+def _document_metadata(rows, identity, official_url, locations):
     metadata = []
     for row in rows:
         source_metadata = row["metadata"]
@@ -103,8 +115,9 @@ def _load_document(vectors_dir, evidence_dir, pdf, entry, vector_entry):
             "official_url": official_url,
             **{field: source_metadata[field] for field in SOURCE_FIELDS if source_metadata.get(field) is not None},
             **({"section_path": section_path} if section_path else {}),
+            **locations.metadata_for(row),
         })
-    return ids, vectors, [row["text"] for row in rows], metadata
+    return metadata
 
 
 def _collection_names(client):
@@ -176,9 +189,9 @@ def import_protocol_index(chroma_dir, vectors_dir, evidence_dir, pdf_root, pdf_m
         seen_ids = set()
         for entry in selected:
             pdf = pdfs[entry["document_id"]]
-            _checked_file(pdf_root, pdf["pdf_path"], pdf["sha256"])
+            pdf_path = _checked_file(pdf_root, pdf["pdf_path"], pdf["sha256"])
             ids, vectors, texts, metadatas = _load_document(
-                vectors_dir, evidence_dir, pdf, entry, vector_files[Path(entry["file"]).stem]
+                vectors_dir, evidence_dir, pdf, pdf_path, entry, vector_files[Path(entry["file"]).stem]
             )
             if seen_ids.intersection(ids):
                 raise ValueError("Duplicate Chunk IDs across documents")

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { chatEvents, citationHref, protocolModelKey } from "../assets/protocol-chat.js";
+import { chatEvents, citationHref, citationLocationLabel, protocolModelKey } from "../assets/protocol-chat.js";
 
 const url = "https://www.etsi.org/deliver/etsi_ts/129500_129599/129512/19.07.00_60/ts_129512v190700p.pdf";
 const source = { spec: "3GPP TS 29.512", release: 19, version: "19.7.0", url };
@@ -47,4 +47,16 @@ test("only links official PDFs for the supplied specification and version", () =
   ]) {
     assert.equal(citationHref({ ...source, ...invalid }), null);
   }
+});
+
+test("labels evidence pages, clause fallback, and full PDF separately", () => {
+  const exact = { ...source, citation_location: "evidence", pdf_page_start: 33 };
+  const clause = { ...source, citation_location: "clause", pdf_page_start: 30 };
+  const whole = { ...source, citation_location: "document", pdf_page_start: 90 };
+  assert.equal(citationHref(exact), url + "#page=33");
+  assert.equal(citationLocationLabel(exact), "PDF 第 33 页");
+  assert.equal(citationHref(clause), url + "#page=30");
+  assert.equal(citationLocationLabel(clause), "条款起始页（PDF 第 30 页）");
+  assert.equal(citationHref(whole), url);
+  assert.equal(citationLocationLabel(whole), "同版本 PDF");
 });
