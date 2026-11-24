@@ -90,3 +90,13 @@ def test_resolve_refs():
     assert resolved["snr"] == 10
     # 未知引用保持原样
     assert _resolve_refs({"x": "$ref:nope"}, store) == {"x": "$ref:nope"}
+
+
+def test_catalog_missing_dir_graceful(monkeypatch):
+    from app.config import settings
+    import app.agent.tools.wireless as wmod
+
+    monkeypatch.setattr(settings, "wireless_tools_dir", "C:/nonexistent/path/xyz")
+    wmod._pool = None  # 清空缓存，触发重新加载
+    assert load_wireless_catalog() == {}
+    assert wmod.wireless_directory_prompt() == ""

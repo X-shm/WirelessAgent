@@ -120,9 +120,12 @@ def _input_schema(
 
 
 def load_wireless_catalog() -> dict[str, WirelessToolSpec]:
-    """加载 5G NR（nr_*）+ 链路工作流 + 通信工具目录。"""
+    """加载 5G NR（nr_*）+ 链路工作流 + 通信工具目录；目录缺失时返回空（编排层优雅降级）。"""
     root = _wireless_root()
-    registry = json.loads((root / "tool_registry.json").read_text(encoding="utf-8"))
+    registry_path = root / "tool_registry.json"
+    if not registry_path.is_file():
+        return {}
+    registry = json.loads(registry_path.read_text(encoding="utf-8"))
     entries = [
         item for item in registry["tools"]
         if item["name"].startswith(NR_PREFIX)
