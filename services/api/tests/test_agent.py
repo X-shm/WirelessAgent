@@ -218,3 +218,33 @@ def test_run_agent_wireless_tool(monkeypatch):
     assert res.answer == "调制完成。"
     assert res.tool_calls[0]["name"] == "nr_modulation"
     assert res.tool_calls[0]["result"]["modulation"] == "QPSK"
+
+
+def test_run_agent_data_ref(monkeypatch):
+    import json
+
+    from app.services.openclaw_client import openclaw
+
+    rounds = {"n": 0}
+
+    # 1000 个元素的加噪，输出 signal_real/imag 各 1000 个，序列化后远超阈值
+    signal = "[" + ",".join(["1"] * 1000) + "]"
+    tool_call = {"name": "awgn", "args": {"signal": signal, "snr": 10, "seed": 1}}
+
+    async def fake_chat(messages, system_prompt=None, user_id=None, **kwargs):
+        rounds["n"] += 1
+        if rounds["n"] == 1:
+            content = "<tool_call>\n" + json.dumps(tool_call) + "\n</tool_call>"
+            return {"choices": [{"message": {"content": content}}]}
+        return {"choices": [{"message": {"content": "加噪完成。"}}]}
+
+    monkeypatch.setattr(openclaw, "chat", fake_chat)
+
+    async def _run():
+        return await run_agent("u_agent_test", "s_agent_test", [{"role": "user", "content": "给 1000 个 1 加噪"}], mode="work")
+
+    res = asyncio.run(_run())
+    assert res.answer == "加噪完成。"
+    assert res.tool_calls[0]["name"] == "awgn"
+    # 大结果应存数据区，返回 $data_ref 引用而非完整数组
+    assert "$data_ref" in res.tool_calls[0]["result"]

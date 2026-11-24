@@ -57,3 +57,36 @@ def test_use_tool_hit_and_miss():
         assert "未知无线工具" in miss["error"]
 
     asyncio.run(_run())
+
+
+def test_run_awgn():
+    spec = load_wireless_catalog()["awgn"]
+    result = run_tool(spec, {"signal": "[1,1,1,1]", "snr": 10, "signal_power": "measured", "seed": 1}, timeout=30)
+    assert "signal_real" in result
+    assert "noise_variance" in result
+
+
+def test_run_biterr():
+    spec = load_wireless_catalog()["biterr"]
+    result = run_tool(spec, {"x": "[1,2,3]", "y": "[1,3,0]", "k": 2}, timeout=30)
+    assert result["num_errors"] == 3
+    assert "error_ratio" in result
+
+
+def test_run_stdin_tool():
+    spec = load_wireless_catalog()["nr_waveform_io"]
+    params = '{"grid":{"real":[[0],[0],[0],[0],[0],[0],[0],[0],[0],[0],[0],[0]]},"nfft":128}'
+    result = run_tool(spec, {"function": "nrWaveformGenerator", "params": params}, timeout=30)
+    assert result["function"] == "nrWaveformGenerator"
+    assert "result" in result
+
+
+def test_resolve_refs():
+    from app.agent.orchestrator import _resolve_refs
+
+    store = {"data_0": {"bits": [1, 0, 1]}}
+    resolved = _resolve_refs({"signal": "$ref:data_0", "snr": 10}, store)
+    assert resolved["signal"] == '{"bits": [1, 0, 1]}'
+    assert resolved["snr"] == 10
+    # 未知引用保持原样
+    assert _resolve_refs({"x": "$ref:nope"}, store) == {"x": "$ref:nope"}

@@ -20,6 +20,8 @@ from app.config import settings
 # 5G Toolbox 工具名均以 nr_ 开头；链路工作流工具 product 为 WirelessAgent Workflow
 NR_PREFIX = "nr_"
 WORKFLOW_PRODUCT = "WirelessAgent Workflow"
+# 链路仿真核心通信工具（加噪 / 误码 / 理论误码率 / SNR 换算 / Q 函数）
+COMM_TOOLS = {"awgn", "biterr", "symerr", "ber_awgn", "ber_fading", "fading_channel", "convert_snr", "q_function"}
 MAX_OUTPUT_BYTES = 1_000_000
 SUPPORTED_TYPES = {"string", "integer", "number", "boolean", "enum", "float"}
 
@@ -118,12 +120,14 @@ def _input_schema(
 
 
 def load_wireless_catalog() -> dict[str, WirelessToolSpec]:
-    """加载 5G NR（nr_*）与链路工作流（WirelessAgent Workflow）工具目录。"""
+    """加载 5G NR（nr_*）+ 链路工作流 + 通信工具目录。"""
     root = _wireless_root()
     registry = json.loads((root / "tool_registry.json").read_text(encoding="utf-8"))
     entries = [
         item for item in registry["tools"]
-        if item["name"].startswith(NR_PREFIX) or item.get("product") == WORKFLOW_PRODUCT
+        if item["name"].startswith(NR_PREFIX)
+        or item.get("product") == WORKFLOW_PRODUCT
+        or item["name"] in COMM_TOOLS
     ]
 
     catalog: dict[str, WirelessToolSpec] = {}
@@ -189,7 +193,16 @@ def run_tool(spec: WirelessToolSpec, arguments: dict[str, Any], timeout: float) 
         if isinstance(value, str) and "\x00" in value:
             return {"error": f"{name} contains a NUL character"}
 
-    args = [sys.executable, str(spec.script), *_cli_args(spec, arguments)]
+    # mcp_stdin 参数：值经 stdin 传入，命令行该参数传 "-"
+    stdin_fields = [name for name, field in spec.inputs.items() if field.get("mcp_stdin") and name in arguments]
+    cli_arguments = dict(arguments)
+    stdin_payload = None
+    if stdin_fields:
+        field_name = stdin_fields[0]
+        raw = arguments[field_name]
+        stdin_payload = raw if isinstance(raw, str) else json.dumps(raw, ensure_ascii=False)
+        cli_arguments[field_name] = "-"
+    args = [sys.executable, str(spec.script), *_cli_args(spec, cli_arguments)]
     env = os.environ.copy()
     env["PYTHONIOENCODING"] = "utf-8"
     try:
@@ -199,6 +212,7 @@ def run_tool(spec: WirelessToolSpec, arguments: dict[str, Any], timeout: float) 
             env=env,
             shell=False,
             capture_output=True,
+            input=stdin_payload,
             text=True,
             encoding="utf-8",
             errors="replace",

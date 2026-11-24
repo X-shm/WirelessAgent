@@ -15,6 +15,8 @@ from app.services.model_router import ModelSpec, model_router
 from app.services.wireless_tool_runner import run_tool
 
 TOOL_CALL_RE = re.compile(r"<tool_call>\s*(.*?)\s*</tool_call>", re.DOTALL)
+# 工具结果 JSON 超过该长度时存数据区并返回 $data_ref 引用，避免大数组塞进 LLM 上下文
+DATA_THRESHOLD = 4000
 
 
 @dataclass
@@ -67,6 +69,19 @@ def _extract_tool_calls(content: str) -> list[dict]:
         if isinstance(obj, dict) and obj.get("name"):
             calls.append({"name": obj["name"], "args": obj.get("args") or {}})
     return calls
+
+
+def _resolve_refs(args, data_store: dict):
+    """递归解析 args 里的 $ref:key 字符串引用，替换成 data_store 里的 JSON 字符串。"""
+    if isinstance(args, dict):
+        return {k: _resolve_refs(v, data_store) for k, v in args.items()}
+    if isinstance(args, list):
+        return [_resolve_refs(v, data_store) for v in args]
+    if isinstance(args, str) and args.startswith("$ref:"):
+        key = args[len("$ref:"):]
+        if key in data_store:
+            return json.dumps(data_store[key], ensure_ascii=False)
+    return args
 
 
 def _last_message(resp: dict) -> str:
@@ -125,6 +140,7 @@ async def run_agent(
     system_prompt = _build_system_prompt(reg, memory_block, base_system_prompt, skill_directory, wireless_directory)
 
     tool_calls: list[dict] = []
+    data_store: dict = {}
     candidates = model_router.resolve(mode, tool, model, api_base_url, api_key)
 
     for _ in range(settings.agent_max_tool_rounds):
@@ -137,7 +153,8 @@ async def run_agent(
 
         for call in calls:
             name = call["name"]
-            args = call.get("args", {}) or {}
+            raw_args = call.get("args", {}) or {}
+            args = _resolve_refs(raw_args, data_store)
             tool = reg.get(name)
             if tool is not None:
                 try:
@@ -153,7 +170,13 @@ async def run_agent(
                         result = {"error": f"工具执行失败: {e}"}
                 else:
                     result = {"error": f"未知工具 {name}"}
-            tool_calls.append({"name": name, "args": args, "result": result})
+            # 大结果存数据区，返回引用 + 摘要，避免大数组回填 LLM
+            result_str = json.dumps(result, ensure_ascii=False)
+            if len(result_str) > DATA_THRESHOLD:
+                key = f"data_{len(data_store)}"
+                data_store[key] = result
+                result = {"$data_ref": key, "size": len(result_str), "preview": result_str[:200]}
+            tool_calls.append({"name": name, "args": raw_args, "result": result})
             messages.append(
                 {"role": "assistant", "content": f"<tool_call>\n{json.dumps(call, ensure_ascii=False)}\n</tool_call>"}
             )
