@@ -13,6 +13,9 @@
   };
   const state = {
     token: localStorage.getItem(TOKEN_KEY),
+    user: loadJSON('user', { display_name: '游客', email: '' }),
+    avatarColor: localStorage.getItem('profile_avatar_color') || '#d65c2d',
+    attachments: { chat: [], work: [] },
     conversations: loadJSON(CONV_KEY, []),
     active: loadJSON(ACTIVE_KEY, { chat: null, work: null }),
     projects: loadJSON(PROJECT_KEY, []),
@@ -289,30 +292,75 @@
       list.innerHTML = '<div class="workspace-empty">资料库加载失败，请稍后重试</div>';
     }
   }
-  async function previewLibraryFile(file) {
+  async function openFilePreview(file, source = 'library') {
     try {
       await ensureToken();
-      const res = await fetch(API + '/library/files/' + file.id + '/content', { headers: { Authorization: 'Bearer ' + state.token } });
+      const base = source === 'library' ? '/library/files/' : '/files/';
+      const res = await fetch(API + base + file.id + '/content', { headers: { Authorization: 'Bearer ' + state.token } });
       if (!res.ok) throw new Error('预览失败');
       const blob = await res.blob();
+      const contentType = res.headers.get('Content-Type') || blob.type || '';
       const url = URL.createObjectURL(blob);
-      window.open(url, '_blank', 'noopener');
-      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      const backdrop = document.createElement('div');
+      backdrop.className = 'modal-backdrop open';
+      const modal = document.createElement('div');
+      modal.className = 'modal';
+      const head = document.createElement('div');
+      head.className = 'modal-head';
+      head.innerHTML = '<div><div class="settings-title">' + escapeHtml(file.filename || file.name) + '</div><p>文件预览</p></div>';
+      const close = document.createElement('button');
+      close.className = 'close-btn';
+      close.textContent = '×';
+      head.appendChild(close);
+      const body = document.createElement('div');
+      body.className = 'file-preview-body';
+      if (contentType.startsWith('image/')) {
+        const image = document.createElement('img');
+        image.src = url;
+        image.alt = file.filename || file.name;
+        body.appendChild(image);
+      } else if (contentType.includes('pdf') || (file.filename || '').toLowerCase().endsWith('.pdf')) {
+        const frame = document.createElement('iframe');
+        frame.src = url;
+        body.appendChild(frame);
+      } else if (contentType.startsWith('text/') || ['txt','md','json','csv'].includes(((file.filename || '').split('.').pop() || '').toLowerCase())) {
+        const pre = document.createElement('pre');
+        pre.textContent = await blob.text();
+        body.appendChild(pre);
+      } else {
+        body.innerHTML = '<div class="workspace-empty">该文件暂不支持内嵌预览，请下载后查看。</div>';
+      }
+      const actions = document.createElement('div');
+      actions.className = 'file-preview-actions';
+      const download = document.createElement('button');
+      download.className = 'primary-btn';
+      download.textContent = '下载文件';
+      download.addEventListener('click', () => downloadFile(file, source));
+      actions.appendChild(download);
+      modal.appendChild(head);
+      modal.appendChild(body);
+      modal.appendChild(actions);
+      backdrop.appendChild(modal);
+      document.body.appendChild(backdrop);
+      const closeModal = () => { URL.revokeObjectURL(url); backdrop.remove(); };
+      close.addEventListener('click', closeModal);
+      backdrop.addEventListener('click', event => { if (event.target === backdrop) closeModal(); });
     } catch (error) {
       console.error(error);
       alert('文件预览失败');
     }
   }
-  async function downloadLibraryFile(file) {
+  async function downloadFile(file, source = 'library') {
     try {
       await ensureToken();
-      const res = await fetch(API + '/library/files/' + file.id + '/download', { headers: { Authorization: 'Bearer ' + state.token } });
+      const base = source === 'library' ? '/library/files/' : '/files/';
+      const res = await fetch(API + base + file.id + '/download', { headers: { Authorization: 'Bearer ' + state.token } });
       if (!res.ok) throw new Error('下载失败');
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement('a');
       anchor.href = url;
-      anchor.download = file.filename;
+      anchor.download = file.filename || file.name || 'download';
       anchor.click();
       setTimeout(() => URL.revokeObjectURL(url), 10000);
     } catch (error) {
@@ -320,7 +368,9 @@
       alert('文件下载失败');
     }
   }
-  async function uploadLibraryFiles(files) {
+  function previewLibraryFile(file) { return openFilePreview(file, 'library'); }
+  function downloadLibraryFile(file) { return downloadFile(file, 'library'); }
+    async function uploadLibraryFiles(files) {
     if (!files.length) return;
     try {
       await ensureToken();
@@ -474,8 +524,30 @@
         meta.textContent = formatBytes(file.size) + ' · ' + formatTime(file.addedAt);
         info.appendChild(name);
         info.appendChild(meta);
+        const actions = document.createElement('div');
+        actions.className = 'file-actions';
+        const preview = document.createElement('button');
+        preview.className = 'text-btn';
+        preview.textContent = '预览';
+        preview.addEventListener('click', () => openFilePreview({ ...file, filename: file.name }, 'files'));
+        const download = document.createElement('button');
+        download.className = 'text-btn';
+        download.textContent = '下载';
+        download.addEventListener('click', () => downloadFile({ ...file, filename: file.name }, 'files'));
+        const remove = document.createElement('button');
+        remove.className = 'text-btn';
+        remove.textContent = '移除';
+        remove.addEventListener('click', () => {
+          selected.files = (selected.files || []).filter(item => item.id !== file.id);
+          saveProjects();
+          renderWorkspace();
+        });
+        actions.appendChild(preview);
+        actions.appendChild(download);
+        actions.appendChild(remove);
         row.appendChild(type);
         row.appendChild(info);
+        row.appendChild(actions);
         files.appendChild(row);
       });
     }
@@ -815,7 +887,47 @@
     localStorage.setItem(TOKEN_KEY, state.token);
     return state.token;
   }
-  async function loadProjectsFromServer() {
+  function tokenEmail() {
+    try {
+      const payload = state.token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      return JSON.parse(atob(payload)).email || '';
+    } catch (_) { return ''; }
+  }
+  function updateProfileUI() {
+    const name = state.user.display_name || '游客';
+    const initial = name.trim().slice(0, 1) || '游';
+    ['profileAvatar', 'settingsAvatar'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = initial; });
+    ['profileName', 'settingsDisplayName'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = name; });
+    const email = state.user.email || tokenEmail() || '';
+    if ($('#settingsEmail')) $('#settingsEmail').textContent = email || '未登录';
+    if ($('#profileNameInput')) $('#profileNameInput').value = name;
+    if ($('#profileAccountHint')) $('#profileAccountHint').textContent = state.token ? '当前账号信息可在此修改。' : '当前为游客模式，登录后可保存数据。';
+    $$('.profile-avatar').forEach(el => { el.style.background = state.avatarColor; });
+    $$('.avatar-color').forEach(btn => btn.classList.toggle('active', btn.dataset.avatarColor === state.avatarColor));
+  }
+  async function loadUserProfile() {
+    if (!state.token) {
+      state.user = { display_name: '游客', email: '' };
+      updateProfileUI();
+      return;
+    }
+    try {
+      const res = await fetch(API + '/auth/me', { headers: { Authorization: 'Bearer ' + state.token } });
+      if (res.ok) {
+        const data = await res.json();
+        state.user = { display_name: data.display_name || '用户', email: data.email || tokenEmail() };
+        localStorage.setItem('user', JSON.stringify(state.user));
+      } else {
+        const stored = loadJSON('user', null);
+        if (stored) state.user = { ...state.user, ...stored };
+        state.user.email = state.user.email || tokenEmail();
+      }
+    } catch (_) {
+      state.user.email = state.user.email || tokenEmail();
+    }
+    updateProfileUI();
+  }
+    async function loadProjectsFromServer() {
     await ensureToken();
     const res = await fetch(API + '/projects/', { headers: { Authorization: 'Bearer ' + state.token } });
     if (res.status === 401) { await ensureToken(true); return loadProjectsFromServer(); }
@@ -904,6 +1016,13 @@
     setActiveNav(name);
     const conversationView = name === 'chat' || name === 'work';
     if (name === 'papers') loadPapers($('#paperSearch')?.value || '');
+    if (name === 'api') {
+      const config = loadJSON('wa_api_config_v1', {});
+      if ($('#apiDisplayName')) $('#apiDisplayName').value = config.display_name || '';
+      if ($('#apiModel')) $('#apiModel').value = config.model || '';
+      if ($('#apiBaseUrl')) $('#apiBaseUrl').value = config.api_base_url || '';
+      if ($('#apiKey')) $('#apiKey').value = config.api_key || '';
+    }
     if (name === 'library') loadLibraryFiles();
     if (conversationView) {
       state.secondaryMode = name;
@@ -947,54 +1066,138 @@
     Object.values(modes).forEach(cfg => cfg.menu.classList.remove('open'));
     $$('.project-menu').forEach(menu => menu.classList.remove('open'));
   }
+  function openConversationSettings(mode) {
+    const conv = activeConversation(mode);
+    if (!conv) return;
+    const backdrop = document.createElement('div');
+    backdrop.className = 'modal-backdrop open';
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.style.width = 'min(380px, 100%)';
+    const head = document.createElement('div');
+    head.className = 'modal-head';
+    head.innerHTML = '<div><div class="settings-title">对话设置</div><p>' + escapeHtml(conv.title) + '</p></div>';
+    const close = document.createElement('button');
+    close.className = 'close-btn';
+    close.textContent = '×';
+    head.appendChild(close);
+    const actions = document.createElement('div');
+    actions.className = 'settings-nav';
+    actions.style.marginTop = '16px';
+    const edit = document.createElement('button');
+    edit.textContent = '编辑对话';
+    const pin = document.createElement('button');
+    pin.textContent = conv.pinned ? '取消置顶' : '置顶';
+    const remove = document.createElement('button');
+    remove.textContent = '删除';
+    remove.style.color = '#b94b45';
+    actions.appendChild(edit);
+    actions.appendChild(pin);
+    actions.appendChild(remove);
+    modal.appendChild(head);
+    modal.appendChild(actions);
+    backdrop.appendChild(modal);
+    document.body.appendChild(backdrop);
+    const closeModal = () => backdrop.remove();
+    close.addEventListener('click', closeModal);
+    backdrop.addEventListener('click', event => { if (event.target === backdrop) closeModal(); });
+    edit.addEventListener('click', async () => {
+      const value = prompt('编辑对话名称', conv.title);
+      if (value !== null && value.trim()) {
+        conv.title = value.trim();
+        conv.updatedAt = now();
+        saveState();
+        if (conv.sessionId && state.token) {
+          fetch(API + '/sessions/' + conv.sessionId, {
+            method: 'PATCH',
+            headers: { Authorization: 'Bearer ' + state.token, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: conv.title })
+          }).catch(() => {});
+        }
+        renderMode(mode);
+        renderHistory(mode);
+        renderProjects();
+      }
+      closeModal();
+    });
+    pin.addEventListener('click', () => {
+      conv.pinned = !conv.pinned;
+      saveState();
+      renderMode(mode);
+      renderHistory(mode);
+      renderProjects();
+      closeModal();
+    });
+    remove.addEventListener('click', async () => {
+      if (!confirm('确定删除这个对话吗？')) return;
+      const sessionId = conv.sessionId;
+      state.conversations = state.conversations.filter(item => item.id !== conv.id);
+      state.active[mode] = null;
+      saveState();
+      renderMode(mode);
+      renderHistory(mode);
+      renderProjects();
+      if (sessionId && state.token) {
+        fetch(API + '/sessions/' + sessionId, { method: 'DELETE', headers: { Authorization: 'Bearer ' + state.token } }).catch(() => {});
+      }
+      closeModal();
+    });
+  }
   function setupConversationMenu(mode) {
     const cfg = modes[mode];
     cfg.menuBtn.addEventListener('click', event => {
       event.stopPropagation();
-      closeMenus();
-      if (!cfg.menuBtn.disabled) cfg.menu.classList.add('open');
-    });
-    cfg.menu.addEventListener('click', async event => {
-      const action = event.target.dataset.action;
-      if (!action) return;
-      const conv = activeConversation(mode);
-      if (!conv) return;
-      if (action === 'rename') {
-        const value = prompt('编辑对话名称', conv.title);
-        if (value !== null && value.trim()) {
-          conv.title = value.trim();
-          conv.updatedAt = now();
-          saveState();
-          renderMode(mode);
-          renderHistory(mode);
-          renderProjects();
-        }
-      }
-      if (action === 'pin') {
-        conv.pinned = !conv.pinned;
-        saveState();
-        updateMenuLabel(mode);
-        renderHistory(mode);
-        renderProjects();
-      }
-      if (action === 'delete') {
-        if (confirm('确定删除这个对话吗？')) {
-          const sessionId = conv.sessionId;
-          state.conversations = state.conversations.filter(item => item.id !== conv.id);
-          state.active[mode] = null;
-          saveState();
-          renderMode(mode);
-          renderHistory(mode);
-          renderProjects();
-          if (sessionId && state.token) {
-            fetch(API + '/sessions/' + sessionId, { method: 'DELETE', headers: { Authorization: 'Bearer ' + state.token } }).catch(async () => {});
-          }
-        }
-      }
-      closeMenus();
+      if (!cfg.menuBtn.disabled) openConversationSettings(mode);
     });
   }
-  async function sendMessage(mode) {
+    function renderAttachments(mode) {
+    const box = document.getElementById(mode + 'Attachments');
+    if (!box) return;
+    box.innerHTML = '';
+    (state.attachments[mode] || []).forEach(file => {
+      const chip = document.createElement('div');
+      chip.className = 'attachment-chip';
+      const name = document.createElement('span');
+      name.textContent = file.name;
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.textContent = '×';
+      remove.addEventListener('click', () => {
+        state.attachments[mode] = state.attachments[mode].filter(item => item.id !== file.id);
+        renderAttachments(mode);
+      });
+      chip.appendChild(name);
+      chip.appendChild(remove);
+      box.appendChild(chip);
+    });
+  }
+  async function uploadAttachments(mode, files) {
+    if (!files.length) return;
+    try {
+      await ensureToken();
+      for (const file of files) {
+        const form = new FormData();
+        form.append('file', file);
+        const res = await fetch(API + '/files/upload', {
+          method: 'POST',
+          headers: { Authorization: 'Bearer ' + state.token },
+          body: form
+        });
+        if (!res.ok) throw new Error('附件上传失败');
+        const data = await res.json();
+        state.attachments[mode].push({ id: data.id, name: data.filename || file.name, size: data.size ?? file.size, type: data.content_type || file.type });
+      }
+      renderAttachments(mode);
+    } catch (error) {
+      console.error(error);
+      alert('附件上传失败，请稍后重试');
+    }
+  }
+  function clearAttachments(mode) {
+    state.attachments[mode] = [];
+    renderAttachments(mode);
+  }
+    async function sendMessage(mode) {
     const cfg = modes[mode];
     const text = cfg.input.value.trim();
     if (!text || cfg.send.disabled) return;
@@ -1033,7 +1236,9 @@
     try {
       await ensureConversationSession(conv);
       const project = conv.projectId ? state.projects.find(item => item.id === conv.projectId) : null;
-      const fileIds = mode === 'work' && project ? (project.files || []).map(file => file.id).filter(Boolean) : [];
+      const projectFileIds = mode === 'work' && project ? (project.files || []).map(file => file.id).filter(Boolean) : [];
+      const attachmentIds = (state.attachments[mode] || []).map(file => file.id).filter(Boolean);
+      const fileIds = [...new Set([...projectFileIds, ...attachmentIds])];
       const apiConfig = loadJSON('wa_api_config_v1', {});
       const payload = {
         session_id: conv.sessionId,
@@ -1107,6 +1312,7 @@
         finish('思考已完成');
         renderHistory(mode);
         renderProjects();
+        clearAttachments(mode);
       } else {
         live.bubble.classList.remove('thinking');
         live.bubble.innerHTML = '⚠️ 未收到回复，请稍后重试。';
@@ -1240,6 +1446,7 @@
     state.token = data.access_token;
     localStorage.setItem(TOKEN_KEY, state.token);
     localStorage.setItem('user', JSON.stringify({ id: data.user_id, display_name: data.display_name }));
+    await loadUserProfile();
     await loadProjectsFromServer();
     show('chat');
   }
@@ -1274,6 +1481,7 @@
     guestLoginBtn.disabled = true;
     try {
       await ensureToken(true);
+      await loadUserProfile();
       await loadProjectsFromServer();
       show('chat');
     } catch (error) {
@@ -1283,16 +1491,80 @@
       guestLoginBtn.disabled = false;
     }
   });
-  window.addEventListener('resize', () => {
+  const profileChip = $('#profileChip');
+  if (profileChip) profileChip.addEventListener('click', () => {
+    show('settings');
+    $$('.settings-nav button').forEach(btn => btn.classList.toggle('active', btn.dataset.setting === 'user'));
+    $$('.settings-section').forEach(section => section.classList.toggle('active', section.dataset.settingPanel === 'user'));
+    updateProfileUI();
+  });
+  $$('.avatar-color').forEach(btn => btn.addEventListener('click', () => {
+    state.avatarColor = btn.dataset.avatarColor;
+    localStorage.setItem('profile_avatar_color', state.avatarColor);
+    updateProfileUI();
+  }));
+  const saveProfileBtn = $('#saveProfileBtn');
+  if (saveProfileBtn) saveProfileBtn.addEventListener('click', async () => {
+    const input = $('#profileNameInput');
+    const name = input.value.trim();
+    const message = $('#profileMessage');
+    if (!name) { message.textContent = '显示名称不能为空'; message.classList.add('error'); return; }
+    saveProfileBtn.disabled = true;
+    try {
+      await ensureToken();
+      const res = await fetch(API + '/auth/me', {
+        method: 'PATCH',
+        headers: { Authorization: 'Bearer ' + state.token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ display_name: name })
+      });
+      if (!res.ok) throw new Error('保存失败');
+      state.user = { ...state.user, display_name: name };
+      localStorage.setItem('user', JSON.stringify(state.user));
+      updateProfileUI();
+      message.textContent = '用户信息已保存';
+      message.classList.remove('error');
+    } catch (error) {
+      console.error(error);
+      message.textContent = '保存失败，请稍后重试';
+      message.classList.add('error');
+    } finally {
+      saveProfileBtn.disabled = false;
+    }
+  });
+  const saveApiConfigBtn = $('#saveApiConfigBtn');
+  if (saveApiConfigBtn) saveApiConfigBtn.addEventListener('click', () => {
+    const config = {
+      display_name: $('#apiDisplayName').value.trim(),
+      model: $('#apiModel').value.trim(),
+      api_base_url: $('#apiBaseUrl').value.trim(),
+      api_key: $('#apiKey').value.trim()
+    };
+    localStorage.setItem('wa_api_config_v1', JSON.stringify(config));
+    const message = $('#apiConfigMessage');
+    message.textContent = 'API 配置已保存';
+    message.classList.remove('error');
+  });
+    [['chat', 'chatAttachBtn', 'chatFileInput'], ['work', 'workAttachBtn', 'workFileInput']].forEach(([mode, buttonId, inputId]) => {
+    const button = document.getElementById(buttonId);
+    const input = document.getElementById(inputId);
+    if (!button || !input) return;
+    button.addEventListener('click', () => input.click());
+    input.addEventListener('change', () => {
+      uploadAttachments(mode, [...input.files]);
+      input.value = '';
+    });
+  });
+    window.addEventListener('resize', () => {
     if (innerWidth > 900) ui.secondary.classList.remove('open');
     else if (!ui.secondary.classList.contains('collapsed') && !ui.secondary.classList.contains('hidden')) ui.secondary.classList.add('open');
     syncOverlay();
   });
   setPrimaryCollapsed(true);
   if (state.token) {
-    try { await loadProjectsFromServer(); } catch (error) { console.error(error); }
+    try { await loadUserProfile(); await loadProjectsFromServer(); } catch (error) { console.error(error); }
     show('chat');
   } else {
+    updateProfileUI();
     show('login');
   }
   if (innerWidth <= 900) setSecondaryOpen(false);
