@@ -1,6 +1,6 @@
 """Auth routes 鈥?register, login, JWT token issuance."""
 import bcrypt
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.database import get_db
@@ -80,6 +80,51 @@ async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)):
 
 class GuestRequest(BaseModel):
     pass  # no fields needed
+
+
+class ProfileUpdate(BaseModel):
+    display_name: str
+
+
+class ProfileOut(BaseModel):
+    user_id: str
+    email: str
+    display_name: str
+    is_guest: bool = False
+
+
+@router.get("/me", response_model=ProfileOut)
+async def get_me(request: Request, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(User).where(User.id == request.state.user_id))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return ProfileOut(
+        user_id=user.id,
+        email=user.email,
+        display_name=user.display_name,
+        is_guest=user.email.endswith("@anonymous.local"),
+    )
+
+
+@router.patch("/me", response_model=ProfileOut)
+async def update_me(req: ProfileUpdate, request: Request, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(User).where(User.id == request.state.user_id))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    name = req.display_name.strip()
+    if not name:
+        raise HTTPException(status_code=422, detail="显示名称不能为空")
+    user.display_name = name[:80]
+    await db.commit()
+    await db.refresh(user)
+    return ProfileOut(
+        user_id=user.id,
+        email=user.email,
+        display_name=user.display_name,
+        is_guest=user.email.endswith("@anonymous.local"),
+    )
 
 
 @router.post("/guest", response_model=TokenResponse)
